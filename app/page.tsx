@@ -18,7 +18,7 @@ const C = {
   border:"rgba(0,212,255,0.15)",borderSoft:"rgba(255,255,255,0.06)"
 };
 const WA = "573057876992";
-const openWA = n => window.open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hola, vi *${n}* en ComparaTuPlan y quiero más información 🚀`)}`, "_blank");
+const openWA = (n: string) => window.open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hola, vi *${n}* en ComparaTuPlan y quiero más información 🚀`)}`, "_blank");
 
 /* ═══ ATOMS ═══ */
 const WaIco = ({s=14}) => (
