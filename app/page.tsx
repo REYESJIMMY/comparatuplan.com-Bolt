@@ -1004,6 +1004,140 @@ const QuizFlow = ({onBack}) => {
 };
 
 /* ═══ QUICK ACCESS SIDEBAR ═══ */
+/* ═══ VIDEO CAROUSEL ═══ */
+const VIDEOS = [
+  { src: "/videos/Video 1 Compara y avatar.mp4", title: "Compara y Elige", desc: "Encuentra tu plan ideal" },
+  { src: "/videos/Video 2 Multidispositivo.mp4", title: "Multi-dispositivo", desc: "Conecta toda tu familia" },
+  { src: "/videos/Video3 El Gamer.mp4",          title: "El Gamer",         desc: "Latencia ultra-baja" },
+  { src: "/videos/Video 4 El teletrabajador.mp4",title: "Teletrabajador",   desc: "Estabilidad máxima" },
+  { src: "/videos/Video 5 El Nomada.mp4",        title: "Nómada Digital",   desc: "Datos sin límite" },
+];
+
+const VideoCarousel = () => {
+  const [current, setCurrent]   = useState(0);
+  const [muted, setMuted]       = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const videoRefs               = useRef([]);
+  const timerRef                = useRef(null);
+
+  const goTo = (idx) => {
+    const prev = videoRefs.current[current];
+    if (prev) { prev.pause(); prev.currentTime = 0; }
+    setCurrent(idx);
+  };
+
+  useEffect(() => {
+    const vid = videoRefs.current[current];
+    if (!vid) return;
+    vid.muted  = muted;
+    vid.currentTime = 0;
+    if (isPlaying) vid.play().catch(() => {});
+
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      goTo((current + 1) % VIDEOS.length);
+    }, 6200);
+
+    return () => clearTimeout(timerRef.current);
+  }, [current, isPlaying]);
+
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => { if (v) v.muted = muted; });
+  }, [muted]);
+
+  const togglePlay = () => {
+    const vid = videoRefs.current[current];
+    if (!vid) return;
+    if (isPlaying) { vid.pause(); setIsPlaying(false); }
+    else           { vid.play().catch(() => {}); setIsPlaying(true); }
+  };
+
+  return (
+    <div style={{
+      position: "relative", width: "100%", borderRadius: 18, overflow: "hidden",
+      border: `1px solid rgba(0,212,255,0.2)`,
+      boxShadow: "0 0 60px rgba(0,212,255,0.1), 0 24px 80px rgba(0,0,0,0.6)",
+      background: "#04040f", aspectRatio: "16/9",
+    }}>
+      {VIDEOS.map((v, i) => (
+        <video
+          key={i}
+          ref={el => videoRefs.current[i] = el}
+          src={v.src}
+          muted={muted}
+          playsInline
+          loop={false}
+          preload="auto"
+          style={{
+            position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "cover",
+            opacity: i === current ? 1 : 0,
+            transition: "opacity 0.6s ease",
+            zIndex: i === current ? 1 : 0,
+          }}
+        />
+      ))}
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
+        background: "linear-gradient(to top, rgba(4,4,15,0.85) 0%, rgba(4,4,15,0.2) 40%, transparent 70%)",
+      }}/>
+      <div style={{
+        position: "absolute", top: 12, right: 12, zIndex: 10,
+        display: "flex", gap: 7, alignItems: "center",
+      }}>
+        <button onClick={togglePlay} style={{
+          width: 32, height: 32, borderRadius: "50%",
+          background: "rgba(4,4,15,0.7)", border: "1px solid rgba(0,212,255,0.3)",
+          color: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
+          justifyContent: "center", backdropFilter: "blur(8px)", fontSize: 12,
+          transition: "all .2s",
+        }}>
+          {isPlaying ? "⏸" : "▶"}
+        </button>
+        <button onClick={() => setMuted(m => !m)} style={{
+          width: 32, height: 32, borderRadius: "50%",
+          background: muted ? "rgba(4,4,15,0.7)" : "rgba(0,212,255,0.25)",
+          border: `1px solid ${muted ? "rgba(255,255,255,0.15)" : "rgba(0,212,255,0.5)"}`,
+          color: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
+          justifyContent: "center", backdropFilter: "blur(8px)", fontSize: 14,
+          transition: "all .2s",
+        }}>
+          {muted ? "🔇" : "🔊"}
+        </button>
+      </div>
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10,
+        padding: "12px 16px",
+        display: "flex", alignItems: "flex-end", justifyContent: "space-between",
+      }}>
+        <div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 13, textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>{VIDEOS[current].title}</div>
+          <div style={{ color: "rgba(0,212,255,0.8)", fontSize: 10, fontWeight: 600, marginTop: 2 }}>{VIDEOS[current].desc}</div>
+        </div>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {VIDEOS.map((_, i) => (
+            <button key={i} onClick={() => goTo(i)} style={{
+              width: i === current ? 20 : 6, height: 6, borderRadius: 99,
+              border: "none", cursor: "pointer",
+              background: i === current ? "#00d4ff" : "rgba(255,255,255,0.3)",
+              transition: "all .3s", padding: 0,
+            }}/>
+          ))}
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 11,
+        height: 2, background: "rgba(255,255,255,0.1)",
+      }}>
+        <div key={current} style={{
+          height: "100%", background: "linear-gradient(90deg,#00d4ff,#a855f7)",
+          borderRadius: 99,
+          animation: isPlaying ? "videoProgress 6.2s linear forwards" : "none",
+        }}/>
+      </div>
+    </div>
+  );
+};
 const QuickCards = () => (
   <div style={{display:"flex",flexDirection:"column",gap:9}}>
     {[
@@ -1065,6 +1199,7 @@ export default function App() {
         @keyframes slideRight{from{transform:translateX(100%)}to{transform:translateX(0)}}
         @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.7}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes videoProgress{from{width:0%}to{width:100%}}
         input::placeholder{color:rgba(180,190,220,0.3)}
         input,select,button{font-family:'Inter',system-ui,sans-serif}
         select option{background:#080620;color:#fff}
@@ -1095,6 +1230,9 @@ export default function App() {
               {/* HERO */}
               <section style={{position:"relative",borderRadius:20,overflow:"hidden",border:`1px solid ${C.border}`,background:"rgba(6,4,22,0.7)",padding:"48px 32px 40px",minHeight:330}}>
                 <Particles count={30}/>
+                <div style={{marginBottom:20}}>
+                  <VideoCarousel/>
+                </div>
                 <div style={{position:"relative",zIndex:2}}>
                   <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(0,212,255,0.08)",border:`1px solid ${C.border}`,borderRadius:99,padding:"5px 14px",marginBottom:16}}>
                     <span style={{width:6,height:6,borderRadius:"50%",background:C.green,display:"inline-block",animation:"blink 1.5s infinite"}}/>
