@@ -1008,7 +1008,7 @@ const QuizFlow = ({onBack}) => {
 const VIDEOS = [
   { src: "https://res.cloudinary.com/dp5buhuez/video/upload/Video_2_Multidispositivo_k5b14q.mp4", title: "Multi-dispositivo", desc: "Conecta toda tu familia" },
   { src: "https://res.cloudinary.com/dp5buhuez/video/upload/Video3_El_Gamer_zdlpyw.mp4", title: "El Gamer", desc: "Latencia ultra-baja" },
-  { src: "https://res.cloudinary.com/dp5buhuez/video/upload/Video_4_El_teletrabajador_vb1foq.mp4", title: "Teletrabajador", desc: "Estabilidad máxima" },
+  { src: "https://res.cloudinary.com/dp5buhuez/video/upload/Video_4_El_Teletrabajador_hllnzu.mp4", title: "Teletrabajador", desc: "Estabilidad máxima" },
   { src: "https://res.cloudinary.com/dp5buhuez/video/upload/Video_5_El_Nomada_fovhh3.mp4", title: "Nómada Digital", desc: "Datos sin límite" },
 ];
 
