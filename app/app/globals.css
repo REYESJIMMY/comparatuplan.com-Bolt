@@ -1,0 +1,93 @@
+/* ── Reset & base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --header-h: 95px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #04040f;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 5px; background: #04040f; }
+::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 99px; }
+
+input, select, button, textarea { font-family: inherit; }
+input::placeholder { color: rgba(180,190,220,0.3); }
+select option { background: #080620; color: #fff; }
+
+@keyframes megaIn   { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes blink    { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+@keyframes pulse    { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.3); opacity:.7; } }
+@keyframes fadeUp   { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideLeft{ from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.page-wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 26px 20px 60px;
+  animation: fadeUp .45s ease-out;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 310px;
+  gap: 24px;
+  align-items: start;
+}
+.main-col { display: flex; flex-direction: column; gap: 28px; }
+.side-col  { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 106px; }
+
+/* ── Mobile nav overlay ──────────────────────────────────────── */
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 490;
+  background: rgba(4,4,15,0.98);
+  backdrop-filter: blur(20px);
+  padding: 80px 20px 40px;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 6px;
+}
+.mobile-nav-overlay.open { display: flex; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .side-col {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  :root { --header-h: 60px; }
+  .desktop-nav    { display: none !important; }
+  .desktop-topbar { display: none !important; }
+  .mobile-menu-btn{ display: flex !important; }
+  .side-col       { grid-template-columns: 1fr; }
+  .hero-actions   { flex-direction: column; }
+  .hero-actions > * { width: 100%; }
+  .gameflow-split {
+    grid-template-columns: 1fr !important;
+  }
+  .gameflow-devices-panel {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-wrap   { padding: 12px 12px 40px; }
+  .plan-grid   { grid-template-columns: 1fr !important; }
+  .offers-grid { grid-template-columns: repeat(2,1fr) !important; }
+}
