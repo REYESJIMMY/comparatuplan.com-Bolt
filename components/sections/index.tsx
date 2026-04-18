@@ -6,9 +6,9 @@ import { GlowBtn, WABtn, Card, Chip, Particles } from "@/components/ui";
 
 /* ── Hero ────────────────────────────────────────────────────── */
 interface HeroProps {
-  onGame:    () => void;   // Abre GameFlow Hogar
-  onMovil:   () => void;   // Abre MovilFlow
-  onSegment: () => void;   // Abre SegmentSelector (Hogar | Móvil)
+  onGame:    () => void;
+  onMovil:   () => void;
+  onSegment: () => void;
   addToCart: (item: any) => void;
 }
 
@@ -36,11 +36,10 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
           Ahorra hasta un <strong style={{ color: "#fff" }}>40% en tu factura</strong>. Análisis inteligente de planes en segundos.
         </p>
 
-        {/* Autorización de datos — con texto de política real */}
+        {/* Autorización de datos */}
         <div style={{ background: "rgba(0,212,255,0.04)", border: `1px solid ${C.border}`, borderRadius: 11, padding: "12px 15px", marginBottom: 20, maxWidth: 420 }}>
           <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1, marginBottom: 9 }}>AUTORIZACIÓN DE DATOS</div>
 
-          {/* Mayor de edad */}
           <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", marginBottom: 7 }}>
             <div
               onClick={() => setMayor(!mayor)}
@@ -51,7 +50,6 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
             <span style={{ color: "rgba(180,190,220,0.65)", fontSize: 11, fontWeight: 600 }}>Soy mayor de edad (18+)</span>
           </label>
 
-          {/* Habeas Data — con enlace a política */}
           <label style={{ display: "flex", alignItems: "flex-start", gap: 9, cursor: "pointer" }}>
             <div
               onClick={() => setHabea(!habea)}
@@ -77,8 +75,6 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
 
         {/* CTA buttons */}
         <div className="hero-actions" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
-
-          {/* BOTÓN PRINCIPAL — Consulta tu Cobertura (reemplaza Comparar Planes) */}
           <div>
             <GlowBtn
               onClick={onSegment}
@@ -96,7 +92,6 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
             </div>
           </div>
 
-          {/* Diseñar Hogar Digital */}
           <div>
             <GlowBtn
               onClick={onGame}
@@ -127,14 +122,16 @@ const FEATURED = [
   { op: "ETB",      name: "Fibra Social",    price: 0,      speed: 30,  benefits: ["Estrato 1 y 2", "Sin costo mensual", "Inst. gratis"], glow: C.green,   emoji: "🟡", badge: "GRATIS" },
 ];
 
-export const FeaturedPlans = ({ onSegment, addToCart }: { onSegment: () => void; addToCart: (item: any) => void }) => (
+export const FeaturedPlans = ({ onSegment, addToCart }: { onSegment?: () => void; addToCart: (item: any) => void }) => (
   <section>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
       <div>
         <Chip color={C.neon2}>PLANES DESTACADOS</Chip>
         <h2 style={{ fontWeight: 900, fontSize: "clamp(1.1rem,3vw,1.5rem)", marginTop: 8, color: "#fff" }}>Los mejores del mercado</h2>
       </div>
-      <GlowBtn onClick={onSegment} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "7px 14px", fontSize: 11, borderRadius: 9 }}>Ver todos →</GlowBtn>
+      {onSegment && (
+        <GlowBtn onClick={onSegment} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "7px 14px", fontSize: 11, borderRadius: 9 }}>Ver todos →</GlowBtn>
+      )}
     </div>
     <div className="plan-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 14 }}>
       {FEATURED.map((p, i) => (
@@ -142,7 +139,7 @@ export const FeaturedPlans = ({ onSegment, addToCart }: { onSegment: () => void;
           onMouseEnter={(e: any) => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 28px ${p.glow}18`; }}
           onMouseLeave={(e: any) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = `0 0 24px ${p.glow}12`; }}
         >
-          {p.badge && <div style={{ position: "absolute", top: 0, right: 12, background: `linear-gradient(135deg,${p.glow},${p.glow}99)`, color: "#fff", fontSize: 8, fontWeight: 900, padding: "3px 9px", borderRadius: "0 0 7px 7px" }}>{p.badge}</div>}
+          {(p as any).badge && <div style={{ position: "absolute", top: 0, right: 12, background: `linear-gradient(135deg,${p.glow},${p.glow}99)`, color: "#fff", fontSize: 8, fontWeight: 900, padding: "3px 9px", borderRadius: "0 0 7px 7px" }}>{(p as any).badge}</div>}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
             <span style={{ fontSize: 14 }}>{p.emoji}</span>
             <span style={{ color: p.glow, fontWeight: 800, fontSize: 11 }}>{p.op}</span>
@@ -174,27 +171,165 @@ export const FeaturedPlans = ({ onSegment, addToCart }: { onSegment: () => void;
   </section>
 );
 
-/* ── Companies, Offers, SocialSection, Blog — sin cambios ───── */
-export { Companies, Offers, SocialSection, Blog } from "./sections_unchanged";
+/* ── Companies ───────────────────────────────────────────────── */
+export const Companies = () => (
+  <section>
+    <Chip color={C.cyan}>SOLUCIONES EMPRESARIALES</Chip>
+    <h2 style={{ fontWeight: 900, fontSize: "clamp(1.1rem,3vw,1.5rem)", margin: "8px 0 14px", color: "#fff" }}>Comunicaciones para tu negocio</h2>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 12 }}>
+      {[
+        { emoji: "☎️", name: "PBX Virtual",     desc: "Central telefónica en la nube sin hardware.",  price: "Desde $89.900/mes",  color: C.neon },
+        { emoji: "💬", name: "WhatsApp IA",      desc: "Chatbots inteligentes y automatización 24/7.", price: "Desde $149.900/mes", color: C.green },
+        { emoji: "🎙️", name: "VoIP Empresarial", desc: "Llamadas IP con alta calidad y bajo costo.",  price: "Desde $59.900/mes",  color: C.cyan },
+      ].map((s, i) => (
+        <Card key={i} glow={s.color} style={{ padding: 18, cursor: "pointer" }}
+          onMouseEnter={(e: any) => e.currentTarget.style.transform = "translateY(-3px)"}
+          onMouseLeave={(e: any) => e.currentTarget.style.transform = ""}
+        >
+          <div style={{ fontSize: 26, marginBottom: 9 }}>{s.emoji}</div>
+          <div style={{ color: s.color, fontWeight: 800, fontSize: 13, marginBottom: 5 }}>{s.name}</div>
+          <div style={{ color: C.muted, fontSize: 11, marginBottom: 9, lineHeight: 1.5 }}>{s.desc}</div>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: 11, marginBottom: 11 }}>{s.price}</div>
+          <WABtn name={s.name} label="Solicitar info" full style={{ borderRadius: 8, fontSize: 11, padding: "8px" }} />
+        </Card>
+      ))}
+    </div>
+  </section>
+);
 
-/* ── Sidebar actualizado ─────────────────────────────────────── */
+/* ── Offers ──────────────────────────────────────────────────── */
+export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
+  const items = [
+    { name: "Router WiFi 6 AX3000", price: 189900, old: 289900, emoji: "📡", badge: "-34%", color: C.neon },
+    { name: "Repetidor Mesh Tenda",  price: 89900,  old: 129900, emoji: "📶", badge: "-31%", color: C.cyan },
+    { name: "Cable Cat8 10m",        price: 29900,  old: 45900,  emoji: "🌐", badge: "-35%", color: C.green },
+    { name: "Gaming Mouse 25K",      price: 149900, old: 249900, emoji: "🖱️", badge: "-40%", color: C.red },
+    { name: "Auriculares ANC Pro",   price: 119900, old: 199900, emoji: "🎧", badge: "-40%", color: C.neon2 },
+    { name: "Cargador 65W GaN",      price: 49900,  old: 79900,  emoji: "🔋", badge: "-37%", color: C.yellow },
+  ];
+  return (
+    <section>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <div>
+          <Chip color={C.red}>🔥 OFERTAS ESPECIALES</Chip>
+          <h2 style={{ fontWeight: 900, fontSize: "clamp(1.1rem,3vw,1.5rem)", marginTop: 8, color: "#fff" }}>Equipos y accesorios tech</h2>
+        </div>
+        <span style={{ color: C.red, fontSize: 11, fontWeight: 800, animation: "blink 2s infinite" }}>⚡ Solo hoy</span>
+      </div>
+      <div className="offers-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 11 }}>
+        {items.map((item, i) => (
+          <div
+            key={i}
+            style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${item.color}18`, borderRadius: 13, padding: "13px 11px", cursor: "pointer", transition: "all .2s", position: "relative" }}
+            onMouseEnter={(e: any) => { e.currentTarget.style.border = `1px solid ${item.color}44`; e.currentTarget.style.transform = "translateY(-3px)"; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.border = `1px solid ${item.color}18`; e.currentTarget.style.transform = ""; }}
+          >
+            <div style={{ position: "absolute", top: 7, left: 7, background: C.red, color: "#fff", borderRadius: 6, padding: "2px 6px", fontSize: 9, fontWeight: 900 }}>{item.badge}</div>
+            <div style={{ fontSize: 28, textAlign: "center", margin: "16px 0 9px" }}>{item.emoji}</div>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: 11, marginBottom: 4, textAlign: "center", lineHeight: 1.3 }}>{item.name}</div>
+            <div style={{ textAlign: "center", marginBottom: 8 }}>
+              <span style={{ color: item.color, fontWeight: 900, fontSize: 13 }}>${item.price.toLocaleString()}</span>
+              <span style={{ color: C.muted, fontSize: 9, textDecoration: "line-through", marginLeft: 5 }}>${item.old.toLocaleString()}</span>
+            </div>
+            <button
+              onClick={() => addToCart({ id: `offer-${i}`, name: item.name, price: item.price, emoji: item.emoji, color: item.color, qty: 1 })}
+              style={{ width: "100%", background: `${item.color}12`, border: `1px solid ${item.color}28`, borderRadius: 7, padding: "6px 0", color: item.color, fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+            >
+              <ShoppingCart size={10} />Agregar
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ── ETB Social ──────────────────────────────────────────────── */
+export const SocialSection = () => (
+  <section>
+    <Card glow={C.green} style={{ padding: "28px 26px", background: "linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.03))" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "center" }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 9 }}>
+            <Shield size={20} color={C.green} />
+            <Chip color={C.green}>PROGRAMA SOCIAL ETB · GRATUITO</Chip>
+          </div>
+          <h2 style={{ fontWeight: 900, fontSize: "clamp(1.1rem,3vw,1.4rem)", marginBottom: 7, color: "#fff" }}>Conexión Social ETB</h2>
+          <p style={{ color: C.muted, marginBottom: 14, fontSize: 12, lineHeight: 1.6, maxWidth: 420 }}>
+            Programa del Distrito de Bogotá para hogares de bajos recursos. Internet de alta velocidad{" "}
+            <strong style={{ color: C.green }}>completamente gratuito</strong>. Estrato 1 y 2.
+          </p>
+          <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+            <input type="text" placeholder="Número de cédula" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid rgba(16,185,129,0.25)`, borderRadius: 9, padding: "9px 13px", color: "#fff", fontSize: 12, outline: "none", width: 175 }} />
+            <GlowBtn onClick={() => window.open("https://sites.google.com/etb.com.co/portalcs", "_blank")} gradient="linear-gradient(135deg,#10b981,#059669)" glow={C.green} style={{ borderRadius: 9, padding: "9px 16px", fontSize: 12 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Search size={12} />Consultar</span>
+            </GlowBtn>
+          </div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 52 }}>🏠</div>
+          <div style={{ color: C.green, fontWeight: 900, fontSize: 20, marginTop: 4 }}>$0<span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>/mes</span></div>
+        </div>
+      </div>
+    </Card>
+  </section>
+);
+
+/* ── Blog ────────────────────────────────────────────────────── */
+export const Blog = () => {
+  const posts = [
+    { e: "📡", t: "WiFi 6 vs WiFi 5: ¿Vale la pena?", tag: "Tecnología",  min: 4 },
+    { e: "💡", t: "5 tips para mejorar tu señal",      tag: "Tips",        min: 3 },
+    { e: "🔒", t: "Cómo proteger tu red doméstica",    tag: "Seguridad",   min: 5 },
+    { e: "📱", t: "Mejores planes móviles 2025",       tag: "Comparativa", min: 6 },
+  ];
+  return (
+    <section>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+        <BookOpen size={15} color={C.neon} />
+        <span style={{ color: "#fff", fontWeight: 800, fontSize: 14 }}>Blog & Tips</span>
+        <Chip color={C.neon}>NEW</Chip>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 11 }}>
+        {posts.map((p, i) => (
+          <div
+            key={i}
+            style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${C.borderSoft}`, borderRadius: 11, padding: "12px 13px", cursor: "pointer", transition: "all .15s", display: "flex", gap: 10, alignItems: "center" }}
+            onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.05)"; e.currentTarget.style.borderColor = C.border; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = C.borderSoft; }}
+          >
+            <span style={{ fontSize: 22, flexShrink: 0 }}>{p.e}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: "#fff", fontWeight: 700, fontSize: 12, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.t}</div>
+              <div style={{ display: "flex", gap: 7 }}>
+                <Chip color={C.neon}>{p.tag}</Chip>
+                <span style={{ color: C.muted, fontSize: 9, alignSelf: "center" }}>📖 {p.min} min</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
 interface SidebarProps {
   onSearch:  () => void;
-  onGame:    () => void;    // GameFlow Hogar
-  onMovil:   () => void;    // MovilFlow
-  onSegment: () => void;    // SegmentSelector
+  onGame:    () => void;
+  onMovil:   () => void;
+  onSegment: () => void;
 }
 export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) => (
   <aside className="side-col">
-    {/* Quick access */}
     <div>
       <div style={{ color: "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 9 }}>ACCESOS RÁPIDOS</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {[
-          { emoji: "📡", title: "Internet Hogar",  desc: "Fibra desde $59.900",    color: C.neon,   action: onGame    },
-          { emoji: "📱", title: "Planes Móviles",  desc: "Datos ilimitados",        color: C.neon2,  action: onMovil   },
-          { emoji: "📺", title: "TV + Streaming",  desc: "Combos desde $89.900",   color: C.cyan,   action: onSegment },
-          { emoji: "🏠", title: "Hogar Digital",   desc: "Diseña tu red ideal",     color: C.yellow, action: onGame    },
+          { emoji: "📡", title: "Internet Hogar",  desc: "Fibra desde $59.900",  color: C.neon,   action: onGame    },
+          { emoji: "📱", title: "Planes Móviles",  desc: "Datos ilimitados",      color: C.neon2,  action: onMovil   },
+          { emoji: "📺", title: "TV + Streaming",  desc: "Combos desde $89.900", color: C.cyan,   action: onSegment },
+          { emoji: "🏠", title: "Hogar Digital",   desc: "Diseña tu red ideal",   color: C.yellow, action: onGame    },
         ].map((item, i) => (
           <div
             key={i}
@@ -213,7 +348,6 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       </div>
     </div>
 
-    {/* Search */}
     <div style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${C.borderSoft}`, borderRadius: 13, padding: "13px 13px" }}>
       <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 8 }}>BUSCAR PLANES</div>
       <div
@@ -228,7 +362,6 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       </div>
     </div>
 
-    {/* Stats */}
     <div style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${C.borderSoft}`, borderRadius: 13, padding: "13px 13px" }}>
       <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 11 }}>ESTADÍSTICAS HOY</div>
       {[
@@ -244,7 +377,6 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       ))}
     </div>
 
-    {/* Refiere & Gana */}
     <div style={{ background: "linear-gradient(135deg,rgba(102,0,204,0.15),rgba(236,72,153,0.1))", border: `1px solid rgba(168,85,247,0.25)`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
       <div style={{ fontSize: 30, marginBottom: 7 }}>🎁</div>
       <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Refiere & Gana</div>
@@ -252,7 +384,6 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       <WABtn name="programa Refiere y Gana" label="Inscribirte Gratis" full style={{ borderRadius: 9, fontSize: 11, padding: "8px 12px" }} />
     </div>
 
-    {/* Hogar Digital CTA */}
     <div style={{ background: "linear-gradient(135deg,rgba(0,80,170,0.15),rgba(0,212,255,0.08))", border: `1px solid ${C.border}`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
       <div style={{ fontSize: 30, marginBottom: 7 }}>🏠</div>
       <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Diseñar Hogar Digital</div>
@@ -260,4 +391,25 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       <GlowBtn onClick={onGame} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ width: "100%", borderRadius: 9, fontSize: 11, padding: "8px 12px" }}>🚀 Iniciar Misión</GlowBtn>
     </div>
   </aside>
+);
+
+/* ── QuizFlow placeholder ────────────────────────────────────── */
+export const QuizFlow = ({ onBack }: { onBack: () => void }) => (
+  <div style={{ textAlign: "center", padding: "60px 20px", color: "#fff" }}>
+    <div style={{ fontSize: 52, marginBottom: 16 }}>🔍</div>
+    <h2 style={{ fontWeight: 900, fontSize: "1.6rem", marginBottom: 12, background: "linear-gradient(90deg,#00d4ff,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+      Comparador de Planes
+    </h2>
+    <p style={{ color: "rgba(180,195,230,0.6)", marginBottom: 24, fontSize: 14 }}>
+      Próximamente: comparador inteligente con filtros avanzados.
+    </p>
+    <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+      <GlowBtn onClick={() => window.location.href = "/planes"} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "11px 24px", borderRadius: 11 }}>
+        Ver catálogo completo →
+      </GlowBtn>
+      <button onClick={onBack} style={{ padding: "11px 20px", borderRadius: 11, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+        ← Volver
+      </button>
+    </div>
+  </div>
 );
