@@ -211,6 +211,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         .from("planes_unicos")
         .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
         .in("tipo", res.tiposRelevantes)
+        .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
         .order("precio", { ascending: true })
         .limit(500);
 
