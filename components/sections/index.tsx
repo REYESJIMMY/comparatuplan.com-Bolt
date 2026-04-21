@@ -382,13 +382,7 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       <div style={{ color: C.muted, fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Premios · Cashback<br />Bonos Sodexo y más</div>
       <WABtn name="programa Refiere y Gana" label="Inscribirte Gratis" full style={{ borderRadius: 9, fontSize: 11, padding: "8px 12px" }} />
     </div>
-
-    <div style={{ background: "linear-gradient(135deg,rgba(0,80,170,0.15),rgba(0,212,255,0.08))", border: `1px solid ${C.border}`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
-      <div style={{ fontSize: 30, marginBottom: 7 }}>🏠</div>
-      <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Diseñar Hogar Digital</div>
-      <div style={{ color: C.muted, fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Conecta tus dispositivos<br />y encuentra tu plan ideal</div>
-      <GlowBtn onClick={onGame} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ width: "100%", borderRadius: 9, fontSize: 11, padding: "8px 12px" }}>🚀 Iniciar Misión</GlowBtn>
-    </div>
+    
   </aside>
 );
 
