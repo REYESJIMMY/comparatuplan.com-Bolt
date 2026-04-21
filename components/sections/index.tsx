@@ -116,12 +116,11 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
 
 /* ── Featured plans ──────────────────────────────────────────── */
 const FEATURED = [
-  { op: "Claro",    name: "Fibra 200 Mbps",  price: 89900,  speed: 200, benefits: ["HBO Max 3m", "WiFi 6", "Inst. gratis"],               glow: "#e2001a", emoji: "🔴" },
-  { op: "Movistar", name: "Móvil 20GB Pro",  price: 45900,  benefits: ["20GB 4G", "Roaming LatAm", "Sin permanencia"],                    glow: "#00aa44", emoji: "🟢", badge: "MEJOR PRECIO" },
-  { op: "Tigo",     name: "Internet+TV 300", price: 125900, speed: 300, benefits: ["140 Canales HD", "IP Fija", "Cloud DVR"],             glow: "#00a0e3", emoji: "🔵", badge: "TODO EN UNO" },
-  { op: "ETB",      name: "Fibra Social",    price: 0,      speed: 30,  benefits: ["Estrato 1 y 2", "Sin costo mensual", "Inst. gratis"], glow: C.green,   emoji: "🟡", badge: "GRATIS" },
+  { op: "Claro",    name: "Fibra 200 Mbps",  price: 89900,  speed: 200, benefits: ["HBO Max 3m", "WiFi 6", "Inst. gratis"],            glow: "#e2001a", emoji: "🔴" },
+  { op: "Movistar", name: "Móvil 20GB Pro",  price: 45900,  benefits: ["20GB 4G", "Roaming LatAm", "Sin permanencia"],                 glow: "#00aa44", emoji: "🟢", badge: "MEJOR PRECIO" },
+  { op: "Tigo",     name: "Internet+TV 300", price: 125900, speed: 300, benefits: ["140 Canales HD", "IP Fija", "Cloud DVR"],          glow: "#00a0e3", emoji: "🔵", badge: "TODO EN UNO" },
+  { op: "ETB",      name: "Fibra ETB 100",   price: 69900,  speed: 100, benefits: ["Sin permanencia", "WiFi incluido", "Soporte 24/7"], glow: "#f59e0b", emoji: "🟡", badge: "SIN PERMANENCIA" },
 ];
-
 export const FeaturedPlans = ({ onSegment, addToCart }: { onSegment?: () => void; addToCart: (item: any) => void }) => (
   <section>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
