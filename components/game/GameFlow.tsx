@@ -705,3 +705,4 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       `}</style>
     </Wrap>
   );
+};
