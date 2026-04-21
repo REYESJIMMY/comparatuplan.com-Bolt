@@ -587,14 +587,16 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           </div>
 
           {/* Grid horizontal en desktop, vertical en mobile */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(260px, 1fr))",
-            gap: 14,
-            marginBottom: 20,
-            overflowX: "auto",
-            paddingBottom: 8,
-          }}>
+          <div
+            className="planes-grid-mobile"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(260px, 1fr))",
+              gap: 14,
+              marginBottom: 20,
+              overflowX: "auto",
+              paddingBottom: 8,
+            }}>
             {planesDB.map((p) => (
               <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined, minWidth: 240 }}>
                 {p.top && (
