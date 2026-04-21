@@ -594,9 +594,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
             marginBottom: 20,
             overflowX: "auto",
             paddingBottom: 8,
-          }}
-            className="planes-resultado-grid"
-          >
+          }}>
             {planesDB.map((p) => (
               <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined, minWidth: 240 }}>
                 {p.top && (
@@ -693,11 +691,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
 
       {/* CSS responsive */}
       <style>{`
-        .planes-resultado-grid {
-          grid-template-columns: repeat(3, minmax(260px, 1fr));
-        }
         @media (max-width: 640px) {
-          .planes-resultado-grid {
+          .planes-grid-mobile {
             grid-template-columns: 1fr !important;
           }
         }
