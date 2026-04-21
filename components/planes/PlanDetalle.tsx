@@ -80,7 +80,7 @@ export default function PlanDetalle({ plan, historial, similares }: Props) {
   const waMessage = encodeURIComponent(
     `Hola, me interesa el plan *${plan.nombre}* de ${plan.operador} que vi en ComparaTuPlan.com. ¿Me pueden dar más información?`
   );
-  const waLink = `https://wa.me/57?text=${waMessage}`;
+  const waLink = `https://wa.me/573057876992?text=${waMessage}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
