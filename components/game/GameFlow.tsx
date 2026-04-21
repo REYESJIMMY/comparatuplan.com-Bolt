@@ -555,9 +555,18 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   );
 
   /* ── Level 4 — Planes recomendados ──────────────────────────── */
+  // Scroll automático al top cuando llega a resultados
+  useEffect(() => {
+    if (lvl === 4) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [lvl]);
+
   return (
     <Wrap>
       <LvlBar lvl={4} />
+
+      {/* Resumen del análisis */}
       {resumen && (
         <div style={{ background: "rgba(0,212,255,0.05)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 14px", marginBottom: 18, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <span style={{ color: C.muted, fontSize: 12 }}>Tu hogar necesita <strong style={{ color: resumen.colorConsumo }}>{resumen.mbpsRecomendado} Mbps</strong></span>
@@ -572,42 +581,75 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           <button onClick={() => setLvl(1)} style={{ marginTop: 16, padding: "9px 22px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.neon, fontWeight: 700, cursor: "pointer" }}>← Ajustar perfil</button>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
-          {planesDB.map((p) => (
-            <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined }}>
-              {p.top && <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>RECOMENDADO</div>}
-              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
-                <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
-                <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.tipo}</span>
-                <button
-                  onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
-                  title={user ? (isFavorito(p.id_crc) ? "Quitar favorito" : "Guardar") : "Inicia sesión para guardar"}
-                  style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer", color: isFavorito(p.id_crc) ? "#ec4899" : C.muted }}
-                >
-                  <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} />
-                </button>
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6" }}>{p.nombre}</div>
-              <div style={{ fontWeight: 900, fontSize: 24, color: p.glow, marginBottom: 10 }}>
-                ${(p.precio).toLocaleString()}
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-                {p.velocidad_mbps && <Chip color={C.neon}>⚡ {p.velocidad_mbps} Mbps</Chip>}
-                {p.datos_gb && <Chip color={C.cyan}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
-                {p.canales_tv && <Chip color={C.neon2}>📺 {p.canales_tv} canales</Chip>}
-                {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <a href={`/planes/${p.id_crc}`} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textAlign: "center", textDecoration: "none" }}>
-                  Ver detalle
-                </a>
-                <WABtn name={`${p.operador} - ${p.nombre}`} label="Lo Quiero 🚀" style={{ flex: 1, borderRadius: 10, fontSize: 12 }} />
-              </div>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div style={{ color: C.muted, fontSize: 11, marginBottom: 12, textAlign: "center" }}>
+            🏆 <strong style={{ color: "#fff" }}>{planesDB.length} planes</strong> recomendados para tu hogar
+          </div>
+
+          {/* Grid horizontal en desktop, vertical en mobile */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${planesDB.length}, minmax(260px, 1fr))`,
+            gap: 14,
+            marginBottom: 20,
+            overflowX: "auto",
+            paddingBottom: 8,
+          }}
+            className="planes-resultado-grid"
+          >
+            {planesDB.map((p) => (
+              <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined, minWidth: 240 }}>
+                {p.top && (
+                  <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>
+                    RECOMENDADO
+                  </div>
+                )}
+
+                {/* Badge + Operador */}
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
+                  <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
+                  <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.tipo}</span>
+                  <button
+                    onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
+                    title={user ? (isFavorito(p.id_crc) ? "Quitar favorito" : "Guardar") : "Inicia sesión para guardar"}
+                    style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer" }}
+                  >
+                    <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
+                  </button>
+                </div>
+
+                {/* Nombre */}
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6", lineHeight: 1.35, minHeight: 36 }}>{p.nombre}</div>
+
+                {/* Precio */}
+                <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
+                  ${(p.precio).toLocaleString()}
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
+                </div>
+
+                {/* Specs */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+                  {p.velocidad_mbps && <Chip color={C.neon}>⚡ {p.velocidad_mbps} Mbps</Chip>}
+                  {p.datos_gb && <Chip color={C.cyan}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
+                  {p.canales_tv && <Chip color={C.neon2}>📺 {p.canales_tv} canales</Chip>}
+                  {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
+                </div>
+
+                {/* Acciones */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <WABtn name={`${p.operador} - ${p.nombre}`} label="💬 Lo Quiero" full style={{ borderRadius: 10, fontSize: 13 }} />
+                  <a
+                    href={`/planes/${p.id_crc}`}
+                    style={{ display: "block", textAlign: "center", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}
+                  >
+                    Ver detalle completo
+                  </a>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Ecosistema */}
@@ -627,17 +669,39 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         </div>
       )}
 
+      {/* Botones de navegación */}
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={() => { setLvl(0); setDevices([]); setAvatar(null); setPersonas(null); setPlanesDB([]); setResumen(null); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+        <button
+          onClick={() => { setLvl(0); setDevices([]); setAvatar(null); setPersonas(null); setPlanesDB([]); setResumen(null); }}
+          style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+        >
           🔄 Reiniciar
         </button>
-        <button onClick={() => setLvl(3)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+        <button
+          onClick={() => setLvl(3)}
+          style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+        >
           ← Ver consumo
         </button>
-        <button onClick={onBack} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+        <button
+          onClick={onBack}
+          style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+        >
           🏠 Inicio
         </button>
       </div>
+
+      {/* CSS responsive */}
+      <style>{`
+        .planes-resultado-grid {
+          grid-template-columns: repeat(${planesDB.length > 0 ? planesDB.length : 1}, minmax(260px, 1fr));
+        }
+        @media (max-width: 640px) {
+          .planes-resultado-grid {
+            grid-template-columns: 1fr !important;
+            overflow-x: visible;
+          }
+        }
+      `}</style>
     </Wrap>
   );
-};
