@@ -1,20 +1,20 @@
-import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { notFound } from "next/navigation";
 import PlanDetalle from "@/components/planes/PlanDetalle";
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default async function PlanPage({ params }: { params: { id_crc: string } }) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  const { data: plan, error } = await supabase
-    .from("planes_unicos")
-    .select("*")
+  const { data: plan } = await supabase
+    .from("planes")
+    .select("id_crc, operador, nombre, tipo, precio, precio_mensual, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, beneficios, badge, emoji, color, estratos")
     .eq("id_crc", params.id_crc)
+    .eq("activo", true)
+    .limit(1)
     .single();
-
-  console.log("plan:", plan, "error:", error);
 
   if (!plan) notFound();
 
@@ -26,17 +26,18 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
     .limit(12);
 
   const { data: similares } = await supabase
-    .from("planes_unicos")
+    .from("planes")
     .select("id_crc, operador, nombre, precio, tipo, velocidad_mbps, datos_gb, modalidad")
-    .eq("operador", plan!.operador)
-    .eq("tipo", plan!.tipo)
+    .eq("operador", plan.operador)
+    .eq("tipo", plan.tipo)
+    .eq("activo", true)
     .neq("id_crc", params.id_crc)
     .order("precio", { ascending: true })
     .limit(4);
 
   return (
     <PlanDetalle
-      plan={plan!}
+      plan={plan}
       historial={historial ?? []}
       similares={similares ?? []}
     />
