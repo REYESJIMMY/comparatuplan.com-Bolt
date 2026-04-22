@@ -11,7 +11,8 @@ import { MovilFlow }   from "@/components/game/MovilFlow";
 import { CoberturaForm, type UbicacionData } from "@/components/game/CoberturaForm";
 import { SegmentSelector } from "@/components/game/SegmentSelector";
 import {
-  Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
+  Hero, OfertasHotSection, FeaturedPlans, Companies,
+  ReferieGanaSection, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
 
 type View = "landing" | "cobertura" | "segment" | "game" | "movil" | "quiz";
@@ -67,7 +68,6 @@ export default function Home() {
     if (a === "register")  setAuthMode("register");
   };
 
-  // Cuando el usuario completa el formulario de ubicación
   const handleUbicacion = (data: UbicacionData) => {
     setUbicacion(data);
     setView("segment");
@@ -76,7 +76,6 @@ export default function Home() {
   return (
     <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", overflowX: "hidden" }}>
 
-      {/* ── Overlays ──────────────────────────────────────────── */}
       <Header
         onSearch={() => setSearchOpen(true)}
         onOpenAuth={setAuthMode}
@@ -89,19 +88,15 @@ export default function Home() {
       {authMode && <AuthModal mode={authMode} onClose={() => setAuthMode(null)} />}
       <CartDrawer cart={cart} setCart={setCart} open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      {/* ── Fixed header spacer ───────────────────────────────── */}
       <div style={{ height: 95 }} />
       <OpsSlider />
 
-      {/* ── Paso 1: Formulario de cobertura ───────────────────── */}
+      {/* Formulario de cobertura */}
       {view === "cobertura" && (
-        <CoberturaForm
-          onContinuar={handleUbicacion}
-          onCancel={() => setView("landing")}
-        />
+        <CoberturaForm onContinuar={handleUbicacion} onCancel={() => setView("landing")} />
       )}
 
-      {/* ── Paso 2: Selector Hogar / Móvil ────────────────────── */}
+      {/* Selector Hogar / Móvil */}
       {view === "segment" && ubicacion && (
         <SegmentSelector
           ubicacion={ubicacion}
@@ -112,41 +107,44 @@ export default function Home() {
         />
       )}
 
-      {/* ── GameFlow Hogar ────────────────────────────────────── */}
-      {view === "game" && (
-        <GameFlow onBack={() => setView("landing")} />
-      )}
+      {/* GameFlow Hogar */}
+      {view === "game" && <GameFlow onBack={() => setView("landing")} />}
 
-      {/* ── MovilFlow ─────────────────────────────────────────── */}
-      {view === "movil" && (
-        <MovilFlow onBack={() => setView("landing")} />
-      )}
+      {/* MovilFlow */}
+      {view === "movil" && <MovilFlow onBack={() => setView("landing")} />}
 
-      {/* ── QuizFlow ──────────────────────────────────────────── */}
+      {/* QuizFlow */}
       {view === "quiz" && (
         <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 20px 60px" }}>
           <QuizFlow onBack={() => setView("landing")} />
         </div>
       )}
 
-      {/* ── Landing ───────────────────────────────────────────── */}
+      {/* Landing — orden del body */}
       {view === "landing" && (
         <div className="page-wrap">
           <div className="content-grid">
             <main className="main-col">
+              {/* 1. Hero */}
               <Hero
                 onGame={() => setView("game")}
                 onMovil={() => setView("movil")}
                 onSegment={() => setView("cobertura")}
                 addToCart={addToCart}
               />
-              <FeaturedPlans
-                onSegment={() => setView("cobertura")}
-                addToCart={addToCart}
-              />
+              {/* 2. Ofertas Hot — dinámicas, solo aparece si hay ofertas activas */}
+              <OfertasHotSection />
+              {/* 3. Planes destacados — estructurales */}
+              <FeaturedPlans onSegment={() => setView("cobertura")} addToCart={addToCart} />
+              {/* 4. Empresas */}
               <Companies />
+              {/* 5. Refiere & Gana — con link a Apprecio */}
+              <ReferieGanaSection />
+              {/* 6. Equipos tech */}
               <Offers addToCart={addToCart} />
+              {/* 7. ETB Social — al final */}
               <SocialSection />
+              {/* 8. Blog */}
               <Blog />
             </main>
             <Sidebar
