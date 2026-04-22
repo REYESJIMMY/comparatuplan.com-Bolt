@@ -183,7 +183,7 @@ export function scorarPlanes(
 
     // Descartar planes inválidos
     if (precio > 0 && precio < 20000)                            return { ...p, _score: -100 };
-    if (!velocidad && !datos && p.tipo !== "tv")                  return { ...p, _score: -100 };
+    if (!velocidad && !datos && !p.precio && p.tipo !== "tv") return { ...p, _score: -100 };
     if (NOMBRES_INVALIDOS.some((x) => nombre.includes(x)))       return { ...p, _score: -100 };
 
     let score = 0;
