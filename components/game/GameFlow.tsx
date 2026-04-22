@@ -92,7 +92,7 @@ const LvlBar = ({ lvl }: { lvl: number }) => (
 const BG   = "linear-gradient(160deg,#04040f 0%,#080622 50%,#100830 100%)";
 const Wrap = ({ children }: { children: React.ReactNode }) => (
   <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "'Inter',system-ui,sans-serif", padding: "90px 20px 60px" }}>
-    <div style={{ maxWidth: 680, margin: "0 auto" }}>{children}</div>
+    <div style={{ maxWidth: 1000, margin: "0 auto" }}>{children}</div>
   </div>
 );
 
@@ -560,13 +560,6 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   );
 
   /* ── Level 4 — Planes recomendados ──────────────────────────── */
-  // Scroll automático al top cuando llega a resultados
-  useEffect(() => {
-    if (lvl === 4) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [lvl]);
-
   return (
     <Wrap>
       <LvlBar lvl={4} />
