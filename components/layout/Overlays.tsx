@@ -5,6 +5,13 @@ import { C, openWA } from "@/lib/constants";
 import { GlowBtn, WaIco } from "@/components/ui";
 
 /* ── SearchBar ───────────────────────────────────────────────── */
+const QUICK_SEARCHES = [
+  { label: "Fibra 200 Mbps",  url: "/planes?tipo=internet" },
+  { label: "Planes móviles",  url: "/planes?tipo=movil" },
+  { label: "Triple Play",     url: "/planes?tipo=paquete" },
+  { label: "Internet hogar",  url: "/planes?tipo=internet" },
+];
+
 export const SearchBar = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -12,6 +19,17 @@ export const SearchBar = ({ open, onClose }: { open: boolean; onClose: () => voi
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 60);
   }, [open]);
+
+  const handleSearch = (query: string) => {
+    if (!query.trim()) return;
+    window.location.href = `/planes?q=${encodeURIComponent(query.trim())}`;
+    onClose();
+  };
+
+  const handleQuick = (url: string) => {
+    window.location.href = url;
+    onClose();
+  };
 
   if (!open) return null;
   return (
@@ -37,7 +55,10 @@ export const SearchBar = ({ open, onClose }: { open: boolean; onClose: () => voi
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && onClose()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") onClose();
+              if (e.key === "Enter") handleSearch(q);
+            }}
             placeholder="Buscar planes, operadores, velocidad…"
             style={{
               flex: 1, background: "transparent", border: "none", outline: "none",
@@ -46,25 +67,41 @@ export const SearchBar = ({ open, onClose }: { open: boolean; onClose: () => voi
           />
           <kbd style={{ color: C.muted, fontSize: 10, border: `1px solid ${C.borderSoft}`, borderRadius: 4, padding: "1px 6px" }}>Esc</kbd>
         </div>
+
         {q.length > 0 && (
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.borderSoft}` }}>
-            <p style={{ color: C.muted, fontSize: 12 }}>
-              Presiona Enter para buscar <strong style={{ color: C.neon }}>&quot;{q}&quot;</strong> en el catálogo
-            </p>
+            <button
+              onClick={() => handleSearch(q)}
+              style={{
+                width: "100%", background: "rgba(0,212,255,0.08)", border: `1px solid ${C.border}`,
+                borderRadius: 10, padding: "10px 14px", color: "#fff", fontSize: 13,
+                fontWeight: 600, cursor: "pointer", textAlign: "left",
+                display: "flex", alignItems: "center", gap: 8,
+              }}
+            >
+              <Search size={14} color={C.neon} />
+              Buscar <strong style={{ color: C.neon }}>&quot;{q}&quot;</strong> en el catálogo →
+            </button>
           </div>
         )}
-        <div style={{ marginTop: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {["Fibra 200 Mbps", "Planes móviles", "Triple Play", "Internet hogar"].map((s) => (
-            <button
-              key={s}
-              onClick={() => setQ(s)}
-              style={{
-                background: "rgba(0,212,255,0.06)", border: `1px solid ${C.border}`,
-                color: C.neon, borderRadius: 99, padding: "4px 10px", fontSize: 11,
-                fontWeight: 600, cursor: "pointer",
-              }}
-            >{s}</button>
-          ))}
+
+        <div style={{ marginTop: 12 }}>
+          <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1, marginBottom: 8 }}>BÚSQUEDAS RÁPIDAS</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {QUICK_SEARCHES.map((s) => (
+              <button
+                key={s.label}
+                onClick={() => handleQuick(s.url)}
+                style={{
+                  background: "rgba(0,212,255,0.06)", border: `1px solid ${C.border}`,
+                  color: C.neon, borderRadius: 99, padding: "5px 12px", fontSize: 11,
+                  fontWeight: 600, cursor: "pointer", transition: "all .15s",
+                }}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.14)"; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.06)"; }}
+              >{s.label}</button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -98,32 +135,21 @@ export const AuthModal = ({ mode, onClose }: { mode: string; onClose: () => void
           color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
         }}><X size={13} /></button>
 
-        {/* Tab switch */}
         <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: 9, padding: 3, marginBottom: 20 }}>
           {[["login", "Iniciar Sesión"], ["register", "Registrarse"]].map(([id, l]) => (
-            <button
-              key={id} onClick={() => setTab(id)}
-              style={{
-                flex: 1, padding: "7px 0", borderRadius: 7, border: "none",
-                background: tab === id ? "linear-gradient(135deg,#0070cc,#0050aa)" : "transparent",
-                color: tab === id ? "#fff" : C.muted, fontWeight: 700, fontSize: 12, cursor: "pointer",
-                transition: "all .18s",
-              }}
-            >{l}</button>
+            <button key={id} onClick={() => setTab(id)} style={{
+              flex: 1, padding: "7px 0", borderRadius: 7, border: "none",
+              background: tab === id ? "linear-gradient(135deg,#0070cc,#0050aa)" : "transparent",
+              color: tab === id ? "#fff" : C.muted, fontWeight: 700, fontSize: 12, cursor: "pointer",
+            }}>{l}</button>
           ))}
         </div>
 
         <div style={{ textAlign: "center", marginBottom: 18 }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: 11,
-            background: "linear-gradient(135deg,#0070cc,#0050aa)",
-            display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 9px",
-          }}>
+          <div style={{ width: 42, height: 42, borderRadius: 11, background: "linear-gradient(135deg,#0070cc,#0050aa)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 9px" }}>
             {isL ? <LogIn size={18} color="#fff" /> : <UserPlus size={18} color="#fff" />}
           </div>
-          <div style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>
-            {isL ? "¡Bienvenido!" : "Crea tu cuenta gratis"}
-          </div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>{isL ? "¡Bienvenido!" : "Crea tu cuenta gratis"}</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -132,12 +158,9 @@ export const AuthModal = ({ mode, onClose }: { mode: string; onClose: () => void
           <input placeholder="Contraseña" type="password" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderSoft}`, borderRadius: 9, padding: "10px 13px", color: "#fff", fontSize: 12, outline: "none" }} />
         </div>
 
-        <button onClick={onClose} style={{
-          width: "100%", marginTop: 13,
-          background: "linear-gradient(135deg,#0070cc,#0050aa)", border: "none",
-          borderRadius: 9, padding: "11px 0", color: "#fff", fontWeight: 800, fontSize: 13,
-          cursor: "pointer", boxShadow: `0 0 18px ${C.neon}33`,
-        }}>{isL ? "Entrar" : "Crear cuenta"}</button>
+        <button onClick={onClose} style={{ width: "100%", marginTop: 13, background: "linear-gradient(135deg,#0070cc,#0050aa)", border: "none", borderRadius: 9, padding: "11px 0", color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>
+          {isL ? "Entrar" : "Crear cuenta"}
+        </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "11px 0" }}>
           <div style={{ flex: 1, height: 1, background: C.borderSoft }} />
@@ -146,12 +169,7 @@ export const AuthModal = ({ mode, onClose }: { mode: string; onClose: () => void
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {[["G", "#ea4335", "Google"], ["f", "#1877f2", "Facebook"]].map(([l, col, name]) => (
-            <button key={name} style={{
-              flex: 1, padding: "8px 0", borderRadius: 9,
-              background: `${col}12`, border: `1px solid ${col}25`,
-              color: "#fff", fontWeight: 700, fontSize: 11, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            }}>
+            <button key={name} style={{ flex: 1, padding: "8px 0", borderRadius: 9, background: `${col}12`, border: `1px solid ${col}25`, color: "#fff", fontWeight: 700, fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
               <span style={{ color: col, fontWeight: 900, fontSize: 13 }}>{l}</span>{name}
             </button>
           ))}
@@ -174,9 +192,9 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
     <>
       {open && <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 700, background: "rgba(0,0,0,0.4)" }} />}
       <div style={{
-        position: "fixed", top: 0, right: 0, bottom: 0, width: 320,
-        zIndex: 701, background: "rgba(6,4,20,0.99)",
-        borderLeft: `1px solid ${C.borderSoft}`, backdropFilter: "blur(24px)",
+        position: "fixed", top: 0, right: 0, bottom: 0, width: 320, zIndex: 701,
+        background: "rgba(6,4,20,0.99)", borderLeft: `1px solid ${C.borderSoft}`,
+        backdropFilter: "blur(24px)",
         transform: open ? "translateX(0)" : "translateX(100%)",
         transition: "transform .3s ease", display: "flex", flexDirection: "column",
       }}>
@@ -222,12 +240,7 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
             </div>
             <button
               onClick={() => openWA(`consulta sobre mi carrito con ${cart.length} plan(es)`)}
-              style={{
-                width: "100%", background: "linear-gradient(135deg,#25d366,#128c7e)",
-                border: "none", borderRadius: 10, padding: "12px 0", color: "#fff",
-                fontWeight: 700, fontSize: 13, cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              }}
+              style={{ width: "100%", background: "linear-gradient(135deg,#25d366,#128c7e)", border: "none", borderRadius: 10, padding: "12px 0", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <WaIco s={15} />Solicitar por WhatsApp
             </button>
@@ -238,25 +251,29 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
   );
 };
 
-/* ── Chatbot ─────────────────────────────────────────────────── */
+/* ── Chatbot Nexus ───────────────────────────────────────────── */
 const getReply = (t: string): string => {
   const s = t.toLowerCase();
-  if (s.match(/hola|buenas|hey/))         return "¡Hola! 👋 Soy **Nexus**. ¿En qué te ayudo?";
-  if (s.match(/internet|fibra/))          return "📡 Fibra desde **$59.900/mes** hasta 600 Mbps.";
-  if (s.match(/precio|costo|cuánto/))     return "💰 Planes desde **$45.900/mes**. ¡Hasta 40% de ahorro!";
-  if (s.match(/móvil|movil|celular/))     return "📱 Datos ilimitados desde **$55.900/mes**.";
-  if (s.match(/reparar|técnico|roto/))    return "🔧 Servicio técnico disponible. Diagnóstico **gratis**.";
-  return "Para asesoría personalizada escríbenos por **WhatsApp** 💬";
+  if (s.match(/hola|buenas|hey/))          return "¡Hola! 👋 Soy **Nexus**. ¿En qué te ayudo hoy?";
+  if (s.match(/internet|fibra/))           return "📡 Tenemos fibra desde **$59.900/mes** hasta 900 Mbps con Claro, Movistar, ETB y Tigo.";
+  if (s.match(/precio|costo|cuánto/))      return "💰 Planes desde **$45.900/mes**. ¡Hasta 40% de ahorro frente a lo que pagas ahora!";
+  if (s.match(/móvil|movil|celular/))      return "📱 Planes móviles con datos desde **$20.000**. Prepago y pospago disponibles.";
+  if (s.match(/cobertura/))               return "📍 Para verificar cobertura en tu zona usa el botón **Consulta tu Cobertura** en el inicio.";
+  if (s.match(/reparar|técnico|roto/))     return "🔧 Servicio técnico disponible. Diagnóstico **gratis**. Escríbenos por WhatsApp.";
+  if (s.match(/planes|comparar/))         return "🔍 Puedes ver todos los planes en nuestro **catálogo** o usar el análisis inteligente de Hogar Digital.";
+  if (s.match(/oferta|descuento|promo/))  return "⚡ Revisa nuestras **Ofertas Hot** — promociones diarias que no están en la CRC.";
+  if (s.match(/refiere|gana|premio/))     return "🎁 Con **Apprecio** puedes ganar hasta $200.000 en premios por referir amigos. ¡Es gratis!";
+  return "Para asesoría personalizada escríbenos por **WhatsApp** 💬 o usa el botón de Asesor en el inicio.";
 };
 
 interface Msg { from: "bot" | "user"; text: string; }
 
 export const Chatbot = () => {
-  const [open, setOpen]       = useState(false);
-  const [msgs, setMsgs]       = useState<Msg[]>([{ from: "bot", text: "¡Hola! 👋 Soy **Nexus**. ¿Cómo puedo ayudarte?" }]);
-  const [input, setInput]     = useState("");
-  const [typing, setTyping]   = useState(false);
-  const [unread, setUnread]   = useState(1);
+  const [open,   setOpen]   = useState(false);
+  const [msgs,   setMsgs]   = useState<Msg[]>([{ from: "bot", text: "¡Hola! 👋 Soy **Nexus**, tu asistente de ComparaTuPlan. ¿Cómo puedo ayudarte?" }]);
+  const [input,  setInput]  = useState("");
+  const [typing, setTyping] = useState(false);
+  const [unread, setUnread] = useState(1);
   const botRef   = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -294,12 +311,7 @@ export const Chatbot = () => {
         >
           {open ? <X size={19} color="#fff" /> : <MessageCircle size={21} color="#fff" />}
           {unread > 0 && !open && (
-            <span style={{
-              position: "absolute", top: -3, right: -3, width: 16, height: 16,
-              borderRadius: "50%", background: C.red, color: "#fff",
-              fontSize: 8, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center",
-              border: "2px solid #04040f",
-            }}>{unread}</span>
+            <span style={{ position: "absolute", top: -3, right: -3, width: 16, height: 16, borderRadius: "50%", background: C.red, color: "#fff", fontSize: 8, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #04040f" }}>{unread}</span>
           )}
         </button>
       </div>
@@ -313,22 +325,20 @@ export const Chatbot = () => {
           borderRadius: 18, boxShadow: `0 0 50px ${C.neon}18`,
           backdropFilter: "blur(24px)", overflow: "hidden",
         }}>
-          {/* Header */}
           <div style={{ background: "linear-gradient(135deg,#0070cc,#0050aa)", padding: "11px 14px", display: "flex", alignItems: "center", gap: 9 }}>
             <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <MessageCircle size={15} color="#fff" />
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>Nexus IA</div>
-              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 600 }}>● En línea</div>
+              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 600 }}>● En línea · ComparaTuPlan</div>
             </div>
             <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: 23, height: 23, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <X size={11} color="#fff" />
             </button>
           </div>
 
-          {/* Messages */}
-          <div style={{ overflowY: "auto", padding: "9px 9px 4px", display: "flex", flexDirection: "column", gap: 7, maxHeight: 210 }}>
+          <div style={{ overflowY: "auto", padding: "9px 9px 4px", display: "flex", flexDirection: "column", gap: 7, maxHeight: 240 }}>
             {msgs.map((m, i) => (
               <div key={i} style={{ display: "flex", justifyContent: m.from === "user" ? "flex-end" : "flex-start" }}>
                 <div
@@ -345,23 +355,19 @@ export const Chatbot = () => {
             {typing && (
               <div style={{ display: "flex" }}>
                 <div style={{ padding: "7px 11px", borderRadius: "14px 14px 14px 3px", background: "rgba(255,255,255,0.06)", display: "flex", gap: 3, alignItems: "center" }}>
-                  {[0, 1, 2].map((j) => (
-                    <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: C.neon, animation: `blink 1.2s ${j * .2}s infinite` }} />
-                  ))}
+                  {[0, 1, 2].map((j) => <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: C.neon, animation: `blink 1.2s ${j * .2}s infinite` }} />)}
                 </div>
               </div>
             )}
             <div ref={botRef} />
           </div>
 
-          {/* Quick replies */}
           <div style={{ padding: "4px 7px", display: "flex", gap: 4, flexWrap: "wrap" }}>
-            {["Planes", "Precios", "Técnico", "Asesor"].map((q) => (
+            {["Internet", "Móviles", "Cobertura", "Ofertas", "Asesor"].map((q) => (
               <button key={q} onClick={() => send(q)} style={{ background: "rgba(0,212,255,0.08)", border: `1px solid ${C.border}`, color: C.neon, borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer" }}>{q}</button>
             ))}
           </div>
 
-          {/* Input */}
           <div style={{ padding: "5px 7px 9px", display: "flex", gap: 5 }}>
             <input
               ref={inputRef}
