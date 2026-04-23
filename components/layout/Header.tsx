@@ -171,13 +171,15 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
 /* ── Mobile menu ─────────────────────────────────────────────── */
 const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () => void; onAction: (a: string) => void }) => {
   const sections = [
-    { label: "Consulta tu Cobertura",  icon: "📍", action: "cobertura" },
-    { label: "Diseñar Hogar Digital",  icon: "🏠", action: "game" },
-    { label: "Planes Móviles",         icon: "📱", action: "movil" },
-    { label: "Ver catálogo",           icon: "📋", href: "/planes" },
-    { label: "Empresas",               icon: "🏢", href: "https://wa.me/573057876992?text=Hola, me interesa soluciones para empresas" },
-    { label: "Refiere & Gana",         icon: "🎁", href: "https://www.apprecio.com.co" },
-    { label: "Ofertas Hot",            icon: "⚡", href: "/planes" },
+    { label: "Inicio",                icon: "🏠", href: "/" },
+    { label: "Consulta tu Cobertura", icon: "📍", action: "cobertura" },
+    { label: "Diseñar Hogar Digital", icon: "🏠", action: "game" },
+    { label: "Planes Móviles",        icon: "📱", action: "movil" },
+    { label: "Ver catálogo",          icon: "📋", href: "/planes" },
+    { label: "Ofertas Hot",           icon: "⚡", href: "/ofertas" },
+    { label: "Ecosistema",            icon: "🌐", href: "https://wa.me/573057876992?text=Hola, me interesa el ecosistema de servicios" },
+    { label: "Empresas",              icon: "🏢", href: "https://wa.me/573057876992?text=Hola, me interesa soluciones para empresas" },
+    { label: "Refiere & Gana",        icon: "🎁", href: "https://www.apprecio.com.co" },
   ];
   return (
     <div className={`mobile-nav-overlay${open ? " open" : ""}`}>
