@@ -1,0 +1,20 @@
+{
+  "name": "ComparaTuPlan.com",
+  "short_name": "ComparaTuPlan",
+  "description": "Compara planes de telecomunicaciones en Colombia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04040f",
+  "theme_color": "#00d4ff",
+  "orientation": "portrait-primary",
+  "lang": "es-CO",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Consultar Cobertura", "url": "/?action=cobertura", "description": "Consulta tu cobertura" },
+    { "name": "Ver Planes",          "url": "/planes",            "description": "Catálogo de planes" },
+    { "name": "Ofertas Hot",         "url": "/ofertas",           "description": "Ofertas del día" }
+  ]
+}
