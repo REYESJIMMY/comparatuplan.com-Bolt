@@ -291,7 +291,9 @@ export const Chatbot = () => {
     }, 750 + Math.random() * 400);
   };
 
-  const rt = (t: string) => t.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  const rt = (t: string) =>
+    t.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#00d4ff;text-decoration:underline;cursor:pointer">$1</a>');
 
   return (
     <>
