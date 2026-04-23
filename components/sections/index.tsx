@@ -254,7 +254,7 @@ export const ReferieGanaSection = () => (
       <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(168,85,247,0.08)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(236,72,153,0.06)", pointerEvents: "none" }} />
 
-      <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
+      <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr", gap: 24, alignItems: "center" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <span style={{ fontSize: 28 }}>🎁</span>
@@ -301,11 +301,13 @@ export const ReferieGanaSection = () => (
         </div>
 
         {/* Premio visual */}
-        <div style={{ textAlign: "center", flexShrink: 0 }}>
-          <div style={{ fontSize: 64, marginBottom: 8 }}>🏆</div>
-          <div style={{ color: C.neon2, fontWeight: 900, fontSize: 18 }}>Hasta</div>
-          <div style={{ color: "#fff", fontWeight: 900, fontSize: 28 }}>$200K</div>
-          <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 52 }}>🏆</div>
+            <div style={{ color: C.neon2, fontWeight: 900, fontSize: 16 }}>Hasta</div>
+            <div style={{ color: "#fff", fontWeight: 900, fontSize: 24 }}>$200K</div>
+            <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
+          </div>
         </div>
       </div>
     </Card>
