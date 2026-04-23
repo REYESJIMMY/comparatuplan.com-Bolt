@@ -254,18 +254,17 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
 /* ── Chatbot Nexus ───────────────────────────────────────────── */
 const getReply = (t: string): string => {
   const s = t.toLowerCase();
-  if (s.match(/hola|buenas|hey/))          return "¡Hola! 👋 Soy **Nexus**. ¿En qué te ayudo hoy?";
-  if (s.match(/internet|fibra/))           return "📡 Tenemos fibra desde **$59.900/mes** hasta 900 Mbps con Claro, Movistar, ETB y Tigo.";
-  if (s.match(/precio|costo|cuánto/))      return "💰 Planes desde **$45.900/mes**. ¡Hasta 40% de ahorro frente a lo que pagas ahora!";
-  if (s.match(/móvil|movil|celular/))      return "📱 Planes móviles con datos desde **$20.000**. Prepago y pospago disponibles.";
-  if (s.match(/cobertura/))               return "📍 Para verificar cobertura en tu zona usa el botón **Consulta tu Cobertura** en el inicio.";
-  if (s.match(/reparar|técnico|roto/))     return "🔧 Servicio técnico disponible. Diagnóstico **gratis**. Escríbenos por WhatsApp.";
-  if (s.match(/planes|comparar/))         return "🔍 Puedes ver todos los planes en nuestro **catálogo** o usar el análisis inteligente de Hogar Digital.";
-  if (s.match(/oferta|descuento|promo/))  return "⚡ Revisa nuestras **Ofertas Hot** — promociones diarias que no están en la CRC.";
-  if (s.match(/refiere|gana|premio/))     return "🎁 Con **Apprecio** puedes ganar hasta $200.000 en premios por referir amigos. ¡Es gratis!";
-  return "Para asesoría personalizada escríbenos por **WhatsApp** 💬 o usa el botón de Asesor en el inicio.";
+  if (s.match(/hola|buenas|hey/))         return "¡Hola! 👋 Soy **Nexus**. ¿En qué te ayudo hoy?";
+  if (s.match(/internet|fibra/))          return "📡 Fibra desde **$59.900/mes** hasta 900 Mbps. [Ver planes de internet](/planes?tipo=internet)";
+  if (s.match(/precio|costo|cuánto/))     return "💰 Planes desde **$45.900/mes**. ¡Hasta 40% de ahorro! [Ver catálogo](/planes)";
+  if (s.match(/móvil|movil|celular/))     return "📱 Planes móviles desde **$20.000**. Prepago y pospago. [Ver planes móviles](/planes?tipo=movil)";
+  if (s.match(/cobertura/))              return "📍 Verifica tu cobertura aquí → [Consulta tu Cobertura](/?action=cobertura)";
+  if (s.match(/reparar|técnico|roto/))    return "🔧 Diagnóstico **gratis**. Escríbenos por WhatsApp 💬";
+  if (s.match(/planes|comparar/))        return "🔍 Ve todos los planes en nuestro [catálogo completo](/planes)";
+  if (s.match(/oferta|descuento|promo/)) return "⚡ Tenemos **Ofertas Hot** del día. [Ver ofertas](/ofertas)";
+  if (s.match(/refiere|gana|premio/))    return "🎁 Gana hasta **$200.000** con Apprecio. [Inscribirte gratis](https://www.apprecio.com.co)";
+  return "Para asesoría personalizada escríbenos por **WhatsApp** 💬";
 };
-
 interface Msg { from: "bot" | "user"; text: string; }
 
 export const Chatbot = () => {
