@@ -8,6 +8,8 @@ import {
 import { C } from "@/lib/constants";
 import { Chip } from "@/components/ui";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useTheme } from "@/context/ThemeContext";
 
 /* ── Mega menu data ──────────────────────────────────────────── */
 const MENUS: Record<string, any> = {
@@ -100,6 +102,8 @@ const MENUS: Record<string, any> = {
 
 /* ── Mega panel ──────────────────────────────────────────────── */
 const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void; onAction: (a: string) => void }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const data = MENUS[id];
   if (!data) return null;
   return (
@@ -108,9 +112,12 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
       style={{
         position: "absolute", top: "calc(100% + 2px)", left: "50%",
         transform: "translateX(-50%)", zIndex: 600,
-        background: "rgba(6,4,20,0.98)", border: `1px solid ${C.border}`,
+        background: isLight ? "rgba(255,255,255,0.99)" : "rgba(6,4,20,0.98)",
+        border: `1px solid ${isLight ? "#e2e8f0" : C.border}`,
         borderRadius: 16, padding: 22, minWidth: 460, maxWidth: 520,
-        boxShadow: "0 24px 80px rgba(0,0,0,0.85),0 0 0 1px rgba(0,212,255,0.06)",
+        boxShadow: isLight
+          ? "0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(26,86,219,0.06)"
+          : "0 24px 80px rgba(0,0,0,0.85),0 0 0 1px rgba(0,212,255,0.06)",
         backdropFilter: "blur(32px)", animation: "megaIn .18s ease-out",
       }}
     >
@@ -154,10 +161,10 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
                     fontSize: 13, flexShrink: 0,
                   }}>{it.ic}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8eaf6", fontWeight: 700, fontSize: 12 }}>{it.t}</div>
-                    <div style={{ color: C.muted, fontSize: 10, marginTop: 1 }}>{it.d}</div>
+                    <div style={{ color: isLight ? "#0d1b2e" : "#e8eaf6", fontWeight: 700, fontSize: 12 }}>{it.t}</div>
+                    <div style={{ color: isLight ? "#64748b" : C.muted, fontSize: 10, marginTop: 1 }}>{it.d}</div>
                   </div>
-                  <ChevronRight size={10} color={C.muted} style={{ opacity: .4, flexShrink: 0 }} />
+                  <ChevronRight size={10} color={isLight ? "#94a3b8" : C.muted} style={{ opacity: .4, flexShrink: 0 }} />
                 </div>
               ))}
             </div>
@@ -170,6 +177,8 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
 
 /* ── Mobile menu ─────────────────────────────────────────────── */
 const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () => void; onAction: (a: string) => void }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const sections = [
     { label: "Inicio",                icon: "🏠", href: "/" },
     { label: "Consulta tu Cobertura", icon: "📍", action: "cobertura" },
@@ -187,9 +196,10 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
         onClick={onClose}
         style={{
           position: "absolute", top: 18, right: 18,
-          background: "rgba(255,255,255,0.06)", border: "none",
-          borderRadius: "50%", width: 36, height: 36, cursor: "pointer",
-          color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+          background: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.06)",
+          border: "none", borderRadius: "50%", width: 36, height: 36,
+          cursor: "pointer", color: isLight ? "#0d1b2e" : "#fff",
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
         <X size={16} />
@@ -205,12 +215,14 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
           style={{
             display: "flex", alignItems: "center", gap: 14,
             padding: "14px 16px", borderRadius: 12,
-            background: "rgba(255,255,255,0.03)", border: `1px solid ${C.borderSoft}`,
-            color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer",
+            background: isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.03)",
+            border: `1px solid ${isLight ? "#e2e8f0" : C.borderSoft}`,
+            color: isLight ? "#0d1b2e" : "#fff",
+            fontSize: 15, fontWeight: 600, cursor: "pointer",
             textAlign: "left", transition: "all .15s", width: "100%",
           }}
-          onMouseEnter={(e: any) => e.currentTarget.style.background = "rgba(0,212,255,0.08)"}
-          onMouseLeave={(e: any) => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+          onMouseEnter={(e: any) => e.currentTarget.style.background = isLight ? "rgba(26,86,219,0.06)" : "rgba(0,212,255,0.08)"}
+          onMouseLeave={(e: any) => e.currentTarget.style.background = isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.03)"}
         >
           <span style={{ fontSize: 20 }}>{s.icon}</span>
           {s.label}
@@ -234,6 +246,8 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
   const [scrolled,   setScrolled]   = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 8);
@@ -243,6 +257,27 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
 
   const enter = (id: string) => { if (timerRef.current) clearTimeout(timerRef.current); setActive(id); };
   const leave = () => { timerRef.current = setTimeout(() => setActive(null), 160); };
+
+  /* Tokens derivados del tema actual */
+  const navBg       = scrolled
+    ? (isLight ? "rgba(255,255,255,0.99)" : "rgba(4,4,15,0.97)")
+    : (isLight ? "rgba(255,255,255,0.95)" : "rgba(4,4,15,0.92)");
+  const navBorder   = scrolled
+    ? (isLight ? "rgba(26,86,219,0.15)"   : "rgba(0,212,255,0.18)")
+    : (isLight ? "rgba(0,0,0,0.07)"       : C.borderSoft);
+  const navShadow   = scrolled
+    ? (isLight ? "0 4px 20px rgba(0,0,0,0.1)" : "0 8px 40px rgba(0,0,0,0.6)")
+    : "none";
+  const btnIconBg   = isLight ? "rgba(0,0,0,0.04)"  : "rgba(255,255,255,0.04)";
+  const btnIconBd   = isLight ? "rgba(0,0,0,0.1)"   : C.borderSoft;
+  const btnIconClr  = isLight ? "#475569"            : "rgba(180,195,230,0.6)";
+  const navItemClr  = isLight ? "#475569"            : "rgba(180,195,230,0.7)";
+  const navActiveClr = isLight ? "#0d1b2e"           : "#fff";
+  const navActiveBg  = isLight ? "rgba(26,86,219,0.06)" : "rgba(0,212,255,0.08)";
+  const navActiveBd  = isLight ? "rgba(26,86,219,0.2)"  : "rgba(0,212,255,0.2)";
+
+  /* Logo según tema */
+  const logoSrc = isLight ? "/logo.png" : "/logo-hibrido.png";
 
   return (
     <>
@@ -257,38 +292,46 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
         <div
           className="desktop-topbar"
           style={{
-            background: "linear-gradient(90deg,#0a0060,#1a0080,#0a0060)",
-            borderBottom: "1px solid rgba(0,212,255,0.12)",
+            background: isLight
+              ? "linear-gradient(90deg,#0d2b4e,#1a3f6e,#0d2b4e)"
+              : "linear-gradient(90deg,#0a0060,#1a0080,#0a0060)",
+            borderBottom: `1px solid ${isLight ? "rgba(255,255,255,0.1)" : "rgba(0,212,255,0.12)"}`,
             padding: "5px 24px",
             display: "flex", alignItems: "center", justifyContent: "space-between",
           }}
         >
           <div style={{ display: "flex", gap: 16 }}>
             {[["📞", "+57 305 787 6992"], ["📍", "Bogotá, Colombia"], ["🕐", "Atención 24/7"]].map(([ic, t]) => (
-              <span key={t} style={{ color: "rgba(180,200,255,0.6)", fontSize: 10.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+              <span key={t} style={{ color: "rgba(200,220,255,0.7)", fontSize: 10.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                 {ic} {t}
               </span>
             ))}
           </div>
-          <span style={{ background: "linear-gradient(90deg,#00d4ff,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: 11, fontWeight: 800 }}>
+          <span style={{
+            background: isLight
+              ? "linear-gradient(90deg,#3ab54a,#00b8d4)"
+              : "linear-gradient(90deg,#00d4ff,#a855f7)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            fontSize: 11, fontWeight: 800,
+          }}>
             ⚡ ¡Ahorra hasta 40% hoy! Comparamos +15 operadores
           </span>
         </div>
 
         {/* Main nav */}
         <div style={{
-          background:     scrolled ? "rgba(4,4,15,0.97)" : "rgba(4,4,15,0.92)",
+          background:     navBg,
           backdropFilter: "blur(28px)",
-          borderBottom:   `1px solid ${scrolled ? "rgba(0,212,255,0.18)" : C.borderSoft}`,
-          boxShadow:      scrolled ? "0 8px 40px rgba(0,0,0,0.6)" : "none",
+          borderBottom:   `1px solid ${navBorder}`,
+          boxShadow:      navShadow,
           transition:     "all .3s",
         }}>
           <div style={{ maxWidth: 1380, margin: "0 auto", padding: "0 22px", height: 62, display: "flex", alignItems: "center", gap: 0 }}>
 
-            {/* Logo */}
+            {/* Logo — cambia según tema */}
             <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0, marginRight: 28, padding: "8px 0" }}>
               <Image
-                src="/logo.png"
+                src={logoSrc}
                 alt="ComparaTuPlan.com"
                 width={220}
                 height={70}
@@ -303,9 +346,10 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                 <div key={id} style={{ position: "relative", flexShrink: 0 }} onMouseEnter={() => enter(id)} onMouseLeave={leave}>
                   <button style={{
                     display: "flex", alignItems: "center", gap: 5, padding: "8px 11px",
-                    borderRadius: 9, background: active === id ? "rgba(0,212,255,0.08)" : "transparent",
-                    border: `1px solid ${active === id ? "rgba(0,212,255,0.2)" : "transparent"}`,
-                    color: active === id ? "#fff" : "rgba(180,195,230,0.7)",
+                    borderRadius: 9,
+                    background: active === id ? navActiveBg : "transparent",
+                    border: `1px solid ${active === id ? navActiveBd : "transparent"}`,
+                    color: active === id ? navActiveClr : navItemClr,
                     fontWeight: 600, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
                     transition: "all .15s", fontFamily: "inherit",
                   }}>
@@ -327,23 +371,30 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
 
             {/* Right actions */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: 12 }}>
+
+              {/* Theme toggle */}
+              <ThemeToggle />
+
               <button onClick={onSearch} title="Buscar (⌘K)" style={{
-                width: 36, height: 36, borderRadius: 9, background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${C.borderSoft}`, color: "rgba(180,195,230,0.6)",
+                width: 36, height: 36, borderRadius: 9,
+                background: btnIconBg,
+                border: `1px solid ${btnIconBd}`,
+                color: btnIconClr,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(180,195,230,0.6)"; }}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = isLight ? "rgba(26,86,219,0.1)" : "rgba(0,212,255,0.1)"; e.currentTarget.style.color = isLight ? "#0d1b2e" : "#fff"; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = btnIconBg; e.currentTarget.style.color = btnIconClr; }}
               ><Search size={15} /></button>
 
               <button onClick={onCart} style={{
                 position: "relative", width: 36, height: 36, borderRadius: 9,
-                background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderSoft}`,
-                color: "rgba(180,195,230,0.6)", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
+                background: btnIconBg,
+                border: `1px solid ${btnIconBd}`,
+                color: btnIconClr,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(180,195,230,0.6)"; }}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = isLight ? "rgba(26,86,219,0.1)" : "rgba(0,212,255,0.1)"; e.currentTarget.style.color = isLight ? "#0d1b2e" : "#fff"; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = btnIconBg; e.currentTarget.style.color = btnIconClr; }}
               >
                 <ShoppingCart size={15} />
                 {cartCount > 0 && (
@@ -351,7 +402,7 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                     position: "absolute", top: -4, right: -4, width: 16, height: 16,
                     borderRadius: "50%", background: C.red, color: "#fff",
                     fontSize: 8, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid #04040f",
+                    border: `2px solid ${isLight ? "#f0f4f8" : "#04040f"}`,
                   }}>{cartCount}</span>
                 )}
               </button>
@@ -363,8 +414,10 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                 onClick={() => setMobileOpen(true)}
                 style={{
                   display: "none", width: 36, height: 36, borderRadius: 9,
-                  background: "rgba(255,255,255,0.06)", border: `1px solid ${C.borderSoft}`,
-                  color: "#fff", cursor: "pointer", alignItems: "center", justifyContent: "center",
+                  background: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.06)",
+                  border: `1px solid ${btnIconBd}`,
+                  color: isLight ? "#0d1b2e" : "#fff",
+                  cursor: "pointer", alignItems: "center", justifyContent: "center",
                 }}
               >
                 <Menu size={18} />
