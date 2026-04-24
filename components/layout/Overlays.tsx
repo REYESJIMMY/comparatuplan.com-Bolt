@@ -368,13 +368,7 @@ export const Chatbot = () => {
               <button key={q} onClick={() => send(q)} style={{ background: "rgba(0,212,255,0.08)", border: `1px solid ${C.border}`, color: C.neon, borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer" }}>{q}</button>
             ))}
 
-              href={`https://wa.me/573057876992?text=${encodeURIComponent("Hola, necesito asesoría personalizada sobre planes de telecomunicaciones 🚀")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.3)", color: "#25D366", borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer", textDecoration: "none" }}
-            >
-              💬 Asesor
-            </a>
+            <a href={`https://wa.me/573057876992?text=${encodeURIComponent("Hola, necesito asesoría personalizada sobre planes de telecomunicaciones 🚀")}`} target="_blank" rel="noopener noreferrer" style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.3)", color: "#25D366", borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer", textDecoration: "none" }}>💬 Asesor</a>
           </div>
 
           <div style={{ padding: "5px 7px 9px", display: "flex", gap: 5 }}>
