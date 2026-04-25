@@ -195,37 +195,49 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
 
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
 
-  const calcularYBuscar = async () => {
-    if (!avatar || !personas || devices.length === 0) return;
-    setLoading(true);
-    const res = calcularConsumo(devices, personas, avatar, DEVICES);
-    setResumen(res);
-    setEcosistema(recomendarEcosistema(res));
-    try {
-      const { data: rawData } = await supabase
-        .from("planes_unicos")
-        .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
-        .in("tipo", res.tiposRelevantes)
-        .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
-        .order("precio", { ascending: true })
-        .limit(500);
-      const planes = scorarPlanes(rawData ?? [], res, 3);
-      setPlanesDB(planes);
-      await guardarAnalisis({
-        avatar_tipo:   avatar.id,
-        dispositivos:  devices,
-        mbps_base:     res.mbpsBase,
-        mbps_rec:      res.mbpsRecomendado,
-        tipo_plan_rec: res.tiposRelevantes[0],
-        planes_vistos: planes.map((p) => p.id_crc).filter(Boolean),
-      });
-    } catch (e) {
-      console.error("Error consultando Supabase:", e);
-    } finally {
-      setLoading(false);
-      setLvl(3);
-    }
-  };
+  // ── REEMPLAZA el bloque calcularYBuscar en GameFlow.tsx ──────
+// Busca: "const calcularYBuscar = async () => {"
+// Reemplaza TODO el bloque hasta el "}" que lo cierra
+
+const calcularYBuscar = async () => {
+  if (!avatar || !personas || devices.length === 0) return;
+  setLoading(true);
+  const res = calcularConsumo(devices, personas, avatar, DEVICES);
+  setResumen(res);
+  setEcosistema(recomendarEcosistema(res));
+  try {
+    // ── CAMBIO CLAVE: tabla `planes` en lugar de `planes_unicos` ──
+    // planes_unicos es una vista pesada que hace timeout.
+    // Ahora consultamos directamente `planes` con limit alto
+    // y scorarPlanes() deduplica internamente por operador+nombre.
+    const { data: rawData, error } = await supabase
+      .from("planes")
+      .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
+      .in("tipo", res.tiposRelevantes)
+      .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
+      .order("precio", { ascending: true })
+      .limit(2000);   // ← suficiente para cubrir los ~445 planes únicos × 4 operadores
+
+    if (error) console.error("Supabase error:", error);
+
+    const planes = scorarPlanes(rawData ?? [], res, 3);
+    setPlanesDB(planes);
+
+    await guardarAnalisis({
+      avatar_tipo:   avatar.id,
+      dispositivos:  devices,
+      mbps_base:     res.mbpsBase,
+      mbps_rec:      res.mbpsRecomendado,
+      tipo_plan_rec: res.tiposRelevantes[0],
+      planes_vistos: planes.map((p) => p.id_crc).filter(Boolean),
+    });
+  } catch (e) {
+    console.error("Error consultando Supabase:", e);
+  } finally {
+    setLoading(false);
+    setLvl(3);
+  }
+};
 
   /* ── Level 0 — Intro ─────────────────────────────────────────── */
   if (lvl === 0) return (
