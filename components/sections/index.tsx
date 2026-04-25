@@ -54,6 +54,7 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
               ? "linear-gradient(90deg,#1a56db,#3ab54a)"
               : "linear-gradient(90deg,#00d4ff,#a855f7,#ec4899)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            display: "inline-block",
           }}>
             máximo potencial de tu red
           </span>
