@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { C, openWA } from "@/lib/constants";
+import { useTheme } from "@/context/ThemeContext";
 
 /* ── WhatsApp icon ───────────────────────────────────────────── */
 export const WaIco = ({ s = 14 }: { s?: number }) => (
@@ -11,37 +12,46 @@ export const WaIco = ({ s = 14 }: { s?: number }) => (
 
 /* ── GlowBtn ─────────────────────────────────────────────────── */
 interface GlowBtnProps {
-  children: React.ReactNode;
-  onClick?: () => void;
+  children:  React.ReactNode;
+  onClick?:  () => void;
   disabled?: boolean;
   gradient?: string;
-  glow?: string;
-  style?: React.CSSProperties;
-  full?: boolean;
+  glow?:     string;
+  style?:    React.CSSProperties;
+  full?:     boolean;
   className?: string;
 }
 export const GlowBtn = ({
   children, onClick, disabled, gradient, glow, style = {}, full, className,
 }: GlowBtnProps) => {
-  const g  = gradient ?? "linear-gradient(135deg,#00d4ff22,#a855f722)";
-  const gl = glow     ?? C.neon;
+  const { theme } = useTheme();
+  const L  = theme === "light";
+  const g  = gradient ?? (L
+    ? "linear-gradient(135deg,#1a56db,#0050aa)"
+    : "linear-gradient(135deg,#00d4ff22,#a855f722)");
+  const gl = glow ?? (L ? "#1a56db" : C.neon);
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={className}
       style={{
-        width:       full ? "100%" : undefined,
-        background:  disabled ? "rgba(255,255,255,0.05)" : g,
-        color:       disabled ? "#444" : "#fff",
-        border:      disabled ? "1px solid rgba(255,255,255,0.07)" : `1px solid ${gl}44`,
+        width:        full ? "100%" : undefined,
+        background:   disabled
+          ? (L ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)")
+          : g,
+        color:        disabled ? (L ? "#aaa" : "#444") : "#fff",
+        border:       disabled
+          ? `1px solid ${L ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.07)"}`
+          : `1px solid ${gl}44`,
         borderRadius: 10,
-        padding:     "10px 20px",
-        fontWeight:  700,
-        fontSize:    13,
-        cursor:      disabled ? "default" : "pointer",
-        boxShadow:   disabled ? "none" : `0 0 18px ${gl}33`,
-        transition:  "all .2s",
+        padding:      "10px 20px",
+        fontWeight:   700,
+        fontSize:     13,
+        cursor:       disabled ? "default" : "pointer",
+        boxShadow:    disabled ? "none" : `0 0 18px ${gl}33`,
+        transition:   "all .2s",
         ...style,
       }}
       onMouseEnter={(e) => {
@@ -62,29 +72,29 @@ export const GlowBtn = ({
 
 /* ── WABtn ───────────────────────────────────────────────────── */
 interface WABtnProps {
-  name: string;
+  name:   string;
   label?: string;
-  full?: boolean;
+  full?:  boolean;
   style?: React.CSSProperties;
 }
 export const WABtn = ({ name, label = "Lo Quiero", full, style = {} }: WABtnProps) => (
   <button
     onClick={() => openWA(name)}
     style={{
-      width:       full ? "100%" : undefined,
-      background:  "linear-gradient(135deg,#25d366,#128c7e)",
-      color:       "#fff",
-      border:      "none",
-      borderRadius: 10,
-      padding:     "10px 16px",
-      fontWeight:  700,
-      fontSize:    13,
-      cursor:      "pointer",
-      display:     "flex",
-      alignItems:  "center",
+      width:          full ? "100%" : undefined,
+      background:     "linear-gradient(135deg,#25d366,#128c7e)",
+      color:          "#fff",
+      border:         "none",
+      borderRadius:   10,
+      padding:        "10px 16px",
+      fontWeight:     700,
+      fontSize:       13,
+      cursor:         "pointer",
+      display:        "flex",
+      alignItems:     "center",
       justifyContent: "center",
-      gap:         7,
-      transition:  "transform .15s",
+      gap:            7,
+      transition:     "transform .15s",
       ...style,
     }}
     onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
@@ -97,34 +107,44 @@ export const WABtn = ({ name, label = "Lo Quiero", full, style = {} }: WABtnProp
 
 /* ── Card ────────────────────────────────────────────────────── */
 interface CardProps {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-  glow?: string;
-  onClick?: () => void;
+  children:      React.ReactNode;
+  style?:        React.CSSProperties;
+  glow?:         string;
+  onClick?:      () => void;
   onMouseEnter?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseLeave?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
-export const Card = ({ children, style = {}, glow, onClick, onMouseEnter, onMouseLeave }: CardProps) => (
-  <div
-    onClick={onClick}
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-    style={{
-      background:    "rgba(8,6,28,0.8)",
-      border:        `1px solid ${glow ? glow + "28" : C.borderSoft}`,
-      borderRadius:  16,
-      backdropFilter:"blur(16px)",
-      boxShadow:     glow ? `0 0 24px ${glow}12` : "none",
-      transition:    "all .2s",
-      ...style,
-    }}
-  >
-    {children}
-  </div>
-);
+export const Card = ({ children, style = {}, glow, onClick, onMouseEnter, onMouseLeave }: CardProps) => {
+  const { theme } = useTheme();
+  const L = theme === "light";
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        background:     L ? "#ffffff" : "rgba(8,6,28,0.8)",
+        border:         `1px solid ${glow ? glow + "28" : (L ? "#e2e8f0" : C.borderSoft)}`,
+        borderRadius:   16,
+        backdropFilter: L ? "none" : "blur(16px)",
+        boxShadow:      glow
+          ? (L ? `0 2px 12px rgba(0,0,0,0.08)` : `0 0 24px ${glow}12`)
+          : (L ? "0 1px 6px rgba(0,0,0,0.06)" : "none"),
+        transition:     "all .2s",
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 /* ── Chip ────────────────────────────────────────────────────── */
-export const Chip = ({ children, color = C.neon, style = {} }: { children: React.ReactNode; color?: string; style?: React.CSSProperties }) => (
+export const Chip = ({
+  children, color = C.neon, style = {},
+}: {
+  children: React.ReactNode; color?: string; style?: React.CSSProperties;
+}) => (
   <span
     style={{
       background:    `${color}14`,
