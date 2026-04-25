@@ -181,11 +181,12 @@ export function calcularConsumo(
   const necesitaMovil   = ids.some((id) => id === "phone");
   const necesitaTrabajo = ids.some((id) => ["laptop", "pc"].includes(id));
 
+  // Busca el bloque de tiposRelevantes y reemplázalo por:
   let tiposRelevantes: string[];
-  if (necesitaTV && mbpsBase > 0)       tiposRelevantes = ["paquete", "internet", "tv"];
-  else if (necesitaTV)                   tiposRelevantes = ["paquete", "tv"];
-  else if (necesitaMovil && mbpsBase <= 20) tiposRelevantes = ["movil", "internet"];
-  else                                   tiposRelevantes = ["internet", "paquete", "movil"];
+  if (necesitaTV && mbpsBase > 0)   tiposRelevantes = ["paquete", "internet"];
+  else if (necesitaTV)               tiposRelevantes = ["paquete", "tv"];
+  else                               tiposRelevantes = ["internet", "paquete"];
+  // ← móvil nunca aparece en GameFlow hogar                                 tiposRelevantes = ["internet", "paquete", "movil"];
 
   return {
     desglose, mbpsBase, factorSimultaneidad, factorAvatar,
