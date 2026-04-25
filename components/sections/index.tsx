@@ -57,7 +57,9 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-            paddingBottom: 4,
+            color: "transparent",
+            paddingBottom: 6,
+            lineHeight: 1.2,
           }}>
             máximo potencial de tu red,
           </span>
