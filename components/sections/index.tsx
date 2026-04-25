@@ -47,7 +47,7 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
         </div>
 
         {/* H1 */}
-        <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1 }}>
+        <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1, display: "inline-block", width: "100%" }}>
           Compara y desbloquea el<br />
           <span style={{
             background: L
