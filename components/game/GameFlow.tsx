@@ -213,10 +213,10 @@ const calcularYBuscar = async () => {
     const { data: rawData, error } = await supabase
       .from("planes")
       .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
-      .in("tipo", res.tiposRelevantes)
+      .in("tipo", ["internet", "paquete", "tv"])   // ← hardcoded, nunca "movil"
       .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
       .order("precio", { ascending: true })
-      .limit(2000);   // ← suficiente para cubrir los ~445 planes únicos × 4 operadores
+      .limit(2000);
 
     if (error) console.error("Supabase error:", error);
 
