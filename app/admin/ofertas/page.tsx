@@ -349,6 +349,10 @@ export default function AdminOfertasPage() {
             style={{ color: C.neon, fontSize: 13, textDecoration: "none", fontWeight: 600 }}>
             Ver página pública de ofertas →
           </a>
+          <a href="/admin/planes"
+            style={{ color: "rgba(168,85,247,0.8)", fontSize: 13, textDecoration: "none", fontWeight: 600 }}>
+            📡 Planes Manuales →
+          </a>
         </div>
       </div>
     </div>
