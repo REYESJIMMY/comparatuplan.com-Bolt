@@ -537,7 +537,7 @@ const calcularYBuscar = async () => {
                     <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
                   </button>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 13, ... }}>{p.nombreLimpio || p.nombre}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6", lineHeight: 1.35, minHeight: 36 }}>{p.nombreLimpio || p.nombre}</div>
                 <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
                   ${p.precio.toLocaleString()}<span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
                 </div>
