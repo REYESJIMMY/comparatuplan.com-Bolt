@@ -344,15 +344,17 @@ export default function AdminOfertasPage() {
         </div>
 
         {/* Link a página pública */}
-        <div style={{ marginTop: 24, textAlign: "center" }}>
+        <div style={{ marginTop: 24, display: "flex", gap: 20, justifyContent: "center" }}>
           <a href="/ofertas" target="_blank"
             style={{ color: C.neon, fontSize: 13, textDecoration: "none", fontWeight: 600 }}>
             Ver página pública de ofertas →
           </a>
-          <a href="/admin/planes"
-            style={{ color: "rgba(168,85,247,0.8)", fontSize: 13, textDecoration: "none", fontWeight: 600 }}>
-            📡 Planes Manuales →
-          </a>
+          {isAdmin && (
+            <a href="/admin/planes"
+              style={{ color: "rgba(168,85,247,0.8)", fontSize: 13, textDecoration: "none", fontWeight: 600 }}>
+              📡 Planes Manuales →
+            </a>
+          )}
         </div>
       </div>
     </div>
