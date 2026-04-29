@@ -321,16 +321,11 @@ const calcularYBuscar = async () => {
                   📱 Te llevamos a Planes Móviles →
                 </div>
               ) : (
-                {av.id === "nomada" ? (
-                  <div style={{ marginTop: 6, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 6, padding: "4px 8px", fontSize: 9, color: "#f59e0b", fontWeight: 700 }}>
-                    📱 Te llevamos a Planes Móviles →
-                  </div>
-                ) : (
-                  <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9 }}>Presupuesto: ${av.precioMax.toLocaleString()}/mes</div>
-                )}
-                {sel && av.id !== "nomada" && (
-                  <div style={{ marginTop: 7, color: av.color, fontSize: 10, fontWeight: 800 }}>✓ Seleccionado</div>
-                )}
+                <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 9 }}>Presupuesto: ${av.precioMax.toLocaleString()}/mes</div>
+              )}
+              {sel && av.id !== "nomada" && (
+                <div style={{ marginTop: 7, color: av.color, fontSize: 10, fontWeight: 800 }}>✓ Seleccionado</div>
+              )}
             </div>
           );
         })}
