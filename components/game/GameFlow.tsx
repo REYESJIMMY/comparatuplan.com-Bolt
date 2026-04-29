@@ -304,7 +304,13 @@ const calcularYBuscar = async () => {
         {AVATARS.map((av) => {
           const sel = avatar?.id === av.id;
           return (
-            <div key={av.id} onClick={() => setAvatar(av)} style={{
+            <div key={av.id} onClick={() => {
+              if (av.id === "nomada") {
+                onMovil();   // redirige directo a MovilFlow
+                return;
+              }
+              setAvatar(av);
+            }} style={{
               cursor: "pointer", textAlign: "center", padding: "20px 10px",
               background: sel ? `${av.color}12` : "rgba(255,255,255,0.02)",
               border: `2px solid ${sel ? av.color : C.borderSoft}`,
