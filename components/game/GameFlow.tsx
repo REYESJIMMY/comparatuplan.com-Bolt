@@ -150,7 +150,7 @@ const NivelModal = ({
 );
 
 /* ── GameFlow ────────────────────────────────────────────────── */
-export const GameFlow = ({ onBack }: { onBack: () => void }) => {
+export const GameFlow = ({ onBack, onMovil }: { onBack: () => void; onMovil: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
 
   const [lvl,        setLvl]        = useState(0);
