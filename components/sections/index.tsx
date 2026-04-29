@@ -16,110 +16,273 @@ interface HeroProps {
   addToCart: (item: any) => void;
 }
 
+/* ── Hero v3 — ComparaTuPlan.com ─────────────────────────────
+ * Cambios vs v2:
+ * - Sin checkbox de autorización de datos en el hero
+ * - Sin botón WhatsApp (Nexus lo cubre)
+ * - 2 CTAs principales: Consulta Cobertura + Misión 3D
+ * - 3 accesos directos al catálogo filtrado (sin auth)
+ * - Copy actualizado: transparencia, no precio
+ * - Nómada Digital redirige a MovilFlow
+ * ─────────────────────────────────────────────────────────── */
+
+interface HeroProps {
+  onGame:    () => void;
+  onMovil:   () => void;
+  onSegment: () => void;
+  addToCart: (item: any) => void;
+}
+
 export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
   const { theme } = useTheme();
   const L = theme === "light";
-  const [mayor, setMayor] = useState(false);
-  const [habea, setHabea] = useState(false);
-  const ready = mayor && habea;
+
+  /* ── tokens de tema ──────────────────────────────────────── */
+  const heroBg     = L ? "#ffffff"                      : "rgba(4,4,15,0.95)";
+  const heroBorder = L ? "#e2e8f0"                      : "rgba(0,212,255,0.1)";
+  const sub1Color  = L ? "#0d1b2e"                      : "rgba(255,255,255,0.8)";
+  const sub2Color  = L ? "#64748b"                      : "rgba(180,195,230,0.4)";
+  const lockColor  = L ? "rgba(26,86,219,0.4)"          : "rgba(0,212,255,0.35)";
+  const nomadColor = L ? "rgba(124,58,237,0.4)"         : "rgba(168,85,247,0.35)";
+  const sepColor   = L ? "rgba(0,0,0,0.08)"             : "rgba(0,212,255,0.1)";
+  const sepTxtClr  = L ? "rgba(0,0,0,0.2)"              : "rgba(180,195,230,0.2)";
+
+  /* ── accesos directos ────────────────────────────────────── */
+  const ACCESOS = [
+    {
+      label:    "Internet Hogar",
+      sub:      "Filtrar por operador",
+      color:    L ? "#0070cc" : "#00d4ff",
+      bg:       L ? "rgba(0,112,204,0.06)"  : "rgba(0,212,255,0.03)",
+      border:   L ? "rgba(0,112,204,0.15)"  : "rgba(0,212,255,0.12)",
+      bgHover:  L ? "rgba(0,112,204,0.12)"  : "rgba(0,212,255,0.08)",
+      bdHover:  L ? "rgba(0,112,204,0.35)"  : "rgba(0,212,255,0.3)",
+      glow:     L ? "rgba(0,112,204,0.12)"  : "rgba(0,212,255,0.1)",
+      href:     "/planes?tipo=internet",
+      icon: (c: string) => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      ),
+    },
+    {
+      label:    "Planes Móviles",
+      sub:      "Prepago · Pospago",
+      color:    L ? "#7c3aed" : "#a855f7",
+      bg:       L ? "rgba(124,58,237,0.06)" : "rgba(168,85,247,0.03)",
+      border:   L ? "rgba(124,58,237,0.15)" : "rgba(168,85,247,0.12)",
+      bgHover:  L ? "rgba(124,58,237,0.12)" : "rgba(168,85,247,0.08)",
+      bdHover:  L ? "rgba(124,58,237,0.35)" : "rgba(168,85,247,0.3)",
+      glow:     L ? "rgba(124,58,237,0.1)"  : "rgba(168,85,247,0.1)",
+      href:     "/planes?tipo=movil",
+      icon: (c: string) => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2">
+          <rect x="5" y="2" width="14" height="20" rx="2"/>
+          <line x1="12" y1="18" x2="12" y2="18.01"/>
+        </svg>
+      ),
+    },
+    {
+      label:    "TV + Paquetes",
+      sub:      "Triple play · Combos",
+      color:    L ? "#b45309" : "#f59e0b",
+      bg:       L ? "rgba(180,83,9,0.06)"   : "rgba(245,158,11,0.03)",
+      border:   L ? "rgba(180,83,9,0.15)"   : "rgba(245,158,11,0.12)",
+      bgHover:  L ? "rgba(180,83,9,0.12)"   : "rgba(245,158,11,0.08)",
+      bdHover:  L ? "rgba(180,83,9,0.35)"   : "rgba(245,158,11,0.3)",
+      glow:     L ? "rgba(180,83,9,0.1)"    : "rgba(245,158,11,0.1)",
+      href:     "/planes?tipo=paquete",
+      icon: (c: string) => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2">
+          <rect x="2" y="7" width="20" height="15" rx="2"/>
+          <polyline points="17 2 12 7 7 2"/>
+        </svg>
+      ),
+    },
+  ];
 
   return (
     <section style={{
       position: "relative", borderRadius: 20, overflow: "hidden",
-      border: `1px solid ${L ? "#e2e8f0" : C.border}`,
-      background: L ? "#ffffff" : "rgba(6,4,22,0.7)",
-      padding: "clamp(28px,5vw,48px) clamp(16px,4vw,32px) 40px",
-      minHeight: 330,
+      border: `1px solid ${heroBorder}`,
+      background: heroBg,
+      padding: "clamp(32px,5vw,52px) clamp(20px,4vw,40px) 44px",
       boxShadow: L ? "0 2px 12px rgba(0,0,0,0.06)" : "none",
     }}>
-      {!L && <Particles count={30} />}
+      {/* Partículas solo en dark */}
+      {!L && <Particles count={28} />}
+
+      {/* Orbs de fondo dark */}
+      {!L && (
+        <>
+          <div style={{ position: "absolute", top: -100, right: -80, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle,rgba(168,85,247,0.07) 0%,transparent 65%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -80, left: -60, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(0,212,255,0.05) 0%,transparent 65%)", pointerEvents: "none" }} />
+        </>
+      )}
+
       <div style={{ position: "relative", zIndex: 2 }}>
 
-        {/* Badge */}
+        {/* ── Badge ──────────────────────────────────────────── */}
         <div style={{
-          display: "inline-flex", alignItems: "center", gap: 7,
-          background: L ? "#e8f5e9" : "rgba(0,212,255,0.08)",
-          border: `1px solid ${L ? "#a5d6a7" : C.border}`,
-          borderRadius: 99, padding: "5px 14px", marginBottom: 16,
+          display: "inline-flex", alignItems: "center", gap: 8,
+          background: L ? "#e8f5e9" : "rgba(58,181,74,0.07)",
+          border: `1px solid ${L ? "#a5d6a7" : "rgba(58,181,74,0.25)"}`,
+          borderRadius: 99, padding: "6px 16px", marginBottom: 24,
         }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: L ? "#3ab54a" : C.green, display: "inline-block", animation: "blink 1.5s infinite" }} />
-          <span style={{ color: L ? "#2e7d32" : C.neon, fontSize: 11, fontWeight: 700 }}>+1.500 usuarios ahorran cada mes</span>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: L ? "#3ab54a" : "#3ab54a", display: "inline-block", boxShadow: L ? "none" : "0 0 10px #3ab54aaa", animation: "blink 1.5s infinite" }} />
+          <span style={{ color: L ? "#2e7d32" : "#3ab54a", fontSize: 11, fontWeight: 700 }}>+1.500 usuarios toman mejores decisiones cada mes</span>
         </div>
 
-        {/* H1 */}
-        <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1 }}>
+        {/* ── H1 ─────────────────────────────────────────────── */}
+        <h1 style={{
+          fontSize: "clamp(1.8rem,4.5vw,2.8rem)", fontWeight: 900,
+          lineHeight: 1.1, marginBottom: 18,
+          color: L ? "#0d1b2e" : "#fff", letterSpacing: -1.5,
+          maxWidth: 640,
+        }}>
           Compara y desbloquea el<br />
-          <span className="hero-gradient-text">
-            máximo potencial de tu red,
-          </span>
+          <span className="hero-gradient-text">máximo potencial de tu red,</span>
           <span style={{ display: "block" }}>todo desde un solo lugar</span>
         </h1>
 
-        <p style={{ fontSize: 14, color: L ? "#475569" : "rgba(180,195,230,0.75)", marginBottom: 22, maxWidth: 460, lineHeight: 1.65 }}>
-          Ahorra hasta un <strong style={{ color: L ? "#0d1b2e" : "#fff" }}>40% en tu factura</strong>. Análisis inteligente de planes en segundos.
-        </p>
-
-        {/* Auth box */}
-        <div style={{
-          background: L ? "#f8fafc" : "rgba(0,212,255,0.04)",
-          border: `1px solid ${L ? "#e2e8f0" : C.border}`,
-          borderRadius: 11, padding: "12px 15px", marginBottom: 20, maxWidth: 420,
-        }}>
-          <div style={{ color: L ? "#94a3b8" : "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1, marginBottom: 9 }}>AUTORIZACIÓN DE DATOS</div>
-          <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", marginBottom: 7 }}>
-            <div onClick={() => setMayor(!mayor)} style={{
-              width: 15, height: 15, borderRadius: 4,
-              border: `2px solid ${mayor ? (L ? "#1a56db" : C.neon) : (L ? "#cbd5e1" : "rgba(255,255,255,0.15)")}`,
-              background: mayor ? (L ? "#1a56db" : C.neon) : "transparent",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all .2s", flexShrink: 0, cursor: "pointer",
-            }}>
-              {mayor && <Check size={8} color="#fff" strokeWidth={3} />}
-            </div>
-            <span style={{ color: L ? "#475569" : "rgba(180,190,220,0.65)", fontSize: 11, fontWeight: 600 }}>Soy mayor de edad (18+)</span>
-          </label>
-          <label style={{ display: "flex", alignItems: "flex-start", gap: 9, cursor: "pointer" }}>
-            <div onClick={() => setHabea(!habea)} style={{
-              width: 15, height: 15, borderRadius: 4,
-              border: `2px solid ${habea ? (L ? "#1a56db" : C.neon) : (L ? "#cbd5e1" : "rgba(255,255,255,0.15)")}`,
-              background: habea ? (L ? "#1a56db" : C.neon) : "transparent",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all .2s", flexShrink: 0, cursor: "pointer", marginTop: 1,
-            }}>
-              {habea && <Check size={8} color="#fff" strokeWidth={3} />}
-            </div>
-            <span style={{ color: L ? "#475569" : "rgba(180,190,220,0.65)", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              Acepto la{" "}
-              <a href="/politica-de-datos" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                style={{ color: L ? "#1a56db" : C.neon, textDecoration: "underline" }}>
-                Política de Tratamiento de Datos Personales
-              </a>{" "}
-              conforme a la Ley 1581 de 2012
-            </span>
-          </label>
+        {/* ── Subtítulo ───────────────────────────────────────── */}
+        <div style={{ marginBottom: 38, maxWidth: 500 }}>
+          <p style={{ fontSize: 15, color: sub1Color, margin: "0 0 6px", lineHeight: 1.6, fontWeight: 600 }}>
+            Encuentra el plan que realmente necesitas.
+          </p>
+          <p style={{ fontSize: 13, color: sub2Color, margin: 0, lineHeight: 1.6 }}>
+            Más de 14.000 planes · Un solo comparador transparente · Datos reales CRC
+          </p>
         </div>
 
-        {/* CTAs */}
-        <div className="hero-actions" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+        {/* ── 2 CTAs principales ──────────────────────────────── */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 38, alignItems: "flex-start" }}>
+
+          {/* Consulta Cobertura */}
           <div>
-            <GlowBtn onClick={onSegment} disabled={!ready} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={L ? "#1a56db" : C.neon} style={{ borderRadius: 11, padding: "11px 24px", fontSize: 14 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><MapPin size={14} />Consulta tu Cobertura<ArrowRight size={12} /></span>
+            <GlowBtn
+              onClick={onSegment}
+              gradient="linear-gradient(135deg,#0060cc,#003d99)"
+              glow={L ? "#1a56db" : "#00d4ff"}
+              style={{ borderRadius: 14, padding: "0", fontSize: 14, minWidth: 210 }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 22px" }}>
+                <span style={{
+                  width: 40, height: 40, borderRadius: 11,
+                  background: "rgba(255,255,255,0.13)",
+                  border: "0.5px solid rgba(255,255,255,0.15)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  <MapPin size={18} color="#fff" />
+                </span>
+                <span style={{ textAlign: "left" }}>
+                  <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 3 }}>Consulta tu Cobertura</span>
+                  <span style={{ display: "block", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Hogar · Móvil en tu zona</span>
+                </span>
+                <ArrowRight size={14} color="rgba(255,255,255,0.5)" style={{ marginLeft: "auto", flexShrink: 0 }} />
+              </span>
             </GlowBtn>
-            <div style={{ marginTop: 5, color: L ? "#3ab54a" : C.green, fontSize: 10, fontWeight: 700, textAlign: "center" }}>🏠 Hogar · 📱 Móvil</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7, paddingLeft: 2 }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={lockColor} strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <span style={{ color: lockColor, fontSize: 9, letterSpacing: 0.3 }}>Requiere autorización de datos personales</span>
+            </div>
           </div>
+
+          {/* Misión 3D */}
           <div>
-            <GlowBtn onClick={onGame} disabled={!ready} gradient={L ? "linear-gradient(135deg,#1a56db,#3b82f6)" : "linear-gradient(135deg,#6600cc,#a855f7)"} glow={L ? "#1a56db" : C.neon2} style={{ borderRadius: 11, padding: "11px 22px", fontSize: 14 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><Zap size={14} />Diseñar Hogar Digital</span>
+            <GlowBtn
+              onClick={onGame}
+              gradient="linear-gradient(135deg,#3d0099,#7000cc)"
+              glow={L ? "#7c3aed" : "#a855f7"}
+              style={{ borderRadius: 14, padding: "0", fontSize: 14, minWidth: 210 }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 22px" }}>
+                <span style={{
+                  width: 40, height: 40, borderRadius: 11,
+                  background: "rgba(255,255,255,0.13)",
+                  border: "0.5px solid rgba(255,255,255,0.15)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  <Zap size={18} color="#fff" />
+                </span>
+                <span style={{ textAlign: "left" }}>
+                  <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 3 }}>Misión 3D · Hogar Digital</span>
+                  <span style={{ display: "block", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Calcula Mbps por dispositivo</span>
+                </span>
+                <span style={{
+                  marginLeft: "auto", flexShrink: 0,
+                  background: "rgba(255,255,255,0.14)",
+                  border: "0.5px solid rgba(255,255,255,0.2)",
+                  borderRadius: 6, padding: "3px 8px",
+                  fontSize: 9, color: "#fff", fontWeight: 700, whiteSpace: "nowrap",
+                }}>NUEVO</span>
+              </span>
             </GlowBtn>
-            <div style={{ marginTop: 5, color: L ? "#1a56db" : C.neon2, fontSize: 10, fontWeight: 700, textAlign: "center" }}>🏠 Misión 3D</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7, paddingLeft: 2 }}>
+              <Zap size={9} color={nomadColor} />
+              <span style={{ color: nomadColor, fontSize: 9, letterSpacing: 0.3 }}>Perfil Nómada Digital → redirige a planes móviles</span>
+            </div>
           </div>
-          <WABtn name="asesoría personalizada" label="Asesor WhatsApp" style={{ borderRadius: 11, padding: "11px 18px", fontSize: 14 }} />
+
         </div>
+
+        {/* ── Separador ───────────────────────────────────────── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+          <div style={{ flex: 1, height: 1, background: L ? "#f1f5f9" : `linear-gradient(90deg,transparent,${sepColor},transparent)` }} />
+          <span style={{ color: sepTxtClr, fontSize: 9, letterSpacing: 2.5, fontWeight: 800, whiteSpace: "nowrap" }}>EXPLORAR DIRECTAMENTE</span>
+          <div style={{ flex: 1, height: 1, background: L ? "#f1f5f9" : `linear-gradient(90deg,transparent,${sepColor},transparent)` }} />
+        </div>
+
+        {/* ── 3 accesos directos ──────────────────────────────── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 560 }}>
+          {ACCESOS.map((a, i) => (
+            <a
+              key={i}
+              href={a.href}
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                background: a.bg,
+                border: `0.5px solid ${a.border}`,
+                borderRadius: 13, padding: 14,
+                textDecoration: "none", transition: "all .2s",
+              }}
+              onMouseEnter={(e: any) => {
+                e.currentTarget.style.background  = a.bgHover;
+                e.currentTarget.style.borderColor = a.bdHover;
+                e.currentTarget.style.transform   = "translateY(-3px)";
+                e.currentTarget.style.boxShadow   = `0 6px 20px ${a.glow}`;
+              }}
+              onMouseLeave={(e: any) => {
+                e.currentTarget.style.background  = a.bg;
+                e.currentTarget.style.borderColor = a.border;
+                e.currentTarget.style.transform   = "";
+                e.currentTarget.style.boxShadow   = "";
+              }}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: 9,
+                background: `${a.color}14`,
+                border: `0.5px solid ${a.color}28`,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                {a.icon(a.color)}
+              </div>
+              <div>
+                <div style={{ color: a.color, fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{a.label}</div>
+                <div style={{ color: L ? "#94a3b8" : "rgba(180,195,230,0.35)", fontSize: 10 }}>{a.sub}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+
       </div>
     </section>
   );
 };
-
 /* ── Ofertas Hot ─────────────────────────────────────────────── */
 export const OfertasHotSection = () => {
   const { theme } = useTheme();
