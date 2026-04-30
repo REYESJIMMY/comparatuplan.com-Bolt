@@ -362,9 +362,90 @@ const calcularYBuscar = async () => {
   );
 
   /* ── Level 2 — Devices ───────────────────────────────────────── */
+  const RANGOS = [
+    { val: 50000  }, { val: 80000  }, { val: 100000 }, { val: 130000 },
+    { val: 150000 }, { val: 200000 }, { val: 250000 }, { val: 300000 },
+    { val: 400000 }, { val: 500000 },
+  ];
+
   if (showPresupuesto) return (
-  // pega aquí el JSX de PresupuestoStepJSX del archivo patch
-  );
+    <Wrap>
+      <LvlBar lvl={2} />
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ fontSize: 48, marginBottom: 10 }}>💰</div>
+        <h2 style={{ fontWeight: 900, fontSize: "clamp(1.2rem,4vw,1.7rem)", marginBottom: 8, background: "linear-gradient(90deg,#00d4ff,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          ¿Cuánto quieres invertir al mes?
+        </h2>
+        <p style={{ color: C.muted, fontSize: 13, maxWidth: 420, margin: "0 auto" }}>
+          Esto nos permite recomendarte la mejor relación calidad–precio para tu hogar
+        </p>
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ fontSize: 48, fontWeight: 900, color: C.neon }}>
+          ${presupuesto.toLocaleString("es-CO")}
+        </div>
+        <div style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>por mes</div>
+      </div>
+      <div style={{ marginBottom: 24, padding: "0 8px" }}>
+        <input
+          type="range"
+          min={0}
+          max={RANGOS.length - 1}
+          value={RANGOS.findIndex((r) => r.val >= presupuesto)}
+          onChange={(e) => setPresupuesto(RANGOS[Number(e.target.value)].val)}
+          style={{ width: "100%", accentColor: C.neon, height: 6, cursor: "pointer" }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+          <span style={{ color: C.muted, fontSize: 10 }}>$50K</span>
+          <span style={{ color: C.muted, fontSize: 10 }}>$500K+</span>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8, marginBottom: 28 }}>
+        {[80000, 130000, 200000, 300000, 400000].map((val) => (
+          <button
+            key={val}
+            onClick={() => setPresupuesto(val)}
+            style={{
+              padding: "10px 4px", borderRadius: 10, cursor: "pointer",
+              background: presupuesto === val ? `${C.neon}18` : "rgba(255,255,255,0.03)",
+              border: `1.5px solid ${presupuesto === val ? C.neon : C.borderSoft}`,
+              color: presupuesto === val ? C.neon : C.muted,
+              fontSize: 11, fontWeight: 700, transition: "all .15s",
+            }}
+          >
+            ${(val / 1000).toFixed(0)}K
+          </button>
+        ))}
+      </div>
+      {avatar && (
+        <div style={{ background: `${avatar.color}0c`, border: `1px solid ${avatar.color}22`, borderRadius: 10, padding: "10px 14px", marginBottom: 24, display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 22 }}>{avatar.emoji}</span>
+          <div>
+            <div style={{ color: avatar.color, fontSize: 11, fontWeight: 700 }}>{avatar.name}</div>
+            <div style={{ color: C.muted, fontSize: 10, marginTop: 2 }}>
+              Presupuesto sugerido: ${avatar.precioMax.toLocaleString("es-CO")}/mes
+            </div>
+          </div>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 10 }}>
+        <button
+          onClick={() => setShowPresupuesto(false)}
+          style={{ padding: "9px 18px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "rgba(255,255,255,0.03)", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 12 }}
+        >
+          ← Volver
+        </button>
+        <GlowBtn
+          onClick={() => { setShowPresupuesto(false); setLvl(2); }}
+          gradient="linear-gradient(135deg,#0070cc,#0050aa)"
+          glow={C.neon}
+          style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}
+        >
+          Siguiente → Diseñar Casa
+        </GlowBtn>
+      </div>
+    </Wrap>
+  );  
   if (lvl === 2) return (
     <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "'Inter',system-ui,sans-serif" }}>
       {nivelModal && <NivelModal device={nivelModal} onSelect={handleSelectNivel} onCancel={() => setNivelModal(null)} />}
