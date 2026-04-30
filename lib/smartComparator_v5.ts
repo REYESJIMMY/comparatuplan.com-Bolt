@@ -1,15 +1,10 @@
 /**
  * smartComparator.ts — ComparaTuPlan.com
- * ─────────────────────────────────────────────────────────────
- * v4: Fix regex Movistar (case-insensitive), deduplicación por
- *     operador+velocidad+precio (no por nombre técnico CRC),
- *     limpieza de nombres para UI, filtro planes mayoristas HOG,
- *     badges semánticos.
+ * v5: Scoring mejorado para perfiles con TV/gaming/múltiples dispositivos,
+ *     badges semánticos garantizados, penalización por velocidad insuficiente.
  */
 
 import { DeviceAdded, PersonasHogar, PERSONAS_CONFIG, NivelUso } from "./constants";
-
-// ── Tipos ─────────────────────────────────────────────────────
 
 export interface AvatarConfig {
   id:              string;
@@ -63,7 +58,7 @@ export interface PlanScorado {
   top:            boolean;
 }
 
-// ── Colores por operador ──────────────────────────────────────
+// ── Colores ───────────────────────────────────────────────────
 const OP_COLORS: Record<string, string> = {
   claro:    "#e2001a",
   movistar: "#009900",
@@ -83,29 +78,20 @@ export function colorOperador(op: string): string {
   return "#00d4ff";
 }
 
-// ── Patrones de nombres inválidos ─────────────────────────────
-const NOMBRES_INVALIDOS_PATTERNS: RegExp[] = [
-  /\bldi\b/i,
-  /\bwaze\b/i,
-  /\bsms\b/i,
-  /chat ilimitado/i,
-  /redes sociales/i,
-  /\bwhatsapp\b/i,
-  /minutos internacion/i,
-  /\bbolsa\b/i,
-  /\broaming\b/i,
-  /\bhog\b/i,
-  /\bhandoff\b/i,
-  /\bwholesale\b/i,
-  /^single internet \d+m hog/i,
+// ── Nombres inválidos ─────────────────────────────────────────
+const INVALIDOS: RegExp[] = [
+  /\bldi\b/i, /\bwaze\b/i, /\bsms\b/i, /chat ilimitado/i,
+  /redes sociales/i, /\bwhatsapp\b/i, /minutos internacion/i,
+  /\bbolsa\b/i, /\broaming\b/i, /\bhog\b/i, /\bhandoff\b/i,
+  /\bwholesale\b/i, /^single internet \d+m hog/i,
 ];
 
-function esNombreInvalido(nombre: string): boolean {
-  return NOMBRES_INVALIDOS_PATTERNS.some((re) => re.test(nombre));
+function esInvalido(nombre: string): boolean {
+  return INVALIDOS.some((re) => re.test(nombre));
 }
 
 // ── Limpiar nombre para UI ────────────────────────────────────
-export function limpiarNombre(nombre: string, operador: string): string {
+export function limpiarNombre(nombre: string): string {
   let n = nombre;
   n = n.replace(/_(?:Nac|Nal|Est_\d+-\d+|Nacional)?_?\d{4,}$/i, "");
   n = n.replace(/^Convergente_MTotal_Single_/i, "");
@@ -117,55 +103,44 @@ export function limpiarNombre(nombre: string, operador: string): string {
   return n || nombre;
 }
 
-// ── Inferir velocidad (v4: case-insensitive, fix Movistar) ────
+// ── Inferir velocidad (case-insensitive) ──────────────────────
 export function inferirVelocidad(nombre: string): number {
-  // 1. Explícito: "900Mbps", "100 mbps", "100mb"
   const explicitoMatch = nombre.match(/(\d+)\s*mb(?:ps)?(?!\s*\/)/i);
   if (explicitoMatch) {
     const v = parseInt(explicitoMatch[1]);
     if (v >= 1 && v <= 10000) return v;
   }
-
-  // 2. "Banda Ancha 900" — patrón Movistar
   const bandaMatch = nombre.match(/[Bb]anda?\s*[Aa]ncha\s+(\d+)/i);
   if (bandaMatch) {
     const v = parseInt(bandaMatch[1]);
     if (v >= 1 && v <= 10000) return v;
   }
-
-  // 3. "910M" aislado
-  const mMatch = nombre.match(/\b(\d+)\s*[Mm]\b/);
+  const mMatch = nombre.match(/\b(\d+)\s*[Mm](?:egas?)?\b/);
   if (mMatch) {
     const v = parseInt(mMatch[1]);
     if (v >= 1 && v <= 10000) return v;
   }
-
-  // 4. Gigabit
-  if (/1\s*gig(?:a|abit)?(?:\s*bps)?/i.test(nombre) || /1000\s*mbps/i.test(nombre)) return 1000;
-
-  // 5. Tecnología como proxy (solo si no hay números)
+  if (/1\s*gig(?:a|abit)?/i.test(nombre) || /1000\s*mbps/i.test(nombre)) return 1000;
   if (!/\d/.test(nombre)) {
-    if (/fibra|fiber/i.test(nombre))              return 100;
+    if (/fibra|fiber/i.test(nombre))                    return 100;
     if (/5g/i.test(nombre) && !/5\s*gb/i.test(nombre)) return 300;
-    if (/4g|lte/i.test(nombre))                   return 50;
-    if (/adsl/i.test(nombre))                     return 20;
+    if (/4g|lte/i.test(nombre))                         return 50;
+    if (/adsl/i.test(nombre))                           return 20;
   }
-
   return 0;
 }
 
-// ── Inferir datos GB ──────────────────────────────────────────
 function inferirDatos(nombre: string, tipo: string): number {
   if (!["movil", "paquete"].includes(tipo)) return 0;
   if (/ilimitad|unlimited/i.test(nombre)) return -1;
-  const gbMatch = nombre.match(/(\d+)\s*gb/i);
-  if (gbMatch) return parseInt(gbMatch[1]);
-  const mbMatch = nombre.match(/(\d+)\s*mb(?!\s*ps)(?!\s*\/s)/i);
-  if (mbMatch) return Math.round(parseInt(mbMatch[1]) / 1024);
+  const gb = nombre.match(/(\d+)\s*gb/i);
+  if (gb) return parseInt(gb[1]);
+  const mb = nombre.match(/(\d+)\s*mb(?!\s*ps)(?!\s*\/s)/i);
+  if (mb) return Math.round(parseInt(mb[1]) / 1024);
   return 0;
 }
 
-// ── 1. Calcular resumen de consumo ────────────────────────────
+// ── 1. Calcular consumo ───────────────────────────────────────
 export function calcularConsumo(
   devices:    DeviceAdded[],
   personas:   PersonasHogar,
@@ -173,18 +148,9 @@ export function calcularConsumo(
   deviceDefs: readonly any[]
 ): ResumenConsumo {
   const personasConf = PERSONAS_CONFIG[personas];
-
   const desglose = devices.map((d) => {
     const def = deviceDefs.find((x) => x.id === d.id);
-    return {
-      uid:     d.uid,
-      name:    d.name,
-      emoji:   d.emoji,
-      nivel:   d.nivel,
-      usoDesc: def?.usoDesc?.[d.nivel] ?? "",
-      mbps:    d.mbps,
-      color:   d.color,
-    };
+    return { uid: d.uid, name: d.name, emoji: d.emoji, nivel: d.nivel, usoDesc: def?.usoDesc?.[d.nivel] ?? "", mbps: d.mbps, color: d.color };
   });
 
   const mbpsBase            = desglose.reduce((acc, d) => acc + d.mbps, 0);
@@ -194,8 +160,8 @@ export function calcularConsumo(
   const mbpsRecomendado     = Math.ceil(mbpsNecesarios * 1.2);
 
   let categoriaConsumo: "basico" | "medio" | "intensivo";
-  let etiquetaConsumo:  string;
-  let colorConsumo:     string;
+  let etiquetaConsumo: string;
+  let colorConsumo: string;
 
   if (mbpsRecomendado <= 50) {
     categoriaConsumo = "basico";    etiquetaConsumo = "Consumo básico";    colorConsumo = "#10b981";
@@ -211,10 +177,10 @@ export function calcularConsumo(
   const necesitaMovil   = ids.some((id) => id === "phone");
   const necesitaTrabajo = ids.some((id) => ["laptop", "pc"].includes(id));
 
+  // Tipos relevantes — TV siempre empuja a paquete primero
   let tiposRelevantes: string[];
-  if (necesitaTV && mbpsBase > 0) tiposRelevantes = ["paquete", "internet"];
-  else if (necesitaTV)            tiposRelevantes = ["paquete", "tv"];
-  else                            tiposRelevantes = ["internet", "paquete"];
+  if (necesitaTV) tiposRelevantes = ["paquete", "internet", "tv"];
+  else            tiposRelevantes = ["internet", "paquete"];
 
   return {
     desglose, mbpsBase, factorSimultaneidad, factorAvatar,
@@ -225,30 +191,30 @@ export function calcularConsumo(
   };
 }
 
-// ── 2. Scorar y rankear planes ────────────────────────────────
+// ── 2. Scorar planes ──────────────────────────────────────────
 export function scorarPlanes(
   planes:        any[],
   resumen:       ResumenConsumo,
-  maxResultados: number = 3
+  maxResultados: number = 4,
+  presupuesto?:  number   // presupuesto manual del usuario (opcional)
 ): PlanScorado[] {
   const {
-    tiposRelevantes, precioMax, necesitaTV, necesitaGaming,
-    necesitaMovil, mbpsRecomendado, categoriaConsumo,
+    tiposRelevantes, necesitaTV, necesitaGaming,
+    necesitaMovil, mbpsRecomendado, categoriaConsumo, desglose,
   } = resumen;
 
-  // ── Deduplicar por operador + tipo + precio + velocidad ───────
-  // v4: NO deduplicar solo por nombre porque Movistar tiene el mismo
-  // plan con ~32 nombres diferentes (uno por municipio).
-  // Clave: operador + tipo + precio + velocidad efectiva
+  // Usar presupuesto manual si existe, si no el del avatar
+  const precioMax = presupuesto ?? resumen.precioMax;
+
+  // ── Deduplicar por operador+tipo+precio+velocidad ─────────
   const seen = new Map<string, any>();
   for (const p of planes) {
-    const op     = (p.operador ?? "").toLowerCase().trim();
-    const tipo   = (p.tipo ?? "").toLowerCase().trim();
+    const op    = (p.operador ?? "").toLowerCase().trim();
+    const tipo  = (p.tipo ?? "").toLowerCase().trim();
     const precio = Number(p.precio) || 0;
-    const vel    = Number(p.velocidad_mbps) || inferirVelocidad(p.nombre ?? "");
-    // Si no hay velocidad conocida, usar nombre normalizado como discriminador
+    const vel   = Number(p.velocidad_mbps) || inferirVelocidad(p.nombre ?? "");
     const velKey = vel > 0 ? `v${vel}` : (p.nombre ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-    const key    = `${op}|${tipo}|${precio}|${velKey}`;
+    const key   = `${op}|${tipo}|${precio}|${velKey}`;
     if (!seen.has(key)) seen.set(key, p);
   }
   const deduplicados = Array.from(seen.values());
@@ -267,73 +233,81 @@ export function scorarPlanes(
     // Descartar inválidos
     if (precio > 0 && precio < 20000)                           return { ...p, _score: -100, _velocidadInf: 0 };
     if (!precio && !velocidadInf && !datosInf && tipo !== "tv") return { ...p, _score: -100, _velocidadInf: 0 };
-    if (esNombreInvalido(nombre))                               return { ...p, _score: -100, _velocidadInf: 0 };
+    if (esInvalido(nombre))                                     return { ...p, _score: -100, _velocidadInf: 0 };
 
     let score = 0;
 
-    // Precio vs presupuesto (40 pts)
+    // ── 1. Precio vs presupuesto (35 pts) ─────────────────────
     if (precio > 0 && precioMax > 0) {
-      if      (precio <= precioMax)        score += 40;
-      else if (precio <= precioMax * 1.15) score += 25;
-      else if (precio <= precioMax * 1.30) score += 10;
-      else                                 score -= 20;
+      if      (precio <= precioMax * 0.7)  score += 35; // muy por debajo → excelente valor
+      else if (precio <= precioMax)        score += 30;
+      else if (precio <= precioMax * 1.15) score += 18;
+      else if (precio <= precioMax * 1.30) score += 8;
+      else                                 score -= 25; // muy caro → penalizar fuerte
     }
 
-    // Tipo de plan (30 pts)
-    if      (tipo === tiposRelevantes[0])    score += 30;
-    else if (tiposRelevantes.includes(tipo)) score += 15;
+    // ── 2. Tipo de plan (35 pts) ──────────────────────────────
+    // v5: TV siempre necesita paquete → bonus fuerte
+    if (tipo === tiposRelevantes[0])       score += 35;
+    else if (tiposRelevantes.includes(tipo)) score += 18;
+    // Bonus extra si necesita TV y el plan tiene canales
+    if (necesitaTV && (canales > 0 || tipo === "tv" || tipo === "paquete")) score += 10;
 
-    // Velocidad vs consumo (25 pts)
+    // ── 3. Velocidad vs consumo (30 pts) ──────────────────────
     if (velocidadInf > 0 && mbpsRecomendado > 0) {
       const ratio = velocidadInf / mbpsRecomendado;
-      if      (ratio >= 2.0) score += 25;
-      else if (ratio >= 1.5) score += 20;
-      else if (ratio >= 1.0) score += 14;
-      else if (ratio >= 0.7) score += 8;
-      else                   score += 2;
+      if      (ratio >= 2.0)  score += 30;
+      else if (ratio >= 1.5)  score += 24;
+      else if (ratio >= 1.0)  score += 18;
+      else if (ratio >= 0.7)  score += 10;
+      else                    score -= 10; // v5: penalizar si velocidad < 70% de lo necesario
     } else {
-      const precioRatio = precioMax > 0 && precio > 0 ? precio / precioMax : 1;
+      // Sin velocidad conocida → bonus neutro proporcional al precio
+      const r = precioMax > 0 && precio > 0 ? precio / precioMax : 1;
       const base = categoriaConsumo === "basico" ? 10 : categoriaConsumo === "medio" ? 6 : 3;
-      score += Math.round(base * (1 - Math.min(precioRatio, 1) * 0.4));
+      score += Math.round(base * (1 - Math.min(r, 1) * 0.4));
     }
 
-    // TV (15 pts)
+    // ── 4. Canales TV (20 pts) ────────────────────────────────
     if (necesitaTV) {
-      if      (canales > 50)                 score += 15;
-      else if (canales > 0 || tipo === "tv") score += 8;
-      else if (tipo === "paquete")           score += 5;
+      if      (canales > 100) score += 20;
+      else if (canales > 50)  score += 15;
+      else if (canales > 0)   score += 10;
+      else if (tipo === "tv" || tipo === "paquete") score += 5;
     }
 
-    // Gaming (15 pts)
+    // ── 5. Gaming — bonus fibra/alta velocidad (15 pts) ───────
     if (necesitaGaming) {
-      if      (velocidadInf >= 200)                     score += 15;
-      else if (velocidadInf >= 100)                     score += 10;
-      else if (velocidadInf >= 50)                      score += 5;
-      else if (/fibra|fiber/i.test(nombre))             score += 7;
-      else if (/fibra|fiber/i.test(p.tecnologia ?? "")) score += 7;
+      if      (velocidadInf >= 300)                       score += 15;
+      else if (velocidadInf >= 200)                       score += 12;
+      else if (velocidadInf >= 100)                       score += 8;
+      else if (/fibra|fiber/i.test(nombre))               score += 6;
+      else if (/fibra|fiber/i.test(p.tecnologia ?? ""))   score += 6;
     }
 
-    // Datos móviles (10 pts)
+    // ── 6. Datos móviles (10 pts) ─────────────────────────────
     if (necesitaMovil) {
       if      (datosInf === -1) score += 10;
-      else if (datosInf >= 20)  score += 8;
+      else if (datosInf >= 20)  score += 7;
       else if (datosInf >= 5)   score += 4;
       else if (datosInf > 0)    score += 2;
     }
 
-    // Bonus paquete 4+ dispositivos
-    if (resumen.desglose.length >= 4 && tipo === "paquete") score += 8;
+    // ── 7. Bonus hogar intensivo ──────────────────────────────
+    // v5: hogar con 4+ dispositivos y consumo intensivo → paquete vale más
+    if (desglose.length >= 4 && tipo === "paquete") score += 12;
+    if (desglose.length >= 8 && tipo === "paquete") score += 8; // bonus adicional para hogares grandes
 
-    // Bonus fibra
+    // ── 8. Bonus fibra ────────────────────────────────────────
     const tec = (p.tecnologia ?? "").toLowerCase();
-    if (/fibra|fiber/i.test(tec) || /fibra|fiber/i.test(nombre)) score += 5;
+    if (/fibra|fiber/i.test(tec) || /fibra|fiber/i.test(nombre)) score += 6;
 
     return {
       ...p,
       _score:        Math.round(score),
       _velocidadInf: velocidadInf,
       velocidad_mbps: velocidadDB || (velocidadInf > 0 ? velocidadInf : null),
-      datos_gb:       datosDB     || (datosInf   !== 0 ? datosInf    : null),
+      datos_gb:       datosDB     || (datosInf !== 0 ? datosInf : null),
     };
   });
 
@@ -357,40 +331,47 @@ export function scorarPlanes(
 
   if (resultado.length === 0) return [];
 
-  // Badges semánticos
+  // ── Badges semánticos garantizados ───────────────────────────
+  // Cada plan recibe un badge distinto basado en su atributo real
   const scoreMax  = Math.max(...resultado.map((p: any) => p._score));
   const velMax    = Math.max(...resultado.map((p: any) => p._velocidadInf || 0));
   const precioMin = Math.min(...resultado.map((p: any) => Number(p.precio) || Infinity));
-  const usados    = new Set<string>();
 
-  const withBadges = resultado.map((p: any) => ({ ...p, badge: "" }));
+  // Asignar badges por posición garantizada — sin depender de empates
+  return resultado.map((p: any, i: number) => {
+    let badge: string;
+    if (i === 0) {
+      badge = "🏆 Mejor Oferta";
+    } else if (i === 1) {
+      // Segundo: ¿tiene la mayor velocidad? → Mejor Velocidad, si no → Mejor Precio
+      const esElMasRapido = velMax > 0 && p._velocidadInf === velMax;
+      badge = esElMasRapido ? "⚡ Mejor Velocidad" : "💰 Mejor Precio";
+    } else if (i === 2) {
+      // Tercero: el badge que no tomó el segundo
+      const segundoBadge = resultado[1]._velocidadInf === velMax && velMax > 0
+        ? "⚡ Mejor Velocidad" : "💰 Mejor Precio";
+      badge = segundoBadge === "⚡ Mejor Velocidad" ? "💰 Mejor Precio" : "⚡ Mejor Velocidad";
+    } else {
+      // Cuarto en adelante
+      const badgesUsados = resultado.slice(0, i).map((_: any, j: number) =>
+        j === 0 ? "🏆 Mejor Oferta" :
+        j === 1 ? (resultado[1]._velocidadInf === velMax && velMax > 0 ? "⚡ Mejor Velocidad" : "💰 Mejor Precio") :
+        "💰 Mejor Precio"
+      );
+      if (!badgesUsados.includes("⚡ Mejor Velocidad")) badge = "⚡ Mejor Velocidad";
+      else if (!badgesUsados.includes("💰 Mejor Precio")) badge = "💰 Mejor Precio";
+      else badge = `#${i + 1}`;
+    }
 
-  for (const p of withBadges) {
-    if (!p.badge && p._score === scoreMax && !usados.has("oferta")) {
-      p.badge = "🏆 Mejor Oferta"; usados.add("oferta");
-    }
-  }
-  for (const p of withBadges) {
-    if (!p.badge && velMax > 0 && p._velocidadInf === velMax && !usados.has("velocidad")) {
-      p.badge = "⚡ Mejor Velocidad"; usados.add("velocidad");
-    }
-  }
-  for (const p of withBadges) {
-    if (!p.badge && Number(p.precio) === precioMin && !usados.has("precio")) {
-      p.badge = "💰 Mejor Precio"; usados.add("precio");
-    }
-  }
-  withBadges.forEach((p: any, i: number) => {
-    if (!p.badge) p.badge = `#${i + 1}`;
+    return {
+      ...p,
+      precio:       Number(p.precio) || 0,
+      nombreLimpio: limpiarNombre(p.nombre ?? ""),
+      glow:         colorOperador(p.operador ?? ""),
+      top:          i === 0,
+      badge,
+    };
   });
-
-  return withBadges.map((p: any) => ({
-    ...p,
-    precio:       Number(p.precio) || 0,
-    nombreLimpio: limpiarNombre(p.nombre ?? "", p.operador ?? ""),
-    glow:         colorOperador(p.operador ?? ""),
-    top:          p.badge === "🏆 Mejor Oferta",
-  }));
 }
 
 // ── 3. Ecosistema ─────────────────────────────────────────────
@@ -405,8 +386,16 @@ export function recomendarEcosistema(resumen: ResumenConsumo) {
 
 // ── 4. Explicación ────────────────────────────────────────────
 export function generarExplicacion(resumen: ResumenConsumo): string {
-  const { categoriaConsumo, desglose } = resumen;
+  const { categoriaConsumo, desglose, necesitaTV, necesitaGaming } = resumen;
   const top = [...desglose].sort((a, b) => b.mbps - a.mbps).slice(0, 2).map((d) => `${d.emoji} ${d.name}`).join(" y ");
+
+  if (necesitaTV && necesitaGaming) {
+    return `Tu hogar combina entretenimiento y gaming de alto rendimiento. Con ${desglose.length} dispositivos activos simultáneamente, necesitas un paquete con alta velocidad y canales de TV.`;
+  }
+  if (necesitaTV) {
+    return `Tu hogar tiene múltiples pantallas activas. Un paquete con internet de alta velocidad y TV incluida es tu mejor alternativa para ${desglose.length} dispositivos.`;
+  }
+
   const mensajes: Record<string, string> = {
     basico:    `Tu hogar tiene un consumo liviano. Con ${top} como principales dispositivos, un plan de entrada te dará buena experiencia.`,
     medio:     `Tu hogar tiene un consumo moderado. ${top} son tus dispositivos más exigentes — necesitas un plan que soporte uso simultáneo.`,
