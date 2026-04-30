@@ -354,7 +354,7 @@ const calcularYBuscar = async () => {
       </div>
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={onBack} style={{ padding: "9px 18px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "rgba(255,255,255,0.03)", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>← Volver</button>
-        <GlowBtn onClick={() => avatar && personas && setLvl(2)} disabled={!avatar || !personas} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
+        <GlowBtn onClick={() => avatar && personas && setShowPresupuesto(true)} disabled={!avatar || !personas} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
           Siguiente → Diseñar Casa
         </GlowBtn>
       </div>
@@ -362,6 +362,9 @@ const calcularYBuscar = async () => {
   );
 
   /* ── Level 2 — Devices ───────────────────────────────────────── */
+  if (showPresupuesto) return (
+  // pega aquí el JSX de PresupuestoStepJSX del archivo patch
+  );
   if (lvl === 2) return (
     <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "'Inter',system-ui,sans-serif" }}>
       {nivelModal && <NivelModal device={nivelModal} onSelect={handleSelectNivel} onCancel={() => setNivelModal(null)} />}
