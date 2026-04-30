@@ -161,11 +161,11 @@ export const GameFlow = ({ onBack, onMovil }: { onBack: () => void; onMovil: () 
   const [flash,      setFlash]      = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [resumen,    setResumen]    = useState<ResumenConsumo | null>(null);
-  const [presupuesto,      setPresupuesto]      = useState<number>(150000);
-  const [showPresupuesto,  setShowPresupuesto]  = useState(false);
   const [planesDB,   setPlanesDB]   = useState<PlanScorado[]>([]);
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
+  const [presupuesto,      setPresupuesto]      = useState<number>(150000);
+  const [showPresupuesto,  setShowPresupuesto]  = useState(false);
 
   // ── useEffect SIEMPRE arriba, antes de cualquier return condicional ──
   useEffect(() => {
