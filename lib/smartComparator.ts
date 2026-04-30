@@ -386,11 +386,6 @@ export function recomendarEcosistema(resumen: ResumenConsumo) {
 
 // ── 4. Explicación ────────────────────────────────────────────
 export function generarExplicacion(resumen: ResumenConsumo): string {
-export interface PlanScorado {
-export interface ResumenConsumo {
-export function calcularConsumo(
-export function scorarPlanes(
-export function recomendarEcosistema(
   const { categoriaConsumo, desglose, necesitaTV, necesitaGaming } = resumen;
   const top = [...desglose].sort((a, b) => b.mbps - a.mbps).slice(0, 2).map((d) => `${d.emoji} ${d.name}`).join(" y ");
 
