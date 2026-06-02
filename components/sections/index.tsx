@@ -162,46 +162,143 @@ export const Companies = () => (
 /* ── Offers ──────────────────────────────────────────────────── */
 export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
   const items = [
-    { name: "Router WiFi 6 AX3000", price: 189900, old: 289900, emoji: "📡", badge: "-34%", color: C.neon },
-    { name: "Repetidor Mesh Tenda",  price: 89900,  old: 129900, emoji: "📶", badge: "-31%", color: C.cyan },
-    { name: "Cable Cat8 10m",        price: 29900,  old: 45900,  emoji: "🌐", badge: "-35%", color: C.green },
-    { name: "Gaming Mouse 25K",      price: 149900, old: 249900, emoji: "🖱️", badge: "-40%", color: C.red },
-    { name: "Auriculares ANC Pro",   price: 119900, old: 199900, emoji: "🎧", badge: "-40%", color: C.neon2 },
-    { name: "Cargador 65W GaN",      price: 49900,  old: 79900,  emoji: "🔋", badge: "-37%", color: C.yellow },
+    { name: "Router WiFi 6 AX3000", price: 189900, old: 289900, emoji: "📡", badge: "-34%", color: C.neon, subtitle: "Ideal para casas de 2 o más pisos. Adiós a las zonas muertas." },
+    { name: "Repetidor Mesh Tenda",  price: 89900,  old: 129900, emoji: "📶", badge: "-31%", color: C.cyan, subtitle: "Amplía tu cobertura WiFi." },
+    { name: "Cable Cat8 10m",        price: 29900,  old: 45900,  emoji: "🌐", badge: "-35%", color: C.green, subtitle: "Velocidad pura y estable." },
+    { name: "Gaming Mouse 25K",      price: 149900, old: 249900, emoji: "🖱️", badge: "-40%", color: C.red, subtitle: "Precisión extrema para jugar." },
+    { name: "Auriculares ANC Pro",   price: 119900, old: 199900, emoji: "🎧", badge: "-40%", color: C.neon2, subtitle: "Cancelación de ruido activa." },
+    { name: "Cargador 65W GaN",      price: 49900,  old: 79900,  emoji: "🔋", badge: "-37%", color: C.yellow, subtitle: "Carga rápida inteligente." },
   ];
+
   return (
-    <section>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+    <section style={{ padding: "24px 0" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
         <div>
           <Chip color={C.red}>🔥 OFERTAS ESPECIALES</Chip>
-          <h2 style={{ fontWeight: 900, fontSize: "clamp(1.1rem,3vw,1.5rem)", marginTop: 8, color: "#fff" }}>Equipos y accesorios tech</h2>
+          <h2 style={{ fontWeight: 900, fontSize: "clamp(1.2rem, 3vw, 1.7rem)", marginTop: 8, color: "#fff", trackingTight: "-0.02em" }}>
+            Equipos y accesorios tech
+          </h2>
         </div>
         <span style={{ color: C.red, fontSize: 11, fontWeight: 800, animation: "blink 2s infinite" }}>⚡ Solo hoy</span>
       </div>
-      <div className="offers-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 11 }}>
-        {items.map((item, i) => (
-          <div
-            key={i}
-            style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${item.color}18`, borderRadius: 13, padding: "13px 11px", cursor: "pointer", transition: "all .2s", position: "relative" }}
-            onMouseEnter={(e: any) => { e.currentTarget.style.border = `1px solid ${item.color}44`; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 22px ${item.color}14`; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.border = `1px solid ${item.color}18`; e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "none"; }}
-          >
-            <div style={{ position: "absolute", top: 7, left: 7, background: C.red, color: "#fff", borderRadius: 6, padding: "2px 6px", fontSize: 9, fontWeight: 900 }}>{item.badge}</div>
-            <div style={{ fontSize: 28, textAlign: "center", margin: "16px 0 9px" }}>{item.emoji}</div>
-            <div style={{ color: "#fff", fontWeight: 700, fontSize: 11, marginBottom: 4, textAlign: "center", lineHeight: 1.3 }}>{item.name}</div>
-            <div style={{ textAlign: "center", marginBottom: 8 }}>
-              <span style={{ color: item.color, fontWeight: 900, fontSize: 13 }}>${item.price.toLocaleString()}</span>
-              <span style={{ color: C.muted, fontSize: 9, textDecoration: "line-through", marginLeft: 5 }}>${item.old.toLocaleString()}</span>
-            </div>
-            <button
-              onClick={() => addToCart({ id: `offer-${i}`, name: item.name, price: item.price, emoji: item.emoji, color: item.color, qty: 1 })}
-              style={{ width: "100%", background: `${item.color}12`, border: `1px solid ${item.color}28`, borderRadius: 7, padding: "6px 0", color: item.color, fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+
+      {/* Rejilla adaptativa Bento Grid */}
+      <div className="offers-bento-grid">
+        {items.map((item, i) => {
+          const isFeatured = i === 0; // El router toma el rol de destacado principal
+          
+          return (
+            <div
+              key={i}
+              className={isFeatured ? "bento-featured" : ""}
+              style={{
+                background: "rgba(8,6,28,0.55)",
+                backdropBlur: "12px",
+                border: `1px solid ${item.color}18`,
+                borderRadius: 18,
+                padding: isFeatured ? "24px" : "16px 14px",
+                cursor: "pointer",
+                transition: "all .3s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                overflow: "hidden"
+              }}
+              onMouseEnter={(e: any) => {
+                e.currentTarget.style.border = `1px solid ${item.color}55`;
+                e.currentTarget.style.boxShadow = `0 12px 30px ${item.color}14`;
+                e.currentTarget.style.transform = "scale(1.01)";
+              }}
+              onMouseLeave={(e: any) => {
+                e.currentTarget.style.border = `1px solid ${item.color}18`;
+                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
             >
-              <ShoppingCart size={10} />Agregar
-            </button>
-          </div>
-        ))}
+              {/* Contenido Superior */}
+              <div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ background: C.red, color: "#fff", borderRadius: 6, padding: "3px 8px", fontSize: 10, fontWeight: 900 }}>
+                    {item.badge}
+                  </div>
+                  {isFeatured && (
+                    <span style={{ fontSize: 10, color: item.color, fontWeight: 800, trackingWide: "0.05em" }}>
+                      ★ MÁS BUSCADO
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: 16, alignItems: "center", flexDirection: isFeatured ? "row" : "column" }}>
+                  <div style={{ fontSize: isFeatured ? 52 : 32, padding: isFeatured ? "12px" : "0" }}>{item.emoji}</div>
+                  <div style={{ flex: 1, textAlign: isFeatured ? "left" : "center" }}>
+                    <div style={{ color: "#fff", fontWeight: 800, fontSize: isFeatured ? 16 : 12, marginBottom: 4 }}>
+                      {item.name}
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: isFeatured ? 12 : 10, lineHeight: 1.4 }}>
+                      {item.subtitle}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contenido Inferior (Precios y Botón) */}
+              <div style={{ marginTop: 16 }}>
+                <div style={{ textAlign: "center", marginBottom: 12 }}>
+                  <span style={{ color: item.color, fontWeight: 900, fontSize: isFeatured ? 18 : 14 }}>
+                    ${item.price.toLocaleString()}
+                  </span>
+                  <span style={{ color: C.muted, fontSize: isFeatured ? 11 : 10, textDecoration: "line-through", marginLeft: 7 }}>
+                    ${item.old.toLocaleString()}
+                  </span>
+                </div>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({ id: `offer-${i}`, name: item.name, price: item.price, emoji: item.emoji, color: item.color, qty: 1 });
+                  }}
+                  style={{
+                    width: "100%",
+                    background: `${item.color}12`,
+                    border: `1px solid ${item.color}28`,
+                    borderRadius: 10,
+                    padding: "8px 0",
+                    color: item.color,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <ShoppingCart size={11} /> Agregar al carrito
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Estilos CSS puros inyectados dinámicamente para lograr el orden Bento en Escritorio */}
+      <style>{`
+        .offers-bento-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        @media (min-width: 768px) {
+          .offers-bento-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          .bento-featured {
+            grid-column: span 2;
+          }
+        }
+      `}</style>
     </section>
   );
 };
