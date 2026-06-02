@@ -9,7 +9,7 @@ import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import ParallaxSection from '@/components/ParallaxSection';
 import {
-  Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
+  Hero, FeaturedPlans, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
 
 type View = "landing" | "game" | "quiz";
@@ -102,8 +102,30 @@ export default function Home() {
                 addToCart={addToCart}
               />
               <FeaturedPlans onQuiz={() => setView("quiz")} addToCart={addToCart} />
-              <Companies />
+              
+              {/* 🔄 REINTEGRACIÓN VISUAL 1: SECCIÓN INTERNET HOGAR (Reemplaza a Companies de forma inmersiva) */}
+              <ParallaxSection 
+                imageSrc="https://unsplash.com"
+                imageAlt="Internet Hogar de Alta Velocidad"
+                tag="Conectividad de Fibra"
+                title="Lleva tu hogar al siguiente nivel con WiFi 6"
+                description="Compara planes de Internet Hogar en tiempo real. Filtra las ofertas con mayor velocidad de subida, menor latencia y estabilidad garantizada para teletrabajo y streaming en Colombia."
+                buttonText="Optimizar Mi Internet"
+              />
+
               <Offers addToCart={addToCart} />
+
+              {/* 🔄 REINTEGRACIÓN VISUAL 2: SECCIÓN PLANES MÓVILES (Con orientación invertida) */}
+              <ParallaxSection 
+                imageSrc="https://unsplash.com"
+                imageAlt="Planes Móviles y Entretenimiento"
+                tag="Datos Ilimitados"
+                title="Navega sin límites estés donde estés"
+                description="Encuentra combos móviles postpago con redes sociales libres y suscripciones de streaming de regalo (Max, Disney+). Elige la cobertura perfecta para tu smartphone."
+                buttonText="Comparar Planes Móviles"
+                reverse={true}
+              />
+
               <SocialSection />
               <Blog />
             </main>
