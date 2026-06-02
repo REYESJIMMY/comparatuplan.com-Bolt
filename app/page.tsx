@@ -7,6 +7,7 @@ import { Footer }      from "@/components/layout/Footer";
 import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
+import ParallaxSection from '@/components/ParallaxSection';
 import {
   Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
