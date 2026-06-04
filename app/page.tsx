@@ -129,7 +129,7 @@ export default function Home() {
               />
 
               {/* 🔥 BLOQUE DE OFERTAS (Carga automáticamente las "Promociones Hot" gestionadas desde admin/ofertas) */}
-              <Offers addToCart={addToCart} />
+              <BentoOffers addToCart={addToCart} />
 
               {/* 🌌 SECCIÓN PARALLAX 2: PLANES MÓVILES */}
               <ParallaxSection 
