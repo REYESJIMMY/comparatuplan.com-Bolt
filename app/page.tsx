@@ -8,10 +8,10 @@ import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import ParallaxSection from '@/components/ParallaxSection';
-import { BentoOffers } from '@/components/BentoOffers';
+import { BentoOffers } from '@/components/BentoOffers'; // 📦 NUEVO: Importación aislada exitosa
 import {
-  Hero, FeaturedPlans, Offers, SocialSection, Blog, Sidebar, QuizFlow,
-} from "@/components/sections";
+  Hero, FeaturedPlans, SocialSection, Blog, Sidebar, QuizFlow,
+} from "@/components/sections"; // ⚠️ Nota: Retiramos 'Offers' de aquí para evitar choques con el índice
 
 type View = "landing" | "game" | "quiz";
 
@@ -26,7 +26,7 @@ export default function Home() {
   const [cartOpen,   setCartOpen]   = useState(false);
   const [cart,       setCart]       = useState<CartItem[]>([]);
   
-  // 🌓 ESTADO DE MODO OSCURO / CLARO RESTAURADO
+  // 🌓 ESTADO DE MODO OSCURO / CLARO CONTROLADO DE FORMA GLOBAL
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   /* Global keyboard shortcuts */
@@ -63,8 +63,11 @@ export default function Home() {
     if (a === "quiz") setView("quiz");
     if (a === "login")    setAuthMode("login");
     if (a === "register") setAuthMode("register");
-    // Manejador del toggle de tema
-    if (a === "toggleTheme") setIsDarkMode(!isDarkMode);
+    
+    // 🌓 ACTIVADOR REACTIVO PARA EL BOTÓN DEL HEADER
+    if (a === "toggleTheme") {
+      setIsDarkMode(!isDarkMode);
+    }
   };
 
   return (
@@ -74,7 +77,7 @@ export default function Home() {
         minHeight: "100vh", 
         color: isDarkMode ? "#fff" : "#0f172a", 
         overflowX: "hidden",
-        transition: "background 0.3s ease, color 0.3s ease"
+        transition: "background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       }}
     >
 
@@ -85,7 +88,7 @@ export default function Home() {
         cartCount={cartCount}
         onCart={() => setCartOpen(true)}
         onAction={handleAction}
-        isDarkMode={isDarkMode} // Hereda estado al Header
+        isDarkMode={isDarkMode} // Envía el estado al botón de sol/luna de tu Header
       />
       <Chatbot />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -128,7 +131,7 @@ export default function Home() {
                 buttonText="Optimizar Mi Internet"
               />
 
-              {/* 🔥 BLOQUE DE OFERTAS (Carga automáticamente las "Promociones Hot" gestionadas desde admin/ofertas) */}
+              {/* 🔥 NUEVO RENDERIZADO BENTO: Carga tus accesorios tech dinámicos y promociones hot */}
               <BentoOffers addToCart={addToCart} />
 
               {/* 🌌 SECCIÓN PARALLAX 2: PLANES MÓVILES */}
