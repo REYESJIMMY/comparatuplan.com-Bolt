@@ -1,6 +1,5 @@
 /* ── Offers ──────────────────────────────────────────────────── */
 export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
-  // Array original restaurado con textos y descripciones para el Bento Grid
   const items = [
     { name: "Router WiFi 6 AX3000", price: 189900, old: 289900, emoji: "📡", badge: "-34%", color: C.neon, subtitle: "Ideal para casas de 2 o más pisos. Adiós a las zonas muertas." },
     { name: "Repetidor Mesh Tenda",  price: 89900,  old: 129900, emoji: "📶", badge: "-31%", color: C.cyan, subtitle: "Amplía tu cobertura de internet inalámbrico." },
@@ -12,7 +11,6 @@ export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
 
   return (
     <section style={{ padding: "24px 0" }}>
-      {/* Encabezado dinámico original de Promociones Hot */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
         <div>
           <Chip color={C.red}>🔥 OFERTAS ESPECIALES</Chip>
@@ -23,11 +21,9 @@ export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
         <span style={{ color: C.red, fontSize: 11, fontWeight: 800, animation: "blink 2s infinite" }}>⚡ Solo hoy</span>
       </div>
 
-      {/* Renderizado estructural Bento Grid acoplado al CSS inyectado */}
       <div className="offers-bento-grid">
         {items.map((item, i) => {
-          const isFeatured = i === 0; // El primer elemento (Router) se expande
-          
+          const isFeatured = i === 0;
           return (
             <div
               key={i}
@@ -57,7 +53,6 @@ export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
-              {/* Badge superior de descuento */}
               <div style={{ position: "absolute", top: 10, left: 10, background: C.red, color: "#fff", borderRadius: 6, padding: "2px 6px", fontSize: 9, fontWeight: 900, zIndex: 2 }}>
                 {item.badge}
               </div>
@@ -85,7 +80,6 @@ export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
                     ${item.old.toLocaleString()}
                   </span>
                 </div>
-                
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
