@@ -377,12 +377,15 @@ interface SidebarProps {
   onSearch: () => void;
   onGame: () => void;
   onQuiz: () => void;
+  isDarkMode?: boolean; // 🌓 Añadimos la propiedad de control de tema
 }
-export const Sidebar = ({ onSearch, onGame, onQuiz }: SidebarProps) => (
-  <aside className="side-col">
-    {/* Quick access cards */}
-    <div>
-      <div style={{ color: "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 9 }}>ACCESOS RÁPIDOS</div>
+
+export const Sidebar = ({ onSearch, onGame, onQuiz, isDarkMode = true }: SidebarProps) => (
+  <aside className="side-col" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    
+    {/* Tarjetas de Accesos Rápidos */}
+    <div style={{ background: isDarkMode ? "rgba(8,6,28,0.45)" : "rgba(255,255,255,0.65)", border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.08)"}`, borderRadius: 13, padding: "13px 13px", backdropFilter: "blur(12px)", transition: "all 0.3s ease" }}>
+      <div style={{ color: isDarkMode ? "rgba(0,212,255,0.45)" : "rgba(0,120,240,0.7)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 9 }}>ACCESOS RÁPIDOS</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {[
           { emoji: "📡", title: "Internet Hogar", desc: "Fibra desde $59.900", color: C.neon, action: onQuiz },
@@ -393,64 +396,80 @@ export const Sidebar = ({ onSearch, onGame, onQuiz }: SidebarProps) => (
           <div
             key={i}
             onClick={item.action}
-            style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.02)", border: `1px solid ${C.borderSoft}`, borderRadius: 11, padding: "10px 12px", cursor: "pointer", transition: "all .15s" }}
-            onMouseEnter={(e: any) => { e.currentTarget.style.background = `${item.color}08`; e.currentTarget.style.borderColor = `${item.color}28`; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = C.borderSoft; }}
+            style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 10, 
+              background: isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", 
+              border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.05)"}`, 
+              borderRadius: 11, 
+              padding: "10px 12px", 
+              cursor: "pointer", 
+              transition: "all .2s ease" 
+            }}
+            onMouseEnter={(e: any) => { 
+              e.currentTarget.style.background = `${item.color}08`; 
+              e.currentTarget.style.borderColor = `${item.color}38`; 
+            }}
+            onMouseLeave={(e: any) => { 
+              e.currentTarget.style.background = isDarkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"; 
+              e.currentTarget.style.borderColor = isDarkMode ? C.borderSoft : "rgba(0,0,0,0.05)"; 
+            }}
           >
             <div style={{ width: 36, height: 36, borderRadius: 9, background: `${item.color}12`, border: `1px solid ${item.color}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{item.emoji}</div>
             <div>
-              <div style={{ color: "#fff", fontWeight: 700, fontSize: 12 }}>{item.title}</div>
-              <div style={{ color: C.muted, fontSize: 10 }}>{item.desc}</div>
+              <div style={{ color: "inherit", fontWeight: 700, fontSize: 12 }}>{item.title}</div>
+              <div style={{ color: isDarkMode ? C.muted : "#64748b", fontSize: 10 }}>{item.desc}</div>
             </div>
           </div>
         ))}
       </div>
     </div>
 
-    {/* Search */}
-    <div style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${C.borderSoft}`, borderRadius: 13, padding: "13px 13px" }}>
-      <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 8 }}>BUSCAR PLANES</div>
+    {/* Buscador */}
+    <div style={{ background: isDarkMode ? "rgba(8,6,28,0.45)" : "rgba(255,255,255,0.65)", border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.08)"}`, borderRadius: 13, padding: "13px 13px", backdropFilter: "blur(12px)", transition: "all 0.3s ease" }}>
+      <div style={{ color: isDarkMode ? "rgba(0,212,255,0.45)" : "rgba(0,120,240,0.7)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 8 }}>BUSCAR PLANES</div>
       <div
         onClick={onSearch}
-        style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", border: `1px solid ${C.borderSoft}`, borderRadius: 9, padding: "8px 11px", cursor: "text", transition: "border-color .18s" }}
-        onMouseEnter={(e: any) => e.currentTarget.style.borderColor = C.border}
-        onMouseLeave={(e: any) => e.currentTarget.style.borderColor = C.borderSoft}
+        style={{ display: "flex", alignItems: "center", gap: 8, background: isDarkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.06)"}`, borderRadius: 9, padding: "8px 11px", cursor: "text", transition: "border-color .18s" }}
+        onMouseEnter={(e: any) => e.currentTarget.style.borderColor = isDarkMode ? C.border : "rgba(0,0,0,0.2)"}
+        onMouseLeave={(e: any) => e.currentTarget.style.borderColor = isDarkMode ? C.borderSoft : "rgba(0,0,0,0.06)"}
       >
-        <Search size={12} color={C.muted} />
-        <span style={{ color: "rgba(180,190,220,0.3)", fontSize: 11 }}>Buscar…</span>
-        <kbd style={{ marginLeft: "auto", color: C.muted, fontSize: 9, border: `1px solid ${C.borderSoft}`, borderRadius: 4, padding: "1px 5px" }}>⌘K</kbd>
+        <Search size={12} color={isDarkMode ? C.muted : "#64748b"} />
+        <span style={{ color: isDarkMode ? "rgba(180,190,220,0.3)" : "rgba(15,23,42,0.35)", fontSize: 11 }}>Buscar…</span>
+        <kbd style={{ marginLeft: "auto", color: isDarkMode ? C.muted : "#64748b", fontSize: 9, border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.08)"}`, borderRadius: 4, padding: "1px 5px" }}>⌘K</kbd>
       </div>
     </div>
 
-    {/* Stats */}
-    <div style={{ background: "rgba(8,6,28,0.7)", border: `1px solid ${C.borderSoft}`, borderRadius: 13, padding: "13px 13px" }}>
-      <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 11 }}>ESTADÍSTICAS HOY</div>
+    {/* Estadísticas */}
+    <div style={{ background: isDarkMode ? "rgba(8,6,28,0.45)" : "rgba(255,255,255,0.65)", border: `1px solid ${isDarkMode ? C.borderSoft : "rgba(0,0,0,0.08)"}`, borderRadius: 13, padding: "13px 13px", backdropFilter: "blur(12px)", transition: "all 0.3s ease" }}>
+      <div style={{ color: isDarkMode ? "rgba(0,212,255,0.45)" : "rgba(0,120,240,0.7)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 11 }}>ESTADÍSTICAS HOY</div>
       {[
         { l: "Operadores comparados", v: "+15",  c: C.neon },
         { l: "Usuarios beneficiados",  v: "1.5K+", c: C.green },
         { l: "Ahorro promedio/mes",    v: "$38K", c: C.yellow },
         { l: "Planes disponibles",     v: "+14K", c: C.neon2 },
       ].map((s, i) => (
-        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: i < 3 ? `1px solid rgba(255,255,255,0.04)` : "none" }}>
-          <span style={{ color: C.muted, fontSize: 10.5 }}>{s.l}</span>
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: i < 3 ? (isDarkMode ? `1px solid rgba(255,255,255,0.04)` : `1px solid rgba(0,0,0,0.04)`) : "none" }}>
+          <span style={{ color: isDarkMode ? C.muted : "#64748b", fontSize: 10.5 }}>{s.l}</span>
           <span style={{ color: s.c, fontWeight: 900, fontSize: 13 }}>{s.v}</span>
         </div>
       ))}
     </div>
 
     {/* Refiere & Gana */}
-    <div style={{ background: "linear-gradient(135deg,rgba(102,0,204,0.15),rgba(236,72,153,0.1))", border: `1px solid rgba(168,85,247,0.25)`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
+    <div style={{ background: isDarkMode ? "linear-gradient(135deg,rgba(102,0,204,0.15),rgba(236,72,153,0.1))" : "linear-gradient(135deg,rgba(102,0,204,0.06),rgba(236,72,153,0.04))", border: isDarkMode ? `1px solid rgba(168,85,247,0.25)` : `1px solid rgba(168,85,247,0.15)`, borderRadius: 13, padding: "15px 13px", textAlign: "center", transition: "all 0.3s ease" }}>
       <div style={{ fontSize: 30, marginBottom: 7 }}>🎁</div>
-      <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Refiere & Gana</div>
-      <div style={{ color: C.muted, fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Premios · Cashback<br />Bonos Sodexo y más</div>
+      <div style={{ color: "inherit", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Refiere & Gana</div>
+      <div style={{ color: isDarkMode ? C.muted : "#64748b", fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Premios · Cashback<br />Bonos Sodexo y más</div>
       <WABtn name="programa Refiere y Gana" label="Inscribirte Gratis" full style={{ borderRadius: 9, fontSize: 11, padding: "8px 12px" }} />
     </div>
 
     {/* Hogar Digital CTA */}
-    <div style={{ background: "linear-gradient(135deg,rgba(0,80,170,0.15),rgba(0,212,255,0.08))", border: `1px solid ${C.border}`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
+    <div style={{ background: isDarkMode ? "linear-gradient(135deg,rgba(0,80,170,0.15),rgba(0,212,255,0.08))" : "linear-gradient(135deg,rgba(0,80,170,0.06),rgba(0,212,255,0.04))", border: `1px solid ${isDarkMode ? C.border : "rgba(0,0,0,0.08)"}`, borderRadius: 13, padding: "15px 13px", textAlign: "center", transition: "all 0.3s ease" }}>
       <div style={{ fontSize: 30, marginBottom: 7 }}>🏠</div>
-      <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Diseñar Hogar Digital</div>
-      <div style={{ color: C.muted, fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Conecta tus dispositivos<br />y encuentra tu plan ideal</div>
+      <div style={{ color: "inherit", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Diseñar Hogar Digital</div>
+      <div style={{ color: isDarkMode ? C.muted : "#64748b", fontSize: 10, marginBottom: 11, lineHeight: 1.5 }}>Conecta tus dispositivos<br />y encuentra tu plan ideal</div>
       <GlowBtn onClick={onGame} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ width: "100%", borderRadius: 9, fontSize: 11, padding: "8px 12px" }}>🚀 Iniciar Misión</GlowBtn>
     </div>
   </aside>
