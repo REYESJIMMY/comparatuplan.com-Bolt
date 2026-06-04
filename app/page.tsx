@@ -8,6 +8,7 @@ import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import ParallaxSection from '@/components/ParallaxSection';
+import { BentoOffers } from '@/components/BentoOffers';
 import {
   Hero, FeaturedPlans, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
