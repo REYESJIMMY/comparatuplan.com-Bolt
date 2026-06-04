@@ -9,7 +9,7 @@ import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import ParallaxSection from '@/components/ParallaxSection';
 import {
-  Hero, FeaturedPlans, Offers, SocialSection, Blog, Sidebar, QuizFlow,
+  Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
 
 type View = "landing" | "game" | "quiz";
@@ -24,9 +24,6 @@ export default function Home() {
   const [authMode,   setAuthMode]   = useState<string | null>(null);
   const [cartOpen,   setCartOpen]   = useState(false);
   const [cart,       setCart]       = useState<CartItem[]>([]);
-  
-  // 🌓 ESTADO DE MODO OSCURO / CLARO RESTAURADO
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   /* Global keyboard shortcuts */
   useEffect(() => {
@@ -62,20 +59,10 @@ export default function Home() {
     if (a === "quiz") setView("quiz");
     if (a === "login")    setAuthMode("login");
     if (a === "register") setAuthMode("register");
-    // Manejador del toggle de tema
-    if (a === "toggleTheme") setIsDarkMode(!isDarkMode);
   };
 
   return (
-    <div 
-      style={{ 
-        background: isDarkMode ? "#04040f" : "#f8fafc", 
-        minHeight: "100vh", 
-        color: isDarkMode ? "#fff" : "#0f172a", 
-        overflowX: "hidden",
-        transition: "background 0.3s ease, color 0.3s ease"
-      }}
-    >
+    <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", overflowX: "hidden" }}>
 
       {/* ── Overlays ──────────────────────────────────────────── */}
       <Header
@@ -84,7 +71,6 @@ export default function Home() {
         cartCount={cartCount}
         onCart={() => setCartOpen(true)}
         onAction={handleAction}
-        isDarkMode={isDarkMode} // Hereda estado al Header
       />
       <Chatbot />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -116,31 +102,8 @@ export default function Home() {
                 addToCart={addToCart}
               />
               <FeaturedPlans onQuiz={() => setView("quiz")} addToCart={addToCart} />
-              
-              {/* 🌌 SECCIÓN PARALLAX 1: INTERNET HOGAR */}
-              <ParallaxSection 
-                imageSrc="https://unsplash.com"
-                imageAlt="Internet Hogar de Alta Velocidad"
-                tag="Conectividad de Fibra"
-                title="Lleva tu hogar al siguiente nivel con WiFi 6"
-                description="Compara planes de Internet Hogar en tiempo real. Filtra las ofertas con mayor velocidad de subida, menor latencia y estabilidad garantizada para teletrabajo y streaming en Colombia."
-                buttonText="Optimizar Mi Internet"
-              />
-
-              {/* 🔥 BLOQUE DE OFERTAS (Carga automáticamente las "Promociones Hot" gestionadas desde admin/ofertas) */}
+              <Companies />
               <Offers addToCart={addToCart} />
-
-              {/* 🌌 SECCIÓN PARALLAX 2: PLANES MÓVILES */}
-              <ParallaxSection 
-                imageSrc="https://unsplash.com"
-                imageAlt="Planes Móviles y Entretenimiento"
-                tag="Datos Ilimitados"
-                title="Navega sin límites estés donde estés"
-                description="Encuentra combos móviles postpago con redes sociales libres y suscripciones de streaming de regalo (Max, Disney+). Elige la cobertura perfecta para tu smartphone."
-                buttonText="Comparar Planes Móviles"
-                reverse={true}
-              />
-
               <SocialSection />
               <Blog />
             </main>
