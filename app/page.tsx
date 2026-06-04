@@ -152,6 +152,7 @@ export default function Home() {
               onSearch={() => setSearchOpen(true)}
               onGame={() => setView("game")}
               onQuiz={() => setView("quiz")}
+              isDarkMode={isDarkMode}
             />
           </div>
         </div>
