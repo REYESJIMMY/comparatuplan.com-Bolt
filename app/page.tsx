@@ -8,10 +8,11 @@ import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import ParallaxSection from '@/components/ParallaxSection';
-import { BentoOffers } from '@/components/BentoOffers'; // 📦 NUEVO: Importación aislada exitosa
+import { BentoOffers } from '@/components/BentoOffers'; 
+import { ManualPlans } from '@/components/ManualPlans'; // 📦 IMPORTACIÓN COMPONENTE MANUAL
 import {
   Hero, FeaturedPlans, SocialSection, Blog, Sidebar, QuizFlow,
-} from "@/components/sections"; // ⚠️ Nota: Retiramos 'Offers' de aquí para evitar choques con el índice
+} from "@/components/sections"; 
 
 type View = "landing" | "game" | "quiz";
 
@@ -25,8 +26,6 @@ export default function Home() {
   const [authMode,   setAuthMode]   = useState<string | null>(null);
   const [cartOpen,   setCartOpen]   = useState(false);
   const [cart,       setCart]       = useState<CartItem[]>([]);
-  
-  // 🌓 ESTADO DE MODO OSCURO / CLARO CONTROLADO DE FORMA GLOBAL
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   /* Global keyboard shortcuts */
@@ -63,11 +62,7 @@ export default function Home() {
     if (a === "quiz") setView("quiz");
     if (a === "login")    setAuthMode("login");
     if (a === "register") setAuthMode("register");
-    
-    // 🌓 ACTIVADOR REACTIVO PARA EL BOTÓN DEL HEADER
-    if (a === "toggleTheme") {
-      setIsDarkMode(!isDarkMode);
-    }
+    if (a === "toggleTheme") setIsDarkMode(!isDarkMode);
   };
 
   return (
@@ -77,7 +72,7 @@ export default function Home() {
         minHeight: "100vh", 
         color: isDarkMode ? "#fff" : "#0f172a", 
         overflowX: "hidden",
-        transition: "background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        transition: "background 0.3s ease, color 0.3s ease"
       }}
     >
 
@@ -88,14 +83,13 @@ export default function Home() {
         cartCount={cartCount}
         onCart={() => setCartOpen(true)}
         onAction={handleAction}
-        isDarkMode={isDarkMode} // Envía el estado al botón de sol/luna de tu Header
+        isDarkMode={isDarkMode}
       />
       <Chatbot />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       {authMode && <AuthModal mode={authMode} onClose={() => setAuthMode(null)} />}
       <CartDrawer cart={cart} setCart={setCart} open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      {/* ── Fixed header spacer ───────────────────────────────── */}
       <div style={{ height: 95 }} />
       <OpsSlider />
 
@@ -113,34 +107,37 @@ export default function Home() {
       {view === "landing" && (
         <div className="page-wrap">
           <div className="content-grid">
+            
+            {/* COLUMNA PRINCIPAL DE CONTENIDO */}
             <main className="main-col">
               <Hero
                 onGame={() => setView("game")}
                 onQuiz={() => setView("quiz")}
                 addToCart={addToCart}
               />
+              
+              {/* 🌟 1. UBICACIÓN REQUERIDA: Arriba de los planes destacados cargamos las inyecciones manuales fuera de la CRC */}
+              <ManualPlans addToCart={addToCart} isDarkMode={isDarkMode} />
+
               <FeaturedPlans onQuiz={() => setView("quiz")} addToCart={addToCart} />
               
-              {/* 🌌 SECCIÓN PARALLAX 1: INTERNET HOGAR */}
               <ParallaxSection 
                 imageSrc="https://unsplash.com"
-                imageAlt="Internet Hogar de Alta Velocidad"
+                imageAlt="Internet Hogar"
                 tag="Conectividad de Fibra"
                 title="Lleva tu hogar al siguiente nivel con WiFi 6"
-                description="Compara planes de Internet Hogar en tiempo real. Filtra las ofertas con mayor velocidad de subida, menor latencia y estabilidad garantizada para teletrabajo y streaming en Colombia."
+                description="Compara planes de Internet Hogar en tiempo real con estabilidad garantizada."
                 buttonText="Optimizar Mi Internet"
               />
 
-              {/* 🔥 NUEVO RENDERIZADO BENTO: Carga tus accesorios tech dinámicos y promociones hot */}
               <BentoOffers addToCart={addToCart} />
 
-              {/* 🌌 SECCIÓN PARALLAX 2: PLANES MÓVILES */}
               <ParallaxSection 
                 imageSrc="https://unsplash.com"
-                imageAlt="Planes Móviles y Entretenimiento"
+                imageAlt="Planes Móviles"
                 tag="Datos Ilimitados"
                 title="Navega sin límites estés donde estés"
-                description="Encuentra combos móviles postpago con redes sociales libres y suscripciones de streaming de regalo (Max, Disney+). Elige la cobertura perfecta para tu smartphone."
+                description="Encuentra combos móviles postpago con la mejor cobertura del país."
                 buttonText="Comparar Planes Móviles"
                 reverse={true}
               />
@@ -148,12 +145,42 @@ export default function Home() {
               <SocialSection />
               <Blog />
             </main>
-            <Sidebar
-              onSearch={() => setSearchOpen(true)}
-              onGame={() => setView("game")}
-              onQuiz={() => setView("quiz")}
-              isDarkMode={isDarkMode}
-            />
+
+            {/* COLUMNA LATERAL (BARRA LATERAL) */}
+            <aside style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <Sidebar
+                onSearch={() => setSearchOpen(true)}
+                onGame={() => setView("game")}
+                onQuiz={() => setView("quiz")}
+                isDarkMode={isDarkMode}
+              />
+              
+              {/* 🔥 2. UBICACIÓN REQUERIDA: Bloque dedicado debajo del Sidebar para Promociones Hot del Admin */}
+              <div 
+                style={{ 
+                  background: isDarkMode ? 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(4,4,15,0.8))' : '#fff',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '13px',
+                  padding: '16px',
+                  boxShadow: isDarkMode ? 'none' : '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '9px', fontWeight: 900, background: '#ef4444', color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>HOT OFFER</span>
+                  <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 700, animation: 'blink 1.5s infinite' }}>⚡ ¡LIQUIDACIÓN!</span>
+                </div>
+                <h5 style={{ fontWeight: 800, fontSize: '12px', margin: '0 0 4px 0' }}>Router Mesh Extender</h5>
+                <p style={{ fontSize: '10px', color: '#64748b', margin: '0 0 12px 0', lineHeight: '1.4' }}>Tu panel administrativo reporta un inventario bajo. Adquiérelo antes de que se agote.</p>
+                <button 
+                  onClick={() => addToCart({ id: 'hot-sidebar', name: 'Router Mesh Extender Admin', price: 45000, emoji: '🔥', color: '#ef4444', qty: 1 })}
+                  style={{ width: '100%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '8px', padding: '6px 0', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Garantizar Oferta Mini
+                </button>
+              </div>
+            </aside>
+
           </div>
         </div>
       )}
