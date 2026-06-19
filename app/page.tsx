@@ -25,6 +25,7 @@ interface CartItem {
 
 export default function Home() {
   const [view,       setView]       = useState<View>("landing");
+  const [ubicacion,  setUbicacion]  = useState<UbicacionData | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [authMode,   setAuthMode]   = useState<string | null>(null);
   const [cartOpen,   setCartOpen]   = useState(false);
