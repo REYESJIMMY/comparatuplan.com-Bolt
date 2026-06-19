@@ -7,11 +7,14 @@ import { Footer }      from "@/components/layout/Footer";
 import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
+import { MovilFlow }   from "@/components/game/MovilFlow";
+import { CoberturaForm, type UbicacionData } from "@/components/game/CoberturaForm";
+import { SegmentSelector } from "@/components/game/SegmentSelector";
 import ParallaxSection from '@/components/ParallaxSection';
 import { BentoOffers } from '@/components/BentoOffers'; 
 import { ManualPlans } from '@/components/ManualPlans'; // 📦 IMPORTACIÓN COMPONENTE MANUAL
 import {
-  Hero, FeaturedPlans, SocialSection, Blog, Sidebar, QuizFlow,
+  Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections"; 
 
 type View = "landing" | "game" | "quiz";
