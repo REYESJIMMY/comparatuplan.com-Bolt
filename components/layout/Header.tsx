@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
-  Zap, Search, ShoppingCart,
+  Search, ShoppingCart,
   ChevronDown, ChevronRight, Menu, X,
 } from "lucide-react";
 import { C } from "@/lib/constants";
@@ -14,16 +15,16 @@ const MENUS: Record<string, any> = {
     label: "Home", icon: "🏠",
     sections: [
       { title: "Navegar", color: C.neon, items: [
-        { ic: "🏠", t: "Inicio",          d: "Página principal" },
-        { ic: "🔍", t: "Comparar Planes", d: "Busca y ahorra" },
-        { ic: "⭐", t: "Más Populares",   d: "Top planes del mes" },
-        { ic: "📊", t: "Ranking Operadores", d: "Mejor valorados" },
+        { ic: "🏠", t: "Inicio",             d: "Página principal",        href: "/" },
+        { ic: "🔍", t: "Consulta Cobertura", d: "Busca planes en tu zona", action: "cobertura" },
+        { ic: "⭐", t: "Más Populares",      d: "Top planes del mes",      href: "/planes?tipo=internet" },
+        { ic: "📊", t: "Todos los planes",   d: "Catálogo completo",       href: "/planes" },
       ]},
       { title: "Herramientas", color: C.neon2, items: [
-        { ic: "🏠", t: "Diseñar Hogar Digital", d: "Configura tu casa", action: "game" },
-        { ic: "🧮", t: "Calculadora de Ahorro",  d: "Cuánto puedes ahorrar" },
-        { ic: "📡", t: "Test de Velocidad",       d: "Mide tu conexión" },
-        { ic: "🗺️", t: "Cobertura",               d: "Zonas disponibles" },
+        { ic: "🏠", t: "Diseñar Hogar Digital", d: "Configura tu casa",      action: "game" },
+        { ic: "📱", t: "Planes Móviles",         d: "Compara planes móvil",  action: "movil" },
+        { ic: "📡", t: "Internet Hogar",         d: "Planes de fibra",       href: "/planes?tipo=internet" },
+        { ic: "📺", t: "TV + Paquetes",          d: "Combos disponibles",    href: "/planes?tipo=paquete" },
       ]},
     ],
   },
@@ -31,16 +32,16 @@ const MENUS: Record<string, any> = {
     label: "Ecosistema", icon: "🌐",
     sections: [
       { title: "Servicio Técnico", color: C.yellow, items: [
-        { ic: "🔧", t: "Reparación Dispositivos", d: "Laptops, PC, móviles" },
-        { ic: "💻", t: "Laptops & PCs",           d: "Diagnóstico gratis" },
-        { ic: "📱", t: "Smartphones",              d: "Pantallas, batería" },
-        { ic: "📡", t: "Redes & WiFi",             d: "Instalación y config." },
+        { ic: "🔧", t: "Reparación Dispositivos", d: "Laptops, PC, móviles",   href: "https://wa.me/573057876992?text=Hola, necesito servicio técnico", external: true },
+        { ic: "💻", t: "Laptops & PCs",           d: "Diagnóstico gratis",     href: "https://wa.me/573057876992?text=Hola, necesito revisar mi laptop", external: true },
+        { ic: "📱", t: "Smartphones",              d: "Pantallas, batería",     href: "https://wa.me/573057876992?text=Hola, necesito reparar mi smartphone", external: true },
+        { ic: "📡", t: "Redes & WiFi",             d: "Instalación y config.", href: "https://wa.me/573057876992?text=Hola, necesito instalación de red WiFi", external: true },
       ]},
       { title: "Marketplace Tech", color: C.cyan, items: [
-        { ic: "📶", t: "Equipos WiFi",   d: "Routers, mesh, extenders" },
-        { ic: "🎮", t: "Gaming Gear",    d: "PCs, consolas, periféricos" },
-        { ic: "🖥️", t: "Monitores",      d: "144Hz, 4K, ultrawide" },
-        { ic: "🔋", t: "Accesorios Tech", d: "Cables, cargadores" },
+        { ic: "📶", t: "Equipos WiFi",    d: "Routers, mesh, extenders", href: "/planes" },
+        { ic: "🎮", t: "Gaming Gear",     d: "PCs, consolas",            href: "/planes" },
+        { ic: "🖥️", t: "Monitores",       d: "144Hz, 4K, ultrawide",     href: "/planes" },
+        { ic: "🔋", t: "Accesorios Tech", d: "Cables, cargadores",       href: "/planes" },
       ]},
     ],
   },
@@ -48,16 +49,16 @@ const MENUS: Record<string, any> = {
     label: "Empresas", icon: "🏢",
     sections: [
       { title: "Comunicaciones", color: C.neon, items: [
-        { ic: "☎️", t: "PBX Virtual",         d: "Central en la nube" },
-        { ic: "💬", t: "WhatsApp IA",          d: "Chatbots y automatización" },
-        { ic: "🎙️", t: "VoIP Empresarial",     d: "Llamadas sobre IP" },
-        { ic: "📞", t: "Contact Center",       d: "Multiagente y reportes" },
+        { ic: "☎️", t: "PBX Virtual",     d: "Central en la nube",       href: "https://wa.me/573057876992?text=Hola, me interesa PBX Virtual para mi empresa", external: true },
+        { ic: "💬", t: "WhatsApp IA",     d: "Chatbots y automatización", href: "https://wa.me/573057876992?text=Hola, me interesa WhatsApp IA", external: true },
+        { ic: "🎙️", t: "VoIP Empresarial", d: "Llamadas sobre IP",       href: "https://wa.me/573057876992?text=Hola, me interesa VoIP empresarial", external: true },
+        { ic: "📞", t: "Contact Center",  d: "Multiagente y reportes",   href: "https://wa.me/573057876992?text=Hola, me interesa Contact Center", external: true },
       ]},
       { title: "Conectividad B2B", color: C.neon2, items: [
-        { ic: "🏢", t: "Fibra Dedicada",  d: "Exclusiva para tu negocio" },
-        { ic: "☁️", t: "Cloud & SD-WAN",  d: "Redes privadas" },
-        { ic: "🛡️", t: "Ciberseguridad",  d: "Protección 360°" },
-        { ic: "📊", t: "Analítica BI",    d: "Dashboard ejecutivo" },
+        { ic: "🏢", t: "Fibra Dedicada", d: "Exclusiva para tu negocio", href: "https://wa.me/573057876992?text=Hola, me interesa Fibra Dedicada empresarial", external: true },
+        { ic: "☁️", t: "Cloud & SD-WAN", d: "Redes privadas",            href: "https://wa.me/573057876992?text=Hola, me interesa Cloud y SD-WAN", external: true },
+        { ic: "🛡️", t: "Ciberseguridad", d: "Protección 360°",           href: "https://wa.me/573057876992?text=Hola, me interesa ciberseguridad empresarial", external: true },
+        { ic: "📊", t: "Analítica BI",   d: "Dashboard ejecutivo",       href: "https://wa.me/573057876992?text=Hola, me interesa Analítica BI", external: true },
       ]},
     ],
   },
@@ -65,33 +66,33 @@ const MENUS: Record<string, any> = {
     label: "Refiere & Gana", icon: "🎁", badge: "🎁", badgeColor: C.neon2,
     sections: [
       { title: "Premios", color: C.yellow, items: [
-        { ic: "🎁", t: "Premios Tech",  d: "Gana productos" },
-        { ic: "💰", t: "Cashback",      d: "Hasta $200.000" },
-        { ic: "🎟️", t: "Bonos Sodexo", d: "Miles de canjes" },
-        { ic: "⭐", t: "Puntos VIP",    d: "Acumula y canjea" },
+        { ic: "🎁", t: "Premios Tech",  d: "Gana productos",   href: "https://www.apprecio.com.co", external: true },
+        { ic: "💰", t: "Cashback",      d: "Hasta $200.000",   href: "https://www.apprecio.com.co", external: true },
+        { ic: "🎟️", t: "Bonos Sodexo", d: "Miles de canjes",  href: "https://www.apprecio.com.co", external: true },
+        { ic: "⭐", t: "Puntos VIP",    d: "Acumula y canjea", href: "https://www.apprecio.com.co", external: true },
       ]},
       { title: "Cómo Funciona", color: C.green, items: [
-        { ic: "1️⃣", t: "Comparte tu link", d: "Invita amigos" },
-        { ic: "2️⃣", t: "Ellos comparan",   d: "Encuentran su plan" },
-        { ic: "3️⃣", t: "Contratan",        d: "Plan activo y verificado" },
-        { ic: "4️⃣", t: "Tú Ganas",         d: "Premio automático" },
+        { ic: "1️⃣", t: "Comparte tu link", d: "Invita amigos",               href: "https://www.apprecio.com.co", external: true },
+        { ic: "2️⃣", t: "Ellos comparan",   d: "Encuentran su plan",          href: "https://www.apprecio.com.co", external: true },
+        { ic: "3️⃣", t: "Contratan",        d: "Plan activo y verificado",    href: "https://www.apprecio.com.co", external: true },
+        { ic: "4️⃣", t: "Tú Ganas",         d: "Premio automático",           href: "https://www.apprecio.com.co", external: true },
       ]},
     ],
   },
   ofertas: {
     label: "Ofertas", icon: "⚡", badge: "HOT", badgeColor: C.red,
     sections: [
-      { title: "Planes", color: C.red, items: [
-        { ic: "⚡", t: "Flash Deals",      d: "Solo hoy" },
-        { ic: "🎁", t: "Combos Familia",   d: "Ahorra hasta 40%" },
-        { ic: "📦", t: "Triple Play",      d: "Internet+TV+Móvil" },
-        { ic: "🆕", t: "Nuevos Clientes",  d: "Bono bienvenida" },
+      { title: "Planes Hot", color: C.red, items: [
+        { ic: "⚡", t: "Flash Deals",     d: "Solo hoy",          href: "/planes" },
+        { ic: "🎁", t: "Combos Familia",  d: "Ahorra hasta 40%",  href: "/planes?tipo=paquete" },
+        { ic: "📦", t: "Triple Play",     d: "Internet+TV+Móvil", href: "/planes?tipo=paquete" },
+        { ic: "🆕", t: "Nuevos Clientes", d: "Bono bienvenida",   href: "/planes" },
       ]},
       { title: "Equipos", color: C.neon2, items: [
-        { ic: "📡", t: "Routers WiFi 6",  d: "Desde $89.900" },
-        { ic: "🎮", t: "Gaming Gear",     d: "Hasta 50% off" },
-        { ic: "💻", t: "Laptops",         d: "Garantía 1 año" },
-        { ic: "📱", t: "Smartphones",     d: "Planes desde $0" },
+        { ic: "📡", t: "Routers WiFi 6", d: "Desde $89.900",  href: "https://wa.me/573057876992?text=Hola, me interesa un Router WiFi 6", external: true },
+        { ic: "🎮", t: "Gaming Gear",    d: "Hasta 50% off",  href: "https://wa.me/573057876992?text=Hola, me interesa Gaming Gear", external: true },
+        { ic: "💻", t: "Laptops",        d: "Garantía 1 año", href: "https://wa.me/573057876992?text=Hola, me interesa comprar una laptop", external: true },
+        { ic: "📱", t: "Smartphones",    d: "Planes desde $0", href: "https://wa.me/573057876992?text=Hola, me interesa un smartphone", external: true },
       ]},
     ],
   },
@@ -126,15 +127,20 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
               {sec.items.map((it: any, ii: number) => (
                 <div
                   key={ii}
-                  onClick={() => { if (it.action) onAction(it.action); onClose(); }}
+                  onClick={() => {
+                    if (it.action) onAction(it.action);
+                    if (it.href && !it.external) window.location.href = it.href;
+                    if (it.href && it.external) window.open(it.href, "_blank");
+                    onClose();
+                  }}
                   style={{
                     display: "flex", alignItems: "center", gap: 9,
                     padding: "8px 10px", borderRadius: 10, cursor: "pointer",
                     border: "1px solid transparent", transition: "all .14s",
                   }}
                   onMouseEnter={(e: any) => {
-                    e.currentTarget.style.background    = `${sec.color}0c`;
-                    e.currentTarget.style.borderColor   = `${sec.color}22`;
+                    e.currentTarget.style.background  = `${sec.color}0c`;
+                    e.currentTarget.style.borderColor = `${sec.color}22`;
                   }}
                   onMouseLeave={(e: any) => {
                     e.currentTarget.style.background  = "transparent";
@@ -165,12 +171,13 @@ const MegaPanel = ({ id, onClose, onAction }: { id: string; onClose: () => void;
 /* ── Mobile menu ─────────────────────────────────────────────── */
 const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () => void; onAction: (a: string) => void }) => {
   const sections = [
-    { label: "Comparar Planes",      icon: "🔍", action: "quiz" },
-    { label: "Diseñar Hogar Digital", icon: "🏠", action: "game" },
-    { label: "Ver catálogo",          icon: "📋", href: "/planes" },
-    { label: "Empresas",             icon: "🏢" },
-    { label: "Refiere & Gana",       icon: "🎁" },
-    { label: "Ofertas",              icon: "⚡" },
+    { label: "Consulta tu Cobertura",  icon: "📍", action: "cobertura" },
+    { label: "Diseñar Hogar Digital",  icon: "🏠", action: "game" },
+    { label: "Planes Móviles",         icon: "📱", action: "movil" },
+    { label: "Ver catálogo",           icon: "📋", href: "/planes" },
+    { label: "Empresas",               icon: "🏢", href: "https://wa.me/573057876992?text=Hola, me interesa soluciones para empresas" },
+    { label: "Refiere & Gana",         icon: "🎁", href: "https://www.apprecio.com.co" },
+    { label: "Ofertas Hot",            icon: "⚡", href: "/planes" },
   ];
   return (
     <div className={`mobile-nav-overlay${open ? " open" : ""}`}>
@@ -190,7 +197,7 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
           key={i}
           onClick={() => {
             if (s.action) onAction(s.action);
-            if (s.href) window.location.href = s.href;
+            if (s.href) window.open(s.href, s.href.startsWith("http") ? "_blank" : "_self");
             onClose();
           }}
           style={{
@@ -198,7 +205,7 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
             padding: "14px 16px", borderRadius: 12,
             background: "rgba(255,255,255,0.03)", border: `1px solid ${C.borderSoft}`,
             color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer",
-            textAlign: "left", transition: "all .15s",
+            textAlign: "left", transition: "all .15s", width: "100%",
           }}
           onMouseEnter={(e: any) => e.currentTarget.style.background = "rgba(0,212,255,0.08)"}
           onMouseLeave={(e: any) => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
@@ -213,16 +220,16 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
 
 /* ── Header ──────────────────────────────────────────────────── */
 interface HeaderProps {
-  onSearch:    () => void;
-  onOpenAuth:  (mode: string) => void;
-  cartCount:   number;
-  onCart:      () => void;
-  onAction:    (a: string) => void;
+  onSearch:   () => void;
+  onOpenAuth: (mode: string) => void;
+  cartCount:  number;
+  onCart:     () => void;
+  onAction:   (a: string) => void;
 }
 
 export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: HeaderProps) => {
-  const [active,   setActive]   = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [active,     setActive]     = useState<string | null>(null);
+  const [scrolled,   setScrolled]   = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -237,10 +244,14 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
 
   return (
     <>
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} onAction={(a) => { onAction(a); setMobileOpen(false); }} />
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        onAction={(a) => { onAction(a); setMobileOpen(false); }}
+      />
 
       <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500 }}>
-        {/* Top bar — desktop only */}
+        {/* Top bar */}
         <div
           className="desktop-topbar"
           style={{
@@ -264,41 +275,24 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
 
         {/* Main nav */}
         <div style={{
-          background:   scrolled ? "rgba(4,4,15,0.97)" : "rgba(4,4,15,0.92)",
+          background:     scrolled ? "rgba(4,4,15,0.97)" : "rgba(4,4,15,0.92)",
           backdropFilter: "blur(28px)",
-          borderBottom: `1px solid ${scrolled ? "rgba(0,212,255,0.18)" : C.borderSoft}`,
-          boxShadow:    scrolled ? "0 8px 40px rgba(0,0,0,0.6)" : "none",
-          transition:   "all .3s",
+          borderBottom:   `1px solid ${scrolled ? "rgba(0,212,255,0.18)" : C.borderSoft}`,
+          boxShadow:      scrolled ? "0 8px 40px rgba(0,0,0,0.6)" : "none",
+          transition:     "all .3s",
         }}>
           <div style={{ maxWidth: 1380, margin: "0 auto", padding: "0 22px", height: 62, display: "flex", alignItems: "center", gap: 0 }}>
 
             {/* Logo */}
-            <a href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", flexShrink: 0, marginRight: 28, padding: "8px 0" }}>
-              <div style={{ position: "relative" }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: 11,
-                  background: "linear-gradient(135deg,#00d4ff,#0080ff)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 0 20px #00d4ff55,0 0 40px #00d4ff22",
-                }}>
-                  <Zap size={20} color="#fff" strokeWidth={2.5} />
-                </div>
-                <div style={{
-                  position: "absolute", top: -2, right: -2,
-                  width: 10, height: 10, background: "#ff6b35",
-                  borderRadius: "50%", border: "2px solid #04040f",
-                  animation: "pulse 2s infinite",
-                }} />
-              </div>
-              <div>
-                <div style={{ display: "flex", alignItems: "baseline" }}>
-                  <span style={{ fontWeight: 900, fontSize: 17, color: "#fff", letterSpacing: "-0.5px", lineHeight: 1 }}>Compara</span>
-                  <span style={{ fontWeight: 900, fontSize: 17, background: "linear-gradient(90deg,#00d4ff,#0080ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.5px", lineHeight: 1 }}>Tu</span>
-                  <span style={{ fontWeight: 900, fontSize: 17, color: "#ff6b35", letterSpacing: "-0.5px", lineHeight: 1 }}>Plan</span>
-                  <span style={{ fontWeight: 700, fontSize: 12, color: "rgba(0,212,255,0.6)", letterSpacing: "-0.3px", lineHeight: 1 }}>.com</span>
-                </div>
-                <div style={{ fontSize: 7.5, fontWeight: 700, letterSpacing: 1.8, color: "rgba(0,212,255,0.4)", marginTop: 2 }}>COLOMBIA · TELCO #1</div>
-              </div>
+            <a href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0, marginRight: 28, padding: "8px 0" }}>
+              <Image
+                src="/logo.png"
+                alt="ComparaTuPlan.com"
+                width={160}
+                height={48}
+                style={{ objectFit: "contain", height: 44, width: "auto" }}
+                priority
+              />
             </a>
 
             {/* Desktop nav */}
@@ -312,7 +306,6 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                     color: active === id ? "#fff" : "rgba(180,195,230,0.7)",
                     fontWeight: 600, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
                     transition: "all .15s", fontFamily: "inherit",
-                    boxShadow: active === id ? "0 0 12px rgba(0,212,255,0.12)" : "none",
                   }}>
                     <span style={{ fontSize: 13 }}>{m.icon}</span>
                     <span>{m.label}</span>
@@ -320,7 +313,11 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                     <ChevronDown size={11} style={{ transition: "transform .2s", transform: active === id ? "rotate(180deg)" : "rotate(0)", opacity: .5 }} />
                   </button>
                   {active === id && (
-                    <MegaPanel id={id} onClose={() => setActive(null)} onAction={(a) => { onAction(a); setActive(null); }} />
+                    <MegaPanel
+                      id={id}
+                      onClose={() => setActive(null)}
+                      onAction={(a) => { onAction(a); setActive(null); }}
+                    />
                   )}
                 </div>
               ))}
@@ -332,7 +329,6 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                 width: 36, height: 36, borderRadius: 9, background: "rgba(255,255,255,0.04)",
                 border: `1px solid ${C.borderSoft}`, color: "rgba(180,195,230,0.6)",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                transition: "all .15s",
               }}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(180,195,230,0.6)"; }}
@@ -342,7 +338,7 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                 position: "relative", width: 36, height: 36, borderRadius: 9,
                 background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderSoft}`,
                 color: "rgba(180,195,230,0.6)", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", transition: "all .15s",
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = "rgba(0,212,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(180,195,230,0.6)"; }}
@@ -358,10 +354,8 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
                 )}
               </button>
 
-              {/* UserMenu (handles logged in + logged out state) */}
               <UserMenu onOpenAuth={onOpenAuth} />
 
-              {/* Hamburger — mobile */}
               <button
                 className="mobile-menu-btn"
                 onClick={() => setMobileOpen(true)}
