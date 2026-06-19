@@ -17,7 +17,7 @@ import {
   Hero, FeaturedPlans, Companies, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections"; 
 
-type View = "landing" | "game" | "quiz";
+type View = "landing" | "cobertura" | "segment" | "game" | "movil" | "quiz";
 
 interface CartItem {
   id: string; name: string; price: number; emoji: string; color: string; qty: number;
