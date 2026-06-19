@@ -146,6 +146,7 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
       .select("id_crc, operador, nombre, tipo, precio, datos_gb, minutos, modalidad, tecnologia")
       .eq("tipo", "movil")
       .in("operador", OPERADORES_FASE1)
+      .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
       .order("precio", { ascending: true })
       .limit(300);
 
