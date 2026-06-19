@@ -32,55 +32,6 @@ export default function Home() {
   const [cart,       setCart]       = useState<CartItem[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setSearchOpen(false); setAuthMode(null); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setSearchOpen(true); }
-    };
-    const navFn = (e: CustomEvent) => {
-      if (e.detail === "game")      setView("game");
-      if (e.detail === "quiz")      setView("quiz");
-      if (e.detail === "movil")     setView("movil");
-      if (e.detail === "cobertura") setView("cobertura");
-    };
-    window.addEventListener("keydown", fn);
-    document.addEventListener("navAction", navFn as EventListener);
-    return () => {
-      window.removeEventListener("keydown", fn);
-      document.removeEventListener("navAction", navFn as EventListener);
-    };
-  }, []);
-
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-
-  const addToCart = (item: CartItem) => {
-    setCart((p) => {
-      const idx = p.findIndex((x) => x.id === item.id);
-      if (idx !== -1) { const n = [...p]; n[idx] = { ...n[idx], qty: n[idx].qty + 1 }; return n; }
-      return [...p, { ...item, qty: 1 }];
-    });
-    setCartOpen(true);
-  };
-
-  const handleAction = (a: string) => {
-    if (a === "game")      setView("game");
-    if (a === "quiz")      setView("quiz");
-    if (a === "movil")     setView("movil");
-    if (a === "cobertura") setView("cobertura");
-    if (a === "login")     setAuthMode("login");
-    if (a === "register")  setAuthMode("register");
-  };
-
-  // Cuando el usuario completa el formulario de ubicación
-  const handleUbicacion = (data: UbicacionData) => {
-    setUbicacion(data);
-    setView("segment");
-  };
-
-  return (
-    <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", overflowX: "hidden" }}>
-
-
   
 
   /* Global keyboard shortcuts */
