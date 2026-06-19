@@ -288,9 +288,9 @@ export const Header = ({ onSearch, onOpenAuth, cartCount, onCart, onAction }: He
               <Image
                 src="/logo.png"
                 alt="ComparaTuPlan.com"
-                width={220}
-                height={70}
-                style={{ objectFit: "contain", height: 58, width: "auto" }}
+                width={160}
+                height={48}
+                style={{ objectFit: "contain", height: 44, width: "auto" }}
                 priority
               />
             </a>
