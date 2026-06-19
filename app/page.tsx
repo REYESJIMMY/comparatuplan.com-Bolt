@@ -8,6 +8,9 @@ import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import { MovilFlow }   from "@/components/game/MovilFlow";
+import ParallaxSection from '@/components/ParallaxSection';
+import { BentoOffers } from '@/components/BentoOffers'; 
+import { ManualPlans } from '@/components/ManualPlans'; // 📦 IMPORTACIÓN COMPONENTE MANUAL
 import { CoberturaForm, type UbicacionData } from "@/components/game/CoberturaForm";
 import { SegmentSelector } from "@/components/game/SegmentSelector";
 import {
