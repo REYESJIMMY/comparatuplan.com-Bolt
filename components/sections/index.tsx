@@ -384,9 +384,6 @@ export const Sidebar = ({ onSearch, onGame, onMovil, onSegment }: SidebarProps) 
       <WABtn name="programa Refiere y Gana" label="Inscribirte Gratis" full style={{ borderRadius: 9, fontSize: 11, padding: "8px 12px" }} />
     </div>
 
-  </aside>
-);
-
     <div style={{ background: "linear-gradient(135deg,rgba(0,80,170,0.15),rgba(0,212,255,0.08))", border: `1px solid ${C.border}`, borderRadius: 13, padding: "15px 13px", textAlign: "center" }}>
       <div style={{ fontSize: 30, marginBottom: 7 }}>🏠</div>
       <div style={{ color: "#fff", fontWeight: 800, fontSize: 12, marginBottom: 4 }}>Diseñar Hogar Digital</div>
