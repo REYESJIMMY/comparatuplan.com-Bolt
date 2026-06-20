@@ -1,20 +1,18 @@
-import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { notFound } from "next/navigation";
 import PlanDetalle from "@/components/planes/PlanDetalle";
 
-export default async function PlanPage({ params }: { params: { id_crc: string } }) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-  const { data: plan, error } = await supabase
+export default async function PlanPage({ params }: { params: { id_crc: string } }) {
+  const { data: plan } = await supabase
     .from("planes_unicos")
     .select("*")
     .eq("id_crc", params.id_crc)
     .single();
-
-  console.log("plan:", plan, "error:", error);
 
   if (!plan) notFound();
 
