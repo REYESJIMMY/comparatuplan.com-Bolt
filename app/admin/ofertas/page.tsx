@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { C } from "@/lib/constants";
 
 // ── Tu email de admin ─────────────────────────────────────────
-const ADMIN_EMAIL = "jimmy@comparatuplan.com";
+const ADMIN_EMAIL = "jimmy.reyes@voipcurp.com";
 
 interface OfertaHot {
   id: number;
