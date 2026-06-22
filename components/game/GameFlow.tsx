@@ -162,6 +162,12 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [resumen,    setResumen]    = useState<ResumenConsumo | null>(null);
   const [planesDB,   setPlanesDB]   = useState<PlanScorado[]>([]);
   const [ecosistema, setEcosistema] = useState<any[]>([]);
+  // Scroll automático al top cuando llega a resultados
+  useEffect(() => {
+    if (lvl === 4) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [lvl]);
 
   // Estado del modal de nivel de uso
   const [nivelModal,  setNivelModal]  = useState<typeof DEVICES[number] | null>(null);
@@ -555,12 +561,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   );
 
   /* ── Level 4 — Planes recomendados ──────────────────────────── */
-  // Scroll automático al top cuando llega a resultados
-  useEffect(() => {
-    if (lvl === 4) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [lvl]);
+  
 
   return (
     <Wrap>
