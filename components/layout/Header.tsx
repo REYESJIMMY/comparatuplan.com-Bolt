@@ -83,7 +83,7 @@ const MENUS: Record<string, any> = {
     label: "Ofertas", icon: "⚡", badge: "HOT", badgeColor: C.red,
     sections: [
       { title: "Planes Hot", color: C.red, items: [
-        { ic: "⚡", t: "Flash Deals",     d: "Solo hoy",          href: "/planes" },
+        { ic: "⚡", t: "Flash Deals",     d: "Solo hoy",          href: "/ofertas" },
         { ic: "🎁", t: "Combos Familia",  d: "Ahorra hasta 40%",  href: "/planes?tipo=paquete" },
         { ic: "📦", t: "Triple Play",     d: "Internet+TV+Móvil", href: "/planes?tipo=paquete" },
         { ic: "🆕", t: "Nuevos Clientes", d: "Bono bienvenida",   href: "/planes" },
