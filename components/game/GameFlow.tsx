@@ -693,12 +693,15 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
 
       {/* CSS responsive */}
       <style>{`
-  .planes-resultado-grid {
-    grid-template-columns: repeat(3, minmax(260px, 1fr));
-  }
-  @media (max-width: 640px) {
-    .planes-resultado-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-`}</style>
+        .planes-resultado-grid {
+          grid-template-columns: repeat(3, minmax(260px, 1fr));
+        }
+        @media (max-width: 640px) {
+          .planes-resultado-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+    </Wrap>
+  );
+};
