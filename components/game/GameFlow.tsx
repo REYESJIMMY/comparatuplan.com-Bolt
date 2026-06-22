@@ -589,7 +589,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           {/* Grid horizontal en desktop, vertical en mobile */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${planesDB.length}, minmax(260px, 1fr))`,
+            gridTemplateColumns: "repeat(3, minmax(260px, 1fr))",
             gap: 14,
             marginBottom: 20,
             overflowX: "auto",
