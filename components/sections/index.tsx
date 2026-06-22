@@ -309,9 +309,10 @@ export const ReferieGanaSection = () => (
           <div style={{ color: "#fff", fontWeight: 900, fontSize: 28 }}>$200K</div>
           <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
         </div>
-      </Card>
-    </section>
-  );
+      </div>
+    </Card>
+  </section>
+);
 
 /* ── Offers ──────────────────────────────────────────────────── */
 export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
