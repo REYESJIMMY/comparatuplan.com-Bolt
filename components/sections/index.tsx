@@ -309,7 +309,7 @@ export const ReferieGanaSection = () => (
             <div style={{ color: C.neon2, fontWeight: 900, fontSize: 16 }}>Hasta</div>
             <div style={{ color: "#fff", fontWeight: 900, fontSize: 24 }}>$200K</div>
             <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
-         </div>
+          </div>
         </div>
     </Card>
   </section>
