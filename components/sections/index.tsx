@@ -303,10 +303,11 @@ export const ReferieGanaSection = () => (
         </div>
 
         {/* Premio visual */}
-        <div style={{ textAlign: "center", flexShrink: 0 }}>
-          <div style={{ fontSize: 64, marginBottom: 8 }}>🏆</div>
-          <div style={{ color: C.neon2, fontWeight: 900, fontSize: 18 }}>Hasta</div>
-          <div style={{ color: "#fff", fontWeight: 900, fontSize: 28 }}>$200K</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 52 }}>🏆</div>
+          <div style={{ color: C.neon2, fontWeight: 900, fontSize: 16 }}>Hasta</div>
+          <div style={{ color: "#fff", fontWeight: 900, fontSize: 24 }}>$200K</div>
           <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
         </div>
       </div>
