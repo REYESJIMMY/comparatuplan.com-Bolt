@@ -311,9 +311,9 @@ export const ReferieGanaSection = () => (
             <div style={{ color: C.muted, fontSize: 11 }}>en premios</div>
           </div>
         </div>
-    </Card>
-  </section>
-);
+      </Card>
+    </section>
+  );
 
 /* ── Offers ──────────────────────────────────────────────────── */
 export const Offers = ({ addToCart }: { addToCart: (item: any) => void }) => {
