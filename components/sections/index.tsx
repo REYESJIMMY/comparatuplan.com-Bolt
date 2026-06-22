@@ -254,7 +254,9 @@ export const ReferieGanaSection = () => (
       <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(168,85,247,0.08)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(236,72,153,0.06)", pointerEvents: "none" }} />
 
-      <div style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
+      <div
+        className="refiere-grid"
+        style={{ position: "relative", display: "grid", gridTemplateColumns: "1fr auto", gap: 24, alignItems: "center" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <span style={{ fontSize: 28 }}>🎁</span>
