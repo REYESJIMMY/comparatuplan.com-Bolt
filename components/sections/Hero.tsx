@@ -26,7 +26,7 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
           <span style={{ color: C.neon, fontSize: 11, fontWeight: 700 }}>+1.500 usuarios ahorran cada mes</span>
         </div>
 
-        <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 12, color: "#fff", letterSpacing: -1 }}>
+        <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1, display: "inline-block", width: "100%" }}>
           Compara y desbloquea el<br />
           <span style={{ background: "linear-gradient(90deg,#00d4ff,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             máximo potencial de tu red
