@@ -3,17 +3,129 @@
 :root { --header-h: 95px; }
 html { scroll-behavior: smooth; }
 body {
-  background: #04040f;
-  color: #fff;
+  background: var(--bg-page);
+  color: var(--text-body);
   font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.35s ease, color 0.25s ease;
 }
-::-webkit-scrollbar { width: 5px; background: #04040f; }
+::-webkit-scrollbar { width: 5px; background: var(--bg-page); }
 ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 99px; }
 input, select, button, textarea { font-family: inherit; }
 input::placeholder { color: rgba(180,190,220,0.3); }
-select option { background: #080620; color: #fff; }
+select option { background: var(--bg-card); color: var(--text-heading); }
+
+/* ══════════════════════════════════════════════════════
+   TEMA: HÍBRIDO FUTURISTA (default — tu diseño actual)
+   ══════════════════════════════════════════════════════ */
+:root,
+[data-theme="hybrid"] {
+  /* Fondos */
+  --bg-page:          #04040f;
+  --bg-header:        rgba(4,4,15,0.92);
+  --bg-header-scroll: rgba(4,4,15,0.97);
+  --bg-topbar:        linear-gradient(90deg,#0a0060,#1a0080,#0a0060);
+  --bg-card:          rgba(255,255,255,0.03);
+  --bg-card-solid:    #080620;
+  --bg-card-border:   rgba(255,255,255,0.06);
+  --bg-mobile-menu:   rgba(4,4,15,0.98);
+  --bg-btn-icon:      rgba(255,255,255,0.04);
+  --bg-mega:          rgba(6,4,20,0.98);
+
+  /* Texto */
+  --text-heading:     #ffffff;
+  --text-body:        #ffffff;
+  --text-muted:       rgba(180,195,230,0.6);
+  --text-nav:         rgba(180,195,230,0.7);
+  --text-topbar:      rgba(180,200,255,0.6);
+
+  /* Acentos */
+  --accent-primary:   #00d4ff;
+  --accent-secondary: #a855f7;
+  --accent-green:     #00ff88;
+  --accent-cyan:      #00d4ff;
+  --accent-magenta:   #ff00ff;
+  --accent-wa:        #25D366;
+  --accent-red:       #ff3b5c;
+  --accent-yellow:    #fbbf24;
+
+  /* Bordes */
+  --border-soft:      rgba(0,212,255,0.06);
+  --border-nav-active: rgba(0,212,255,0.2);
+  --border-scroll:    rgba(0,212,255,0.18);
+  --border-topbar:    rgba(0,212,255,0.12);
+
+  /* Sombras */
+  --shadow-header:    0 8px 40px rgba(0,0,0,0.6);
+  --shadow-card:      0 2px 12px rgba(0,229,229,0.08);
+
+  /* Badge stats */
+  --stat-val:         #00d4ff;
+}
+
+/* ══════════════════════════════════════════════════════
+   TEMA: MODO CLARO (profesional, logo azul/verde)
+   ══════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  /* Fondos */
+  --bg-page:          #f0f4f8;
+  --bg-header:        rgba(255,255,255,0.95);
+  --bg-header-scroll: rgba(255,255,255,0.99);
+  --bg-topbar:        linear-gradient(90deg,#0d2b4e,#1a3f6e,#0d2b4e);
+  --bg-card:          #ffffff;
+  --bg-card-solid:    #ffffff;
+  --bg-card-border:   #e2e8f0;
+  --bg-mobile-menu:   rgba(255,255,255,0.99);
+  --bg-btn-icon:      rgba(0,0,0,0.04);
+  --bg-mega:          rgba(255,255,255,0.99);
+
+  /* Texto */
+  --text-heading:     #0d1b2e;
+  --text-body:        #334155;
+  --text-muted:       #64748b;
+  --text-nav:         #475569;
+  --text-topbar:      rgba(200,220,255,0.8);
+
+  /* Acentos */
+  --accent-primary:   #1a56db;
+  --accent-secondary: #7c3aed;
+  --accent-green:     #3ab54a;
+  --accent-cyan:      #00b8d4;
+  --accent-magenta:   #c026d3;
+  --accent-wa:        #25D366;
+  --accent-red:       #ef4444;
+  --accent-yellow:    #f59e0b;
+
+  /* Bordes */
+  --border-soft:      rgba(0,0,0,0.07);
+  --border-nav-active: rgba(26,86,219,0.25);
+  --border-scroll:    rgba(26,86,219,0.15);
+  --border-topbar:    rgba(255,255,255,0.1);
+
+  /* Sombras */
+  --shadow-header:    0 4px 20px rgba(0,0,0,0.1);
+  --shadow-card:      0 1px 6px rgba(0,0,0,0.06);
+
+  /* Badge stats */
+  --stat-val:         #1a56db;
+
+  /* Scrollbar modo claro */
+  scrollbar-color: rgba(26,86,219,0.2) #f0f4f8;
+}
+
+/* ── Transiciones globales suaves ─────────────────────────────── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow, opacity;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+/* No aplicar transiciones a elementos que se muevan */
+*[style*="transform"],
+*[class*="anim"],
+*[class*="spin"],
+*[class*="slide"],
+svg, path, circle, rect { transition-property: none; }
 
 /* ── Animaciones ─────────────────────────────────────────────── */
 @keyframes megaIn    { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
@@ -56,7 +168,7 @@ select option { background: #080620; color: #fff; }
   position: fixed;
   inset: 0;
   z-index: 490;
-  background: rgba(4,4,15,0.98);
+  background: var(--bg-mobile-menu);
   backdrop-filter: blur(20px);
   padding: 80px 20px 40px;
   overflow-y: auto;
@@ -82,24 +194,20 @@ select option { background: #080620; color: #fff; }
 @media (max-width: 768px) {
   :root { --header-h: 60px; }
 
-  /* Header */
   .desktop-nav     { display: none !important; }
   .desktop-topbar  { display: none !important; }
   .mobile-menu-btn { display: flex !important; }
 
-  /* Layout */
   .page-wrap { padding: 16px 14px 50px; }
   .main-col  { gap: 20px; }
   .side-col  { grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* Hero */
   .hero-actions { flex-direction: column; gap: 10px !important; }
   .hero-actions > div,
   .hero-actions > a { width: 100%; }
   .hero-actions button,
   .hero-actions a   { width: 100%; justify-content: center; }
 
-  /* GameFlow split — vertical en mobile */
   .gameflow-split {
     grid-template-columns: 1fr !important;
     min-height: auto !important;
@@ -111,7 +219,6 @@ select option { background: #080620; color: #fff; }
     padding-bottom: 16px !important;
   }
 
-  /* Grids */
   .plan-grid   { grid-template-columns: 1fr 1fr !important; }
   .offers-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
@@ -123,32 +230,24 @@ select option { background: #080620; color: #fff; }
   .page-wrap { padding: 12px 12px 40px; }
   .main-col  { gap: 16px; }
 
-  /* Sidebar en mobile — columna única */
   .side-col { grid-template-columns: 1fr !important; }
 
-  /* Grids en columna única */
   .plan-grid   { grid-template-columns: 1fr !important; }
   .offers-grid { grid-template-columns: repeat(2, 1fr) !important; }
 
-  /* Planes resultado GameFlow — columna única en mobile */
   .planes-grid-mobile { grid-template-columns: 1fr !important; }
 
-  /* Textos hero más pequeños */
   h1 { font-size: clamp(1.4rem, 6vw, 2rem) !important; }
 
-  /* Cobertura form */
   .cobertura-modal { border-radius: 0 !important; max-height: 100vh !important; }
 
-  /* Botones hero full width */
   .hero-actions > div { width: 100% !important; }
   .hero-actions > div > button,
   .hero-actions > div > a { width: 100% !important; text-align: center; justify-content: center; }
 
-  /* MovilFlow steps */
   .movil-steps { flex-wrap: wrap; gap: 4px !important; }
   .movil-steps > div { font-size: 10px !important; padding: 4px 8px !important; }
 
-  /* Accesos rápidos sidebar horizontal scroll en mobile */
   .side-col {
     display: flex !important;
     flex-direction: row !important;
