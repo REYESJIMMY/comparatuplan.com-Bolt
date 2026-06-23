@@ -74,7 +74,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", overflowX: "hidden" }}>
+    <div style={{ background: "var(--bg-page)", minHeight: "100vh", color: "var(--text-body)", overflowX: "hidden" }}>
 
       <Header
         onSearch={() => setSearchOpen(true)}
