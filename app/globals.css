@@ -267,3 +267,22 @@ svg, path, circle, rect { transition-property: none; }
   white-space: nowrap;
 }
 .no-select { user-select: none; }
+
+/* ── Gradient text hero ──────────────────────────────────────── */
+.hero-gradient-text {
+  display: block;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 6px;
+  line-height: 1.2;
+}
+
+[data-theme="light"] .hero-gradient-text {
+  background-image: linear-gradient(90deg, #1a56db, #3ab54a);
+}
+
+[data-theme="hybrid"] .hero-gradient-text {
+  background-image: linear-gradient(90deg, #00d4ff, #a855f7, #ec4899);
+}
