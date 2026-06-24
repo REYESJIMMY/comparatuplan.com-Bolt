@@ -49,18 +49,7 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
         {/* H1 */}
         <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1 }}>
           Compara y desbloquea el<br />
-          <span style={{
-            display: "block",
-            background: L
-              ? "linear-gradient(90deg,#1a56db,#3ab54a)"
-              : "linear-gradient(90deg,#00d4ff,#a855f7,#ec4899)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            color: "transparent",
-            paddingBottom: 6,
-            lineHeight: 1.2,
-          }}>
+          <span className="hero-gradient-text">
             máximo potencial de tu red,
           </span>
           <span style={{ display: "block" }}>todo desde un solo lugar</span>
