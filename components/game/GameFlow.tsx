@@ -196,29 +196,43 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
 
 
+  const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo"];
+  const TIPOS_HOGAR      = ["internet", "paquete", "tv"];
+  const PLANES_POR_OP    = 500;
+
   const calcularYBuscar = async () => {
     if (!avatar || !personas || devices.length === 0) return;
     setLoading(true);
+
     const res = calcularConsumo(devices, personas, avatar, DEVICES);
     setResumen(res);
     setEcosistema(recomendarEcosistema(res));
+
     try {
-    // ── CAMBIO CLAVE: tabla `planes` en lugar de `planes_unicos` ──
-    // planes_unicos es una vista pesada que hace timeout.
-    // Ahora consultamos directamente `planes` con limit alto
-    // y scorarPlanes() deduplica internamente por operador+nombre.
-      const { data: rawData, error } = await supabase
-        .from("planes")
-        .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
-        .in("tipo", ["internet", "paquete", "tv"])   // ← hardcoded, nunca "movil"
-        .in("operador", ["Claro", "Movistar", "Etb", "Tigo"])
-        .order("precio", { ascending: true })
-        .limit(2000);
+      const queries = OPERADORES_FASE1.map((op) =>
+        supabase
+          .from("planes")
+          .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
+          .eq("operador", op)
+          .in("tipo", TIPOS_HOGAR)
+          .order("precio", { ascending: true })
+          .limit(PLANES_POR_OP)
+      );
 
-      if (error) console.error("Supabase error:", error);
+      const results = await Promise.all(queries);
 
-      const planes = scorarPlanes(rawData ?? [], res, 3);
+      const rawData: any[] = [];
+      results.forEach((r, i) => {
+        if (r.error) console.error(`Error ${OPERADORES_FASE1[i]}:`, r.error);
+        else rawData.push(...(r.data ?? []));
+      });
+
+      console.log(`📦 Filas recibidas: ${rawData.length}`);
+
+      const planes = scorarPlanes(rawData, res, 3);
       setPlanesDB(planes);
+
+      console.log(`✅ Planes finales:`, planes.map(p => `${p.operador} | ${p.badge} | ${p._score}pts | $${p.precio}`));
 
       await guardarAnalisis({
         avatar_tipo:   avatar.id,
@@ -229,7 +243,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         planes_vistos: planes.map((p) => p.id_crc).filter(Boolean),
       });
     } catch (e) {
-    console.error("Error consultando Supabase:", e);
+      console.error("Error consultando Supabase:", e);
     } finally {
       setLoading(false);
       setLvl(3);
