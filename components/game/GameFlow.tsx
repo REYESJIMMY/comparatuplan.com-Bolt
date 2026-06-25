@@ -196,8 +196,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
 
 
-  const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo"];
-  const TIPOS_HOGAR      = ["internet", "paquete", "tv"];
+  const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo", "Une Epm Telco"];
+  const TIPOS_HOGAR = ["internet", "paquete", "tv", "otro"];
   const PLANES_POR_OP    = 500;
 
   const calcularYBuscar = async () => {
