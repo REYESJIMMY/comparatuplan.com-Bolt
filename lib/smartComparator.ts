@@ -357,38 +357,41 @@ export function scorarPlanes(
 
   if (resultado.length === 0) return [];
 
-  // Badges semánticos — garantiza que los 3 siempre reciben badge distinto
+  // Badges semánticos
   const scoreMax  = Math.max(...resultado.map((p: any) => p._score));
   const velMax    = Math.max(...resultado.map((p: any) => p._velocidadInf || 0));
   const precioMin = Math.min(...resultado.map((p: any) => Number(p.precio) || Infinity));
+  const usados    = new Set<string>();
 
-  return resultado.map((p: any, i: number) => {
-    let badge: string;
+  const withBadges = resultado.map((p: any) => ({ ...p, badge: "" }));
 
-    if (i === 0) {
-      // El primero SIEMPRE es Mejor Oferta (mayor score, ya ordenado)
-      badge = "🏆 Mejor Oferta";
-    } else if (i === 1) {
-      // El segundo: Mejor Velocidad si la tiene, si no Mejor Precio
-      const tieneMaxVel = velMax > 0 && p._velocidadInf === velMax;
-      badge = tieneMaxVel ? "⚡ Mejor Velocidad" : "💰 Mejor Precio";
-    } else {
-      // El tercero: el badge que sobró
-      const segundoBadge = resultado[1]._velocidadInf === velMax && velMax > 0
-        ? "⚡ Mejor Velocidad"
-        : "💰 Mejor Precio";
-      badge = segundoBadge === "⚡ Mejor Velocidad" ? "💰 Mejor Precio" : "⚡ Mejor Velocidad";
+  for (const p of withBadges) {
+    if (!p.badge && p._score === scoreMax && !usados.has("oferta")) {
+      p.badge = "🏆 Mejor Oferta"; usados.add("oferta");
     }
-
-    return {
-      ...p,
-      precio:       Number(p.precio) || 0,
-      nombreLimpio: limpiarNombre(p.nombre ?? "", p.operador ?? ""),
-      glow:         colorOperador(p.operador ?? ""),
-      top:          i === 0,
-      badge,
-    };
+  }
+  for (const p of withBadges) {
+    if (!p.badge && velMax > 0 && p._velocidadInf === velMax && !usados.has("velocidad")) {
+      p.badge = "⚡ Mejor Velocidad"; usados.add("velocidad");
+    }
+  }
+  for (const p of withBadges) {
+    if (!p.badge && Number(p.precio) === precioMin && !usados.has("precio")) {
+      p.badge = "💰 Mejor Precio"; usados.add("precio");
+    }
+  }
+  withBadges.forEach((p: any, i: number) => {
+    if (!p.badge) p.badge = `#${i + 1}`;
   });
+
+  return withBadges.map((p: any) => ({
+    ...p,
+    precio:       Number(p.precio) || 0,
+    nombreLimpio: limpiarNombre(p.nombre ?? "", p.operador ?? ""),
+    glow:         colorOperador(p.operador ?? ""),
+    top:          p.badge === "🏆 Mejor Oferta",
+  }));
+}
 
 // ── 3. Ecosistema ─────────────────────────────────────────────
 export function recomendarEcosistema(resumen: ResumenConsumo) {
