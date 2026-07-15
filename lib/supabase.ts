@@ -1,9 +1,14 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+// createBrowserClient (en vez de createClient de @supabase/supabase-js)
+// sincroniza automáticamente la sesión en cookies, no solo en localStorage.
+// Esto es lo que permite que middleware.ts (que corre en el servidor y
+// solo puede leer cookies) reconozca al usuario logueado al navegar
+// entre rutas de /panel/*.
+export const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── Planes ──────────────────────────────────────────────────────
 interface GetPlanesParams {
