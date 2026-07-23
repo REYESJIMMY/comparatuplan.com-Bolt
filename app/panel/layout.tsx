@@ -2,24 +2,30 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Tag, Users, TrendingUp, FileBarChart, GraduationCap, AlertCircle, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, Tag, Users, TrendingUp, FileBarChart, GraduationCap, AlertCircle, Settings, Menu, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const NAV = [
-  { href: "/panel",           label: "Dashboard",   icon: LayoutDashboard },
-  { href: "/panel/ofertas",   label: "Ofertas",     icon: Tag },
-  { href: "/panel/leads",     label: "CRM / Leads", icon: Users },
-  { href: "/panel/ventas",    label: "Ventas",      icon: TrendingUp },
-  { href: "/panel/reportes",  label: "Reportes",    icon: FileBarChart },
-  { href: "/panel/recursos",  label: "Capacitación", icon: GraduationCap },
-  { href: "/panel/incidencias", label: "Incidencias", icon: AlertCircle },
-  { href: "/panel/config",    label: "Configuración", icon: Settings },
+  { href: "/panel",             label: "Dashboard",    icon: LayoutDashboard },
+  { href: "/panel/ofertas",     label: "Ofertas",      icon: Tag },
+  { href: "/panel/leads",       label: "CRM / Leads",  icon: Users },
+  { href: "/panel/ventas",      label: "Ventas",       icon: TrendingUp },
+  { href: "/panel/reportes",    label: "Reportes",     icon: FileBarChart },
+  { href: "/panel/recursos",    label: "Capacitación", icon: GraduationCap },
+  { href: "/panel/incidencias", label: "Incidencias",  icon: AlertCircle },
+  { href: "/panel/config",      label: "Configuración",icon: Settings },
+];
+
+// Ítems que solo debe ver el rol admin
+const NAV_ADMIN = [
+  { href: "/panel/admin/ofertas", label: "Admin · Ofertas", icon: ShieldCheck },
 ];
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
   const pathname = usePathname();
   const { perfil } = useAuth();
+  const esAdmin = (perfil as any)?.rol === "admin";
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#0b1220" }}>
@@ -50,6 +56,32 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
               </Link>
             );
           })}
+
+          {esAdmin && (
+            <>
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "10px 12px" }} />
+              {open && (
+                <div style={{ padding: "0 12px 6px", color: "#3f4a5f", fontSize: 9, fontWeight: 800, letterSpacing: 1 }}>
+                  ADMINISTRACIÓN
+                </div>
+              )}
+              {NAV_ADMIN.map((item) => {
+                const active = pathname === item.href;
+                const Icon = item.icon;
+                return (
+                  <Link key={item.href} href={item.href} style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                    borderRadius: 8, marginBottom: 2, textDecoration: "none",
+                    background: active ? "rgba(245,158,11,0.1)" : "transparent",
+                    color: active ? "#f59e0b" : "#94a3b8", fontSize: 13, fontWeight: 600,
+                  }}>
+                    <Icon size={16} />
+                    {open && item.label}
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
         {open && perfil && (
           <div style={{ padding: 14, borderTop: "1px solid rgba(255,255,255,0.06)", color: "#64748b", fontSize: 11 }}>
