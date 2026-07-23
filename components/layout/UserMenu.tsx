@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { User, Heart, Clock, LogOut, ChevronDown, Settings, Zap } from "lucide-react";
+import { User, Heart, Clock, LogOut, ChevronDown, Settings, Zap, ShieldCheck } from "lucide-react";
 import { C } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 
@@ -44,6 +44,9 @@ const MenuItem = ({ icon: Icon, label, sub, color = "#fff", onClick, badge }: an
   </button>
 );
 
+/* ── Roles con acceso al panel de asesores ──────────────────────── */
+const ROLES_PANEL = ["admin", "supervisor", "asesor"];
+
 /* ── Main component ──────────────────────────────────────────── */
 export const UserMenu = ({ onOpenAuth }: { onOpenAuth: (mode: string) => void }) => {
   const { user, perfil, favoritos, signOut } = useAuth();
@@ -79,6 +82,8 @@ export const UserMenu = ({ onOpenAuth }: { onOpenAuth: (mode: string) => void })
 
   /* ── Logged in ─────────────────────────────────────────────── */
   const nombre = perfil?.nombre ?? user.email?.split("@")[0] ?? "Usuario";
+  const rolActual = (perfil as any)?.rol;
+  const tieneAccesoPanel = ROLES_PANEL.includes(rolActual);
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -128,6 +133,20 @@ export const UserMenu = ({ onOpenAuth }: { onOpenAuth: (mode: string) => void })
               </div>
             )}
           </div>
+
+          {/* Acceso al panel de asesores — solo equipo interno */}
+          {tieneAccesoPanel && (
+            <>
+              <MenuItem
+                icon={ShieldCheck}
+                label="Panel de Asesores"
+                sub={`Rol: ${rolActual}`}
+                color="#00d4ff"
+                onClick={() => { window.location.href = "/panel"; setOpen(false); }}
+              />
+              <div style={{ height: 1, background: C.borderSoft, margin: "6px 8px" }} />
+            </>
+          )}
 
           <MenuItem icon={User}  label="Mi Perfil"   sub="Datos personales y preferencias" onClick={() => { window.location.href = "/perfil"; setOpen(false); }} />
           <MenuItem icon={Heart} label="Favoritos"   sub={`${favoritos.length} planes guardados`} badge={favoritos.length || undefined} onClick={() => { window.location.href = "/perfil#favoritos"; setOpen(false); }} />
