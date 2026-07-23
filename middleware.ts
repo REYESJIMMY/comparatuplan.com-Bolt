@@ -1,12 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const ROLES_CON_ACCESO_PANEL = ["admin", "supervisor", "asesor"];
 const RUTAS_SOLO_ADMIN = ["/panel/admin"];
 const RUTAS_SUPERVISOR_O_ADMIN = ["/panel/reportes/equipo"];
-
-// Rutas dentro de /panel que NUNCA deben volver a redirigir,
-// para no crear un bucle (login y sin-acceso son los destinos
-// de las propias redirecciones).
 const RUTAS_EXENTAS = ["/panel/login", "/panel/sin-acceso"];
 
 export async function middleware(request: NextRequest) {
@@ -15,7 +12,6 @@ export async function middleware(request: NextRequest) {
 
   let response = NextResponse.next({ request: { headers: request.headers } });
 
-  // ── Cortocircuito: si ya estamos en una ruta exenta, no evaluamos nada más ──
   if (RUTAS_EXENTAS.some((r) => pathname === r)) return response;
 
   const supabase = createServerClient(
@@ -51,7 +47,11 @@ export async function middleware(request: NextRequest) {
     .eq("id", user.id)
     .single();
 
-  if (!perfil || !perfil.activo_asesor) {
+  // Ahora exige explícitamente un rol de equipo interno, no solo
+  // activo_asesor=true (que por defecto también es true para clientes).
+  const tieneRolValido = !!perfil && ROLES_CON_ACCESO_PANEL.includes(perfil.rol);
+
+  if (!tieneRolValido || !perfil?.activo_asesor) {
     return NextResponse.redirect(new URL("/panel/sin-acceso", request.url));
   }
 
@@ -65,7 +65,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/panel/sin-acceso", request.url));
   }
 
-  // Log de acceso (no bloqueante — falla en silencio si RLS lo impide)
   supabase.from("panel_accesos").insert({
     user_id: user.id,
     ip: request.headers.get("x-forwarded-for") ?? null,
