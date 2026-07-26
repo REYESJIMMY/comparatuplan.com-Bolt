@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-/* ── Supabase admin (service key, solo server-side) ─────────── */
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+/* ── Supabase admin — se instancia dentro del handler ────────
+   No instanciar en module scope: Next.js evalúa el módulo
+   en build time y las env vars aún no están disponibles.    */
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Supabase env vars missing");
+  return createClient(url, key);
+}
 
 const OPERADORES_FASE1 = ["Claro", "Movistar", "ETB", "Tigo", "WOM"];
 
@@ -34,6 +38,7 @@ function detectIntent(msg: string) {
 
 /* ── Traer planes relevantes de Supabase ────────────────────── */
 async function fetchPlanesContexto(intent: ReturnType<typeof detectIntent>) {
+  const supabase = getSupabase();
   let query = supabase
     .from("planes")
     .select("operador, nombre, precio, tipo, duracion_unidad, servicios")
@@ -47,7 +52,7 @@ async function fetchPlanesContexto(intent: ReturnType<typeof detectIntent>) {
   const { data, error } = await query.limit(25);
   if (error || !data?.length) {
     // Fallback: top planes sin filtro
-    const { data: fallback } = await supabase
+    const { data: fallback } = await getSupabase()
       .from("planes")
       .select("operador, nombre, precio, tipo, duracion_unidad, servicios")
       .in("operador", OPERADORES_FASE1)
