@@ -1,12 +1,15 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Search, X, LogIn, UserPlus, MessageCircle, Send, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import {
+  Search, X, LogIn, UserPlus, MessageCircle, Send,
+  ShoppingCart, Trash2, Plus, Minus,
+} from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 import { GlowBtn, WaIco } from "@/components/ui";
 
 /* ── SearchBar ───────────────────────────────────────────────── */
 const QUICK_SEARCHES = [
-  { label: "Fibra 200 Mbps",  url: "/planes?tipo=internet" },
+  { label: "Fibra 200 Mbps", url: "/planes?tipo=internet" },
   { label: "Planes móviles",  url: "/planes?tipo=movil" },
   { label: "Triple Play",     url: "/planes?tipo=paquete" },
   { label: "Internet hogar",  url: "/planes?tipo=internet" },
@@ -252,56 +255,72 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
 };
 
 /* ── Chatbot Nexus ───────────────────────────────────────────── */
-const getReply = (t: string): string => {
-  const s = t.toLowerCase();
-  if (s.match(/hola|buenas|hey/))         return "¡Hola! 👋 Soy **Nexus**. ¿En qué te ayudo hoy?";
-  if (s.match(/internet|fibra/))          return "📡 Fibra desde **$59.900/mes** hasta 900 Mbps. [Ver planes de internet](/planes?tipo=internet)";
-  if (s.match(/precio|costo|cuánto/))     return "💰 Planes desde **$45.900/mes**. ¡Hasta 40% de ahorro! [Ver catálogo](/planes)";
-  if (s.match(/móvil|movil|celular/))     return "📱 Planes móviles desde **$20.000**. Prepago y pospago. [Ver planes móviles](/planes?tipo=movil)";
-  if (s.match(/cobertura/))              return "📍 Verifica tu cobertura aquí → [Consulta tu Cobertura](/?action=cobertura)";
-  if (s.match(/reparar|técnico|roto/))    return "🔧 Diagnóstico **gratis**. Escríbenos por WhatsApp 💬";
-  if (s.match(/planes|comparar/))        return "🔍 Ve todos los planes en nuestro [catálogo completo](/planes)";
-  if (s.match(/oferta|descuento|promo/)) return "⚡ Tenemos **Ofertas Hot** del día. [Ver ofertas](/ofertas)";
-  if (s.match(/refiere|gana|premio/))    return "🎁 Gana hasta **$200.000** con Apprecio. [Inscribirte gratis](https://www.apprecio.com.co)";
-  return "Para asesoría personalizada escríbenos por **WhatsApp** 💬";
-};
+interface Msg { role: "user" | "assistant"; content: string; }
 
-interface Msg { from: "bot" | "user"; text: string; }
+const renderMd = (t: string) =>
+  t
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#00d4ff;text-decoration:underline">$1</a>');
+
+const SUGERENCIAS = [
+  "¿Cuál es el plan más barato?",
+  "Planes de fibra Claro",
+  "Internet + TV bajo $100.000",
+  "Mejores planes móviles",
+];
 
 export const Chatbot = () => {
-  const [open,   setOpen]   = useState(false);
-  const [msgs,   setMsgs]   = useState<Msg[]>([{ from: "bot", text: "¡Hola! 👋 Soy **Nexus**, tu asistente de ComparaTuPlan. ¿Cómo puedo ayudarte?" }]);
-  const [input,  setInput]  = useState("");
-  const [typing, setTyping] = useState(false);
-  const [unread, setUnread] = useState(1);
-  const botRef   = useRef<HTMLDivElement>(null);
+  const [open,    setOpen]    = useState(false);
+  const [msgs,    setMsgs]    = useState<Msg[]>([
+    { role: "assistant", content: "¡Hola! 👋 Soy **Nexus**, tu asistente de ComparaTuPlan.com.\n\nConozco los planes reales de Claro, Movistar, ETB, Tigo y WOM. ¿Qué estás buscando?" },
+  ]);
+  const [input,   setInput]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [unread,  setUnread]  = useState(1);
+  const [error,   setError]   = useState(false);
+
+  const endRef   = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { botRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, typing]);
-  useEffect(() => { if (open) { setUnread(0); setTimeout(() => inputRef.current?.focus(), 80); } }, [open]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, loading]);
+  useEffect(() => {
+    if (open) { setUnread(0); setTimeout(() => inputRef.current?.focus(), 80); }
+  }, [open]);
 
-  const send = (t?: string) => {
-    const m = t ?? input.trim();
-    if (!m) return;
-    setInput("");
-    setMsgs((p) => [...p, { from: "user", text: m }]);
-    setTyping(true);
-    setTimeout(() => {
-      setMsgs((p) => [...p, { from: "bot", text: getReply(m) }]);
-      setTyping(false);
-    }, 750 + Math.random() * 400);
+  const send = async (texto?: string) => {
+    const m = (texto ?? input).trim();
+    if (!m || loading) return;
+    setInput(""); setError(false);
+    const newMsgs: Msg[] = [...msgs, { role: "user", content: m }];
+    setMsgs(newMsgs);
+    setLoading(true);
+    try {
+      const res  = await fetch("/api/nexus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newMsgs.slice(1) }),
+      });
+      const data = await res.json();
+      setMsgs(prev => [...prev, { role: "assistant", content: data.reply ?? "Sin respuesta." }]);
+    } catch {
+      setError(true);
+      setMsgs(prev => [...prev, { role: "assistant", content: "❌ No pude conectarme. Verifica tu conexión e intenta de nuevo." }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const rt = (t: string) =>
-  t.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-   .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#00d4ff;text-decoration:underline;cursor:pointer">$1</a>');
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
 
   return (
     <>
       {/* FAB */}
       <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
         <button
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => setOpen(o => !o)}
+          aria-label={open ? "Cerrar Nexus" : "Abrir Nexus"}
           style={{
             width: 50, height: 50, borderRadius: "50%",
             background: open ? "linear-gradient(135deg,#ef4444,#b91c1c)" : "linear-gradient(135deg,#00d4ff,#0070cc)",
@@ -313,7 +332,13 @@ export const Chatbot = () => {
         >
           {open ? <X size={19} color="#fff" /> : <MessageCircle size={21} color="#fff" />}
           {unread > 0 && !open && (
-            <span style={{ position: "absolute", top: -3, right: -3, width: 16, height: 16, borderRadius: "50%", background: C.red, color: "#fff", fontSize: 8, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #04040f" }}>{unread}</span>
+            <span style={{
+              position: "absolute", top: -3, right: -3, width: 16, height: 16,
+              borderRadius: "50%", background: C.red, color: "#fff",
+              fontSize: 8, fontWeight: 900,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "2px solid #04040f",
+            }}>{unread}</span>
           )}
         </button>
       </div>
@@ -322,66 +347,108 @@ export const Chatbot = () => {
       {open && (
         <div style={{
           position: "fixed", bottom: 84, right: 24, zIndex: 999,
-          width: 295, display: "flex", flexDirection: "column",
+          width: 310, display: "flex", flexDirection: "column",
           background: "rgba(6,4,20,0.99)", border: `1px solid ${C.border}`,
           borderRadius: 18, boxShadow: `0 0 50px ${C.neon}18`,
-          backdropFilter: "blur(24px)", overflow: "hidden",
+          backdropFilter: "blur(24px)", overflow: "hidden", maxHeight: "70vh",
         }}>
-          <div style={{ background: "linear-gradient(135deg,#0070cc,#0050aa)", padding: "11px 14px", display: "flex", alignItems: "center", gap: 9 }}>
-            <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <MessageCircle size={15} color="#fff" />
-            </div>
+
+          {/* Header */}
+          <div style={{ padding: "14px 16px 12px", borderBottom: `1px solid ${C.borderSoft}`, display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+            <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#00d4ff,#0070cc)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🤖</div>
             <div style={{ flex: 1 }}>
-              <div style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>Nexus IA</div>
-              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 9, fontWeight: 600 }}>● En línea · ComparaTuPlan</div>
+              <div style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>Nexus</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3ab54a", boxShadow: "0 0 6px #3ab54a", display: "inline-block", animation: "blink 1.5s infinite" }} />
+                <span style={{ color: "rgba(180,195,230,0.5)", fontSize: 10 }}>Datos reales CRC · Fase 1</span>
+              </div>
             </div>
-            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: 23, height: 23, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <X size={11} color="#fff" />
+            <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+              <X size={15} color="rgba(180,195,230,0.4)" />
             </button>
           </div>
 
-          <div style={{ overflowY: "auto", padding: "9px 9px 4px", display: "flex", flexDirection: "column", gap: 7, maxHeight: 240 }}>
-            {msgs.map((m, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: m.from === "user" ? "flex-end" : "flex-start" }}>
+          {/* Mensajes */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px 0", display: "flex", flexDirection: "column", gap: 10, scrollbarWidth: "none" }}>
+            {msgs.map((msg, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
                 <div
                   style={{
-                    maxWidth: "80%", padding: "7px 11px",
-                    borderRadius: m.from === "user" ? "14px 14px 3px 14px" : "14px 14px 14px 3px",
-                    background: m.from === "user" ? "linear-gradient(135deg,#0070cc,#0050aa)" : "rgba(255,255,255,0.06)",
-                    color: "#fff", fontSize: 11, lineHeight: 1.5,
+                    maxWidth: "85%",
+                    background: msg.role === "user" ? "linear-gradient(135deg,#0070cc,#0050aa)" : "rgba(255,255,255,0.05)",
+                    border: msg.role === "user" ? "none" : `1px solid ${C.borderSoft}`,
+                    borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
+                    padding: "9px 12px", fontSize: 12, lineHeight: 1.6,
+                    color: msg.role === "user" ? "#fff" : "rgba(210,225,255,0.9)",
                   }}
-                  dangerouslySetInnerHTML={{ __html: rt(m.text) }}
+                  dangerouslySetInnerHTML={{ __html: renderMd(msg.content) }}
                 />
               </div>
             ))}
-            {typing && (
-              <div style={{ display: "flex" }}>
-                <div style={{ padding: "7px 11px", borderRadius: "14px 14px 14px 3px", background: "rgba(255,255,255,0.06)", display: "flex", gap: 3, alignItems: "center" }}>
-                  {[0, 1, 2].map((j) => <div key={j} style={{ width: 4, height: 4, borderRadius: "50%", background: C.neon, animation: `blink 1.2s ${j * .2}s infinite` }} />)}
+
+            {loading && (
+              <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                <div style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, borderRadius: "14px 14px 14px 4px", padding: "10px 14px", display: "flex", gap: 4, alignItems: "center" }}>
+                  {[0,1,2].map(i => (
+                    <span key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: C.neon, opacity: 0.6, animation: `blink 1.2s ${i * 0.2}s infinite` }} />
+                  ))}
                 </div>
               </div>
             )}
-            <div ref={botRef} />
+
+            {msgs.length <= 1 && !loading && (
+              <div style={{ paddingBottom: 4 }}>
+                <div style={{ color: "rgba(180,195,230,0.35)", fontSize: 9, marginBottom: 7, letterSpacing: 1 }}>PREGUNTAS FRECUENTES</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {SUGERENCIAS.map(s => (
+                    <button key={s} onClick={() => send(s)}
+                      style={{ background: "rgba(0,212,255,0.07)", border: `1px solid ${C.borderSoft}`, borderRadius: 20, padding: "5px 10px", color: C.neon, fontSize: 10, cursor: "pointer", transition: "all .15s" }}
+                      onMouseEnter={(e: any) => e.currentTarget.style.background = "rgba(0,212,255,0.15)"}
+                      onMouseLeave={(e: any) => e.currentTarget.style.background = "rgba(0,212,255,0.07)"}
+                    >{s}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div ref={endRef} style={{ height: 14 }} />
           </div>
 
-          <div style={{ padding: "4px 7px", display: "flex", gap: 4, flexWrap: "wrap" }}>
-            {["Internet", "Móvil", "Ofertas"].map((q) => (
-              <button key={q} onClick={() => send(q)} style={{ background: "rgba(0,212,255,0.08)", border: `1px solid ${C.border}`, color: C.neon, borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer" }}>{q}</button>
-            ))}
-              <a href={`https://wa.me/573057876992?text=${encodeURIComponent("Hola, necesito asesoría personalizada sobre planes de telecomunicaciones 🚀")}`} target="_blank" rel="noopener noreferrer" style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.3)", color: "#25D366", borderRadius: 99, padding: "3px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer", textDecoration: "none" }}>💬 Asesor</a>
+          {/* Disclaimer */}
+          <div style={{ padding: "6px 14px 2px", color: "rgba(180,195,230,0.25)", fontSize: 9, textAlign: "center", flexShrink: 0 }}>
+            Precios actualizados diariamente · Verificar con el operador
           </div>
 
-          <div style={{ padding: "5px 7px 9px", display: "flex", gap: 5 }}>
+          {/* Input */}
+          <div style={{ padding: "10px 12px 14px", display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
             <input
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && send()}
-              placeholder="Escribe tu pregunta…"
-              style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, borderRadius: 8, padding: "7px 10px", color: "#fff", fontSize: 11, outline: "none" }}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              placeholder="Pregunta sobre planes..."
+              disabled={loading}
+              style={{
+                flex: 1, background: "rgba(255,255,255,0.05)",
+                border: `1px solid ${error ? "#ef4444" : C.borderSoft}`,
+                borderRadius: 10, padding: "9px 12px", color: "#fff", fontSize: 12,
+                outline: "none", transition: "border-color .15s",
+              }}
+              onFocus={(e: any) => e.target.style.borderColor = C.neon}
+              onBlur={(e: any) => e.target.style.borderColor = error ? "#ef4444" : C.borderSoft}
             />
-            <button onClick={() => send()} style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#0070cc,#0050aa)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Send size={12} color="#fff" />
+            <button
+              onClick={() => send()}
+              disabled={loading || !input.trim()}
+              aria-label="Enviar mensaje"
+              style={{
+                width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                background: input.trim() && !loading ? "linear-gradient(135deg,#00d4ff,#0070cc)" : "rgba(255,255,255,0.05)",
+                border: `1px solid ${input.trim() && !loading ? C.neon : C.borderSoft}`,
+                cursor: input.trim() && !loading ? "pointer" : "default",
+                display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s",
+              }}
+            >
+              <Send size={14} color={input.trim() && !loading ? "#fff" : "rgba(180,195,230,0.3)"} />
             </button>
           </div>
         </div>
