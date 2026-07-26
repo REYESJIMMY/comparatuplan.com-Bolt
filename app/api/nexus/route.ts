@@ -11,7 +11,7 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-const OPERADORES_FASE1 = ["Claro", "Movistar", "ETB", "Tigo", "WOM"];
+const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo", "Wom"]; // casings exactos de DB
 
 /* ── Detectar intent del mensaje ────────────────────────────── */
 function detectIntent(msg: string) {
