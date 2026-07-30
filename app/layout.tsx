@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <UbicacionProvider>
               {children}
-            </UbicacionProvider>  
+            </UbicacionProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
