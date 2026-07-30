@@ -285,6 +285,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   if (lvl === 1) return (
     <Wrap>
       <LvlBar lvl={1} />
+      {!tieneUbicacionMinima && <CiudadSelectorMini onListo={() => {}} />}
       <h2 style={{ textAlign: "center", fontWeight: 900, fontSize: "clamp(1.2rem,4vw,1.7rem)", marginBottom: 8, background: "linear-gradient(90deg,#00d4ff,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
         ¿Cuál es tu perfil digital?
       </h2>
@@ -333,6 +334,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         <GlowBtn onClick={() => avatar && personas && setLvl(2)} disabled={!avatar || !personas} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
           Siguiente → Diseñar Casa
         </GlowBtn>
+           onClick={() => avatar && personas && tieneUbicacionMinima && setLvl(2)}
+           disabled={!avatar || !personas || !tieneUbicacionMinima}
       </div>
     </Wrap>
   );
