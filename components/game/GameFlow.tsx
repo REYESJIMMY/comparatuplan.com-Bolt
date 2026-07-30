@@ -8,6 +8,8 @@ import {
 } from "@/lib/constants";
 import { GlowBtn, WABtn, Card, Chip } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
+import { useUbicacion } from "@/context/UbicacionContext";
+import { CiudadSelectorMini } from "@/components/ui/CiudadSelectorMini";
 import {
   calcularConsumo, scorarPlanes, recomendarEcosistema,
   generarExplicacion, type ResumenConsumo, type PlanScorado,
@@ -152,6 +154,7 @@ const NivelModal = ({
 /* ── GameFlow ────────────────────────────────────────────────── */
 export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
+  const { ubicacion, tieneUbicacionMinima } = useUbicacion();
 
   const [lvl,        setLvl]        = useState(0);
   const [avatar,     setAvatar]     = useState<typeof AVATARS[number] | null>(null);
