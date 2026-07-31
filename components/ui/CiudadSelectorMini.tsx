@@ -2,65 +2,111 @@
 /**
  * CiudadSelectorMini
  * -------------------
- * Versión reducida del Paso 1 de "Consulta Cobertura": solo
- * Departamento + Ciudad. Se auto-oculta si ya hay ubicación
- * guardada (venga del flujo de Cobertura o de una visita anterior).
+ * Versión reducida del Paso 1 de CoberturaForm: solo Departamento +
+ * Municipio, usando la MISMA fuente de datos (lib/colombia.ts) que
+ * CoberturaForm — nada duplicado.
  *
- * Uso previsto:
- *   - Dentro del tab "Perfil" de Misión 3D, antes del selector de perfil digital
- *   - Como paso inicial de Nexus si el usuario pregunta por planes/cobertura
- *   - En el catálogo, antes de mostrar resultados filtrados
+ * Se auto-oculta si ya hay ubicación guardada (venga de CoberturaForm
+ * o de una visita anterior). Sin botón propio: guarda al elegir
+ * municipio; el avance real lo controla el flujo que lo use (ej. el
+ * botón "Siguiente → Diseñar Casa" de GameFlow).
  */
 import { useState } from "react";
 import { useUbicacion } from "@/context/UbicacionContext";
-// import { DEPARTAMENTOS, MUNICIPIOS_POR_DEPARTAMENTO } from "@/lib/constants";
-// ^ reutilizar la misma fuente de datos que ya usa el flujo de Cobertura,
-//   no duplicar la lista de departamentos/municipios.
+import { C } from "@/lib/constants";
+import { DEPARTAMENTOS } from "@/lib/colombia";
+
+const selectStyle = (activo: boolean): React.CSSProperties => ({
+  width: "100%",
+  background: "#1a1a2e",
+  border: `1px solid ${activo ? C.neon : "rgba(255,255,255,0.1)"}`,
+  borderRadius: 10,
+  padding: "10px 12px",
+  color: activo ? "#fff" : "rgba(255,255,255,0.3)",
+  fontSize: 13,
+  fontWeight: 600,
+  outline: "none",
+  cursor: "pointer",
+  appearance: "none",
+});
 
 export function CiudadSelectorMini({ onListo }: { onListo?: () => void }) {
   const { ubicacion, setUbicacionMinima, tieneUbicacionMinima } = useUbicacion();
   const [departamento, setDepartamento] = useState("");
-  const [ciudad, setCiudad] = useState("");
   const [editando, setEditando] = useState(false);
 
-  // Ya sabemos dónde está — mostramos un chip de confirmación, no el formulario
+  const municipios = departamento ? (DEPARTAMENTOS[departamento] ?? []) : [];
+
   if (tieneUbicacionMinima && !editando) {
     return (
-      <div className="ciudad-chip" role="status">
-        <span>📍 {ubicacion!.ciudad}, {ubicacion!.departamento}</span>
-        <button type="button" onClick={() => setEditando(true)}>
+      <div
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "rgba(0,212,255,0.05)", border: `1px solid ${C.border}`,
+          borderRadius: 12, padding: "10px 14px", marginBottom: 18,
+        }}
+      >
+        <span style={{ color: "#fff", fontSize: 12.5, fontWeight: 700 }}>
+          📍 {ubicacion!.municipio}, {ubicacion!.departamento}
+        </span>
+        <button
+          type="button"
+          onClick={() => setEditando(true)}
+          style={{
+            background: "transparent", border: `1px solid rgba(255,255,255,0.1)`,
+            borderRadius: 8, padding: "5px 12px", color: C.neon,
+            fontSize: 11, fontWeight: 700, cursor: "pointer",
+          }}
+        >
           Cambiar
         </button>
       </div>
     );
   }
 
-  const puedeContinuar = departamento.trim() !== "" && ciudad.trim() !== "";
-
   return (
-    <div className="ciudad-selector-mini">
-      <p className="label">¿Desde dónde nos visitas?</p>
-      <p className="hint">Así te mostramos solo planes que sí llegan a tu zona</p>
+    <div
+      style={{
+        background: "rgba(255,255,255,0.02)", border: `1px solid ${C.border}`,
+        borderRadius: 14, padding: "16px 18px", marginBottom: 20,
+      }}
+    >
+      <div style={{ color: C.neon, fontWeight: 800, fontSize: 13, marginBottom: 2 }}>
+        📍 ¿Desde dónde nos visitas?
+      </div>
+      <div style={{ color: C.muted, fontSize: 11, marginBottom: 12 }}>
+        Así te mostramos solo planes que sí llegan a tu zona
+      </div>
 
-      {/* Reemplazar por los mismos <select> con datos reales del flujo de Cobertura */}
-      <select value={departamento} onChange={(e) => setDepartamento(e.target.value)}>
-        <option value="">Selecciona tu departamento</option>
-      </select>
-      <select value={ciudad} onChange={(e) => setCiudad(e.target.value)} disabled={!departamento}>
-        <option value="">Selecciona tu municipio</option>
-      </select>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <select
+          style={selectStyle(!!departamento)}
+          value={departamento}
+          onChange={(e) => setDepartamento(e.target.value)}
+        >
+          <option value="">Departamento</option>
+          {Object.keys(DEPARTAMENTOS).sort().map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
 
-      <button
-        type="button"
-        disabled={!puedeContinuar}
-        onClick={() => {
-          setUbicacionMinima(departamento, ciudad);
-          setEditando(false);
-          onListo?.();
-        }}
-      >
-        Continuar
-      </button>
+        <select
+          style={{ ...selectStyle(false), opacity: departamento ? 1 : 0.5, cursor: departamento ? "pointer" : "not-allowed" }}
+          disabled={!departamento}
+          value=""
+          onChange={(e) => {
+            const municipio = e.target.value;
+            if (!municipio) return;
+            setUbicacionMinima(departamento, municipio);
+            onListo?.();
+          }}
+        >
+          <option value="">Municipio</option>
+          {municipios.map((m) => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
