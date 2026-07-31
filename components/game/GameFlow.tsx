@@ -331,7 +331,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       </div>
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={onBack} style={{ padding: "9px 18px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "rgba(255,255,255,0.03)", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>← Volver</button>
-        onClick={() => avatar && personas && tieneUbicacionMinima && setLvl(2)} disabled={!avatar || !personas || !tieneUbicacionMinima} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
+        <GlowBtn
+          onClick={() => avatar && personas && tieneUbicacionMinima && setLvl(2)} disabled={!avatar || !personas || !tieneUbicacionMinima} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
           Siguiente → Diseñar Casa
         </GlowBtn>        
       </div>
