@@ -3,42 +3,10 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { C } from "@/lib/constants";
 import { GlowBtn } from "@/components/ui";
+import { useUbicacion } from "@/context/UbicacionContext";
 
 // ── Datos geográficos Colombia ────────────────────────────────
-const DEPARTAMENTOS: Record<string, string[]> = {
-  "Bogotá D.C.":     ["Bogotá"],
-  "Antioquia":       ["Medellín","Bello","Itagüí","Envigado","Sabaneta","Rionegro","Copacabana","Apartadó"],
-  "Valle del Cauca": ["Cali","Palmira","Buenaventura","Tuluá","Cartago","Buga"],
-  "Atlántico":       ["Barranquilla","Soledad","Malambo","Sabanalarga","Galapa"],
-  "Santander":       ["Bucaramanga","Floridablanca","Girón","Piedecuesta","Barrancabermeja"],
-  "Bolívar":         ["Cartagena","Magangué","Turbaco"],
-  "Cundinamarca":    ["Soacha","Chía","Zipaquirá","Fusagasugá","Facatativá","Mosquera","Madrid"],
-  "Nariño":          ["Pasto","Tumaco","Ipiales","Túquerres"],
-  "Risaralda":       ["Pereira","Dosquebradas","Santa Rosa de Cabal"],
-  "Quindío":         ["Armenia","Calarcá","La Tebaida"],
-  "Caldas":          ["Manizales","Villamaría","Chinchiná"],
-  "Huila":           ["Neiva","Pitalito","Garzón"],
-  "Tolima":          ["Ibagué","Espinal","Melgar","Honda"],
-  "Córdoba":         ["Montería","Lorica","Sahagún"],
-  "Meta":            ["Villavicencio","Acacías","Granada"],
-  "Magdalena":       ["Santa Marta","Ciénaga","Fundación"],
-  "Cauca":           ["Popayán","Santander de Quilichao","Puerto Tejada"],
-  "Norte de Santander": ["Cúcuta","Ocaña","Pamplona","Villa del Rosario"],
-  "Boyacá":          ["Tunja","Duitama","Sogamoso","Chiquinquirá"],
-  "Cesar":           ["Valledupar","Aguachica","Codazzi"],
-  "Sucre":           ["Sincelejo","Sampués","Corozal"],
-  "Chocó":           ["Quibdó"],
-  "Arauca":          ["Arauca","Saravena"],
-  "Casanare":        ["Yopal","Aguazul","Tauramena"],
-  "La Guajira":      ["Riohacha","Maicao","Uribia"],
-  "Putumayo":        ["Mocoa","Puerto Asís"],
-  "Caquetá":         ["Florencia"],
-  "Amazonas":        ["Leticia"],
-  "Vichada":         ["Puerto Carreño"],
-  "Guainía":         ["Inírida"],
-  "Guaviare":        ["San José del Guaviare"],
-  "Vaupés":          ["Mitú"],
-};
+import { DEPARTAMENTOS } from "@/lib/colombia";
 
 export interface UbicacionData {
   departamento: string;
@@ -60,6 +28,7 @@ export const CoberturaForm = ({ onContinuar, onCancel }: Props) => {
   const [direccion, setDireccion] = useState("");
   const [estrato,   setEstrato]   = useState(0);
   const [guardando, setGuardando] = useState(false);
+  const { setUbicacionCompleta } = useUbicacion();
 
   const municipios = depto ? (DEPARTAMENTOS[depto] ?? []) : [];
   const listo = depto && municipio && estrato > 0;
@@ -78,6 +47,7 @@ export const CoberturaForm = ({ onContinuar, onCancel }: Props) => {
     }).then(() => {}).catch(() => {});
 
     setGuardando(false);
+    setUbicacionCompleta({ departamento: depto, municipio, barrio, direccion, estrato });
     onContinuar({ departamento: depto, municipio, barrio, direccion, estrato });
   };
 
