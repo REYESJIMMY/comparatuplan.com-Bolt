@@ -3,13 +3,13 @@
  * UbicacionContext
  * -----------------
  * Fuente única de verdad para la ubicación del usuario.
- * La llenan (parcial o totalmente) tres flujos distintos:
- *   1. "Consulta Cobertura"  -> setUbicacionCompleta() (departamento, ciudad, barrio?, direccion?, estrato)
- *   2. Misión 3D / Perfil    -> setUbicacionMinima()   (solo departamento + ciudad)
- *   3. Nexus (chat)          -> setUbicacionMinima()   (extraída de la conversación)
+ * Campos alineados 1:1 con UbicacionData (components/game/CoberturaForm.tsx)
+ * para no tener dos nombres distintos del mismo dato en el proyecto.
  *
- * Cualquiera de los tres, al montar, primero pregunta si ya hay
- * ubicacion.ciudad — si la hay, no vuelve a pedirla.
+ * La llenan tres flujos distintos:
+ *   1. "Consulta Cobertura" (CoberturaForm) -> setUbicacionCompleta() (todos los campos)
+ *   2. Misión 3D / tab Perfil                -> setUbicacionMinima()   (departamento + municipio)
+ *   3. Nexus (chat)                          -> setUbicacionMinima()   (extraída de la conversación)
  */
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
@@ -17,11 +17,11 @@ const STORAGE_KEY = "ctp_ubicacion";
 
 export interface Ubicacion {
   departamento: string;
-  ciudad: string;
+  municipio: string;
   barrio?: string;
   direccion?: string;
   estrato?: number;
-  /** true solo si vino del flujo completo de Cobertura (tiene barrio/direccion/estrato) */
+  /** true solo si vino del flujo completo de Cobertura (tiene estrato/barrio/direccion) */
   completa: boolean;
   actualizadaEn: string; // ISO date
 }
@@ -29,11 +29,11 @@ export interface Ubicacion {
 interface UbicacionContextValue {
   ubicacion: Ubicacion | null;
   /** Úsalo desde Misión 3D o Nexus: solo pide lo indispensable */
-  setUbicacionMinima: (departamento: string, ciudad: string) => void;
-  /** Úsalo desde el flujo de Cobertura: guarda todo lo capturado */
+  setUbicacionMinima: (departamento: string, municipio: string) => void;
+  /** Úsalo desde CoberturaForm: guarda todo lo capturado */
   setUbicacionCompleta: (u: Omit<Ubicacion, "completa" | "actualizadaEn">) => void;
   clearUbicacion: () => void;
-  /** true si ya tenemos al menos departamento+ciudad, sin importar el flujo de origen */
+  /** true si ya tenemos al menos departamento+municipio, sin importar el flujo de origen */
   tieneUbicacionMinima: boolean;
 }
 
@@ -43,13 +43,12 @@ export function UbicacionProvider({ children }: { children: ReactNode }) {
   const [ubicacion, setUbicacion] = useState<Ubicacion | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hidratar desde localStorage al montar (evita re-preguntar en cada visita)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setUbicacion(JSON.parse(raw));
     } catch {
-      /* localStorage no disponible (SSR) — no pasa nada, se pedirá de nuevo */
+      /* localStorage no disponible (SSR) */
     } finally {
       setHydrated(true);
     }
@@ -62,15 +61,14 @@ export function UbicacionProvider({ children }: { children: ReactNode }) {
     } catch {}
     // TODO: si hay usuario autenticado (useAuth), sincronizar también a
     // supabase.from('perfiles').update({ ubicacion: u }).eq('id', user.id)
-    // para que persista entre dispositivos, no solo en este navegador.
   };
 
-  const setUbicacionMinima = (departamento: string, ciudad: string) => {
+  const setUbicacionMinima = (departamento: string, municipio: string) => {
     // No pisa una ubicación completa ya existente con una mínima más pobre
     if (ubicacion?.completa) return;
     persist({
       departamento,
-      ciudad,
+      municipio,
       completa: false,
       actualizadaEn: new Date().toISOString(),
     });
@@ -87,7 +85,7 @@ export function UbicacionProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
 
-  if (!hydrated) return null; // evita flash de "pedir ubicación" antes de leer localStorage
+  if (!hydrated) return null;
 
   return (
     <UbicacionContext.Provider
@@ -96,7 +94,7 @@ export function UbicacionProvider({ children }: { children: ReactNode }) {
         setUbicacionMinima,
         setUbicacionCompleta,
         clearUbicacion,
-        tieneUbicacionMinima: !!ubicacion?.ciudad,
+        tieneUbicacionMinima: !!ubicacion?.municipio,
       }}
     >
       {children}
