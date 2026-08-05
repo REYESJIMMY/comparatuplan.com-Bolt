@@ -33,7 +33,7 @@ const TIPO_EMOJI: Record<string, string> = {
 };
 
 /* ── Prompt de extracción ────────────────────────────────────── */
-const SYSTEM_PROMPT = `Eres un extractor de ofertas comerciales de telecomunicaciones B2B en Colombia (Movistar, Tigo, Claro, ETB, WOM).
+const SYSTEM_PROMPT = `Eres un extractor de ofertas comerciales de telecomunicaciones B2CB en Colombia (Movistar, Tigo, Claro, ETB, WOM).
 
 Te llega un documento PDF (un "léeme" o brochure comercial interno) que contiene una o varias ofertas de internet fijo (fibra), planes móviles, paquetes convergentes (fijo+móvil) o TV, válidas por un período limitado.
 
