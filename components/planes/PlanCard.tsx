@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Heart, Scale, Check } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 
@@ -17,7 +18,7 @@ function getTags(p: Plan): { label: string; color: string }[] {
   if ((p.canales_tv ?? 0) > 100) tags.push({ label: "+100 canales", color: C.yellow });
   if ((p.velocidad_mbps ?? 0) >= 300) tags.push({ label: "Ideal Gaming", color: C.neon2 });
   if (p.tecnologia?.toLowerCase().includes("fibra")) tags.push({ label: "Fibra óptica", color: C.green });
-  return tags.slice(0, 2); // máx 2 tags para no saturar la tarjeta
+  return tags.slice(0, 2);
 }
 
 interface Props {
@@ -32,12 +33,26 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
   const tags = getTags(plan);
 
   return (
-    <div style={{
-      background: "rgba(8,6,28,0.85)", border: `1px solid ${compareChecked ? C.neon : `${color}22`}`,
-      borderRadius: 14, padding: 18, display: "flex", flexDirection: "column", gap: 10,
-      transition: "all .2s", position: "relative",
-      boxShadow: compareChecked ? `0 0 0 1px ${C.neon}` : "none",
-    }}>
+    <div
+      style={{
+        background: "rgba(8,6,28,0.85)", border: `1px solid ${compareChecked ? C.neon : `${color}22`}`,
+        borderRadius: 14, padding: 18, display: "flex", flexDirection: "column", gap: 10,
+        transition: "all .2s", position: "relative",
+        boxShadow: compareChecked ? `0 0 0 1px ${C.neon}` : "none",
+      }}
+      onMouseEnter={(e: any) => {
+        if (compareChecked) return;
+        e.currentTarget.style.transform = "translateY(-3px)";
+        e.currentTarget.style.borderColor = `${color}55`;
+        e.currentTarget.style.boxShadow = `0 8px 28px ${color}14`;
+      }}
+      onMouseLeave={(e: any) => {
+        if (compareChecked) return;
+        e.currentTarget.style.transform = "";
+        e.currentTarget.style.borderColor = `${color}22`;
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
       {/* Header: operador + acciones */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -82,7 +97,6 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
         <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
       </div>
 
-      {/* Características clave con iconos */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
         {plan.velocidad_mbps && (
           <span style={{ background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)", color: C.neon, borderRadius: 99, padding: "2px 8px", fontSize: 10, fontWeight: 700 }}>⚡ {plan.velocidad_mbps} Mbps</span>
@@ -98,7 +112,6 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
         )}
       </div>
 
-      {/* Tags rápidos */}
       {tags.length > 0 && (
         <div style={{ display: "flex", gap: 5 }}>
           {tags.map((t) => (
@@ -108,9 +121,12 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
       )}
 
       <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-        <a href={`/planes/${plan.id_crc}`} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "10px 0", color: "rgba(220,230,255,0.7)", fontWeight: 700, fontSize: 12, textAlign: "center", textDecoration: "none" }}>
+        <Link
+          href={`/planes/${plan.id_crc}`}
+          style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "10px 0", color: "rgba(220,230,255,0.7)", fontWeight: 700, fontSize: 12, textAlign: "center", textDecoration: "none" }}
+        >
           Ver detalles
-        </a>
+        </Link>
         <button
           onClick={() => openWA(`${plan.operador} - ${plan.nombre}`)}
           style={{ flex: 1, background: "linear-gradient(135deg,#25d366,#128c7e)", border: "none", borderRadius: 9, padding: "10px 0", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
