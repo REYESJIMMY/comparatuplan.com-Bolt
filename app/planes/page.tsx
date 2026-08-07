@@ -1,378 +1,251 @@
 "use client";
+export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { C } from "@/lib/constants";
-
-// ── Constantes ────────────────────────────────────────────────
-const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo"];
-
-const TIPOS_CONFIG = [
-  { id: "",          label: "Todos",    emoji: "🔍" },
-  { id: "internet",  label: "Internet", emoji: "📡" },
-  { id: "movil",     label: "Móvil",    emoji: "📱" },
-  { id: "paquete",   label: "Paquete",  emoji: "📦" },
-  { id: "tv",        label: "TV",       emoji: "📺" },
-];
-
-const OPERADORES_CONFIG = [
-  { id: "",         label: "Todos",    color: "#00d4ff" },
-  { id: "Claro",    label: "Claro",    color: "#e2001a" },
-  { id: "Movistar", label: "Movistar", color: "#00aa44" },
-  { id: "Etb",      label: "ETB",      color: "#f59e0b" },
-  { id: "Tigo",     label: "Tigo",     color: "#00a0e3" },
-];
-
-const PRECIOS_CONFIG = [
-  { id: "",       label: "Cualquier precio", max: 0 },
-  { id: "30",     label: "Hasta $30.000",    max: 30000 },
-  { id: "60",     label: "Hasta $60.000",    max: 60000 },
-  { id: "100",    label: "Hasta $100.000",   max: 100000 },
-  { id: "150",    label: "Hasta $150.000",   max: 150000 },
-  { id: "200",    label: "Hasta $200.000",   max: 200000 },
-];
+import { Search, SlidersHorizontal } from "lucide-react";
+import { FiltrosSidebar, FILTROS_INICIALES, type Filtros } from "@/components/planes/FiltrosSidebar";
+import { OrdenSelect, type OrdenId } from "@/components/planes/OrdenSelect";
+import { PlanCard, type Plan } from "@/components/planes/PlanCard";
+import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
 
 const PAGE_SIZE = 24;
+const MAX_COMPARE = 3;
 
-// ── Helpers ───────────────────────────────────────────────────
-const formatPrecio = (p: number) =>
-  p ? `$${Number(p).toLocaleString("es-CO")}` : "Consultar";
-
-const getTipoColor = (tipo: string) => {
-  const map: Record<string, string> = {
-    internet: "#00d4ff", movil: "#a855f7",
-    paquete: "#f59e0b", tv: "#ec4899", otro: "#10b981",
-  };
-  return map[tipo] ?? "#00d4ff";
-};
-
-// ── Componente principal ──────────────────────────────────────
 export default function PlanesPage() {
-  const { toggleFavorito, isFavorito, user } = useAuth();
+  const { user, favoritos, toggleFavorito } = useAuth();
 
-  const [planes,   setPlanes]   = useState<any[]>([]);
-  const [total,    setTotal]    = useState(0);
-  const [loading,  setLoading]  = useState(true);
-  const [page,     setPage]     = useState(1);
+  const [planes, setPlanes] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [showBanner, setShowBanner] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES);
+  const [orden, setOrden] = useState<OrdenId>("precio_asc");
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
 
-  // Filtros
-  const [tipo,     setTipo]     = useState("");
-  const [operador, setOperador] = useState("");
-  const [precioId, setPrecioId] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tipo = params.get("tipo") ?? "";
+    const op = params.get("operador") ?? "";
+    if (tipo) setFiltros((f) => ({ ...f, tipo }));
+    if (op) setFiltros((f) => ({ ...f, operadores: [op] }));
+  }, []);
 
-  const precioMax = PRECIOS_CONFIG.find((p) => p.id === precioId)?.max ?? 0;
+  const fetchPlanes = useCallback(async (reset = false) => {
+    if (reset) { setLoading(true); setPage(0); }
+    else setLoadingMore(true);
 
-  const cargar = async () => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from("planes_unicos")
-        .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, minutos, canales_tv, modalidad, tecnologia", { count: "exact" })
-        .in("operador", OPERADORES_FASE1)
-        .order("precio", { ascending: true })
-        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+    const from = reset ? 0 : page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
 
-      if (tipo)     query = query.eq("tipo", tipo);
-      if (operador) query = query.eq("operador", operador);
-      if (precioMax) query = query.lte("precio", precioMax);
+    let q = supabase
+      .from("planes")
+      .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia", { count: "exact" })
+      .eq("activo", true)
+      .gte("precio", filtros.precioMin)
+      .lte("precio", filtros.precioMax);
 
-      const { data, count, error } = await query;
-      if (error) throw error;
-      setPlanes(data ?? []);
+    if (filtros.tipo) q = q.eq("tipo", filtros.tipo);
+    if (filtros.operadores.length > 0) q = q.in("operador", filtros.operadores);
+    if (filtros.modalidad) q = q.eq("modalidad", filtros.modalidad);
+    if (filtros.velocidadMin > 0) q = q.gte("velocidad_mbps", filtros.velocidadMin);
+    if (filtros.canalesMin > 0) q = q.gte("canales_tv", filtros.canalesMin);
+    if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
+    if (filtros.datosMin === -1) q = q.eq("datos_gb", -1);
+    else if (filtros.datosMin > 0) q = q.gte("datos_gb", filtros.datosMin);
+    if (filtros.estrato > 0) q = q.contains("estratos", [filtros.estrato]);
+    if (busqueda) q = q.ilike("nombre", `%${busqueda}%`);
+
+    if (orden === "precio_asc") q = q.order("precio", { ascending: true });
+    if (orden === "precio_desc") q = q.order("precio", { ascending: false });
+    if (orden === "velocidad_desc") q = q.order("velocidad_mbps", { ascending: false, nullsFirst: false });
+    if (orden === "datos_desc") q = q.order("datos_gb", { ascending: false, nullsFirst: false });
+
+    q = q.range(from, to);
+
+    const { data, count, error } = await q;
+    if (!error && data) {
+      setPlanes(reset ? (data as Plan[]) : (prev) => [...prev, ...(data as Plan[])]);
       setTotal(count ?? 0);
-    } catch (e) {
-      console.error(e);
+      if (!reset) setPage((p) => p + 1);
     }
     setLoading(false);
+    setLoadingMore(false);
+  }, [filtros, orden, busqueda, page]);
+
+  useEffect(() => { fetchPlanes(true); }, [filtros, orden, busqueda]);
+
+  const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
+  const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });
+
+  const toggleCompare = (plan: Plan) => {
+    setCompareIds((prev) => {
+      if (prev.includes(plan.id)) return prev.filter((id) => id !== plan.id);
+      if (prev.length >= MAX_COMPARE) return prev;
+      return [...prev, plan.id];
+    });
   };
 
-  useEffect(() => { cargar(); }, [tipo, operador, precioId, page]);
+  const comparePlanes = useMemo(() => planes.filter((p) => compareIds.includes(p.id)), [planes, compareIds]);
 
-  const handleFiltro = (setter: (v: any) => void, val: any) => {
-    setter(val);
-    setPage(1);
-  };
+  const stats = useMemo(() => {
+    if (planes.length === 0) return null;
+    const precios = planes.map((p) => p.precio);
+    return {
+      min: Math.min(...precios),
+      max: Math.max(...precios),
+      avg: Math.round(precios.reduce((a, b) => a + b, 0) / precios.length),
+    };
+  }, [planes]);
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const activeFilterCount = [
+    filtros.tipo, filtros.operadores.length > 0, filtros.modalidad,
+    filtros.precioMax < 500000 || filtros.precioMin > 0,
+    filtros.velocidadMin > 0, filtros.datosMin !== 0, filtros.canalesMin > 0,
+    filtros.estrato > 0, filtros.tecnologia,
+  ].filter(Boolean).length;
 
   return (
-    <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif", padding: "100px 20px 60px" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ background: "#04040f", minHeight: "100vh", color: "#fff", fontFamily: "'Inter',system-ui,sans-serif" }}>
 
-        {/* ── Header ─────────────────────────────────────────── */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <a href="/" style={{ color: "rgba(180,195,230,0.4)", fontSize: 12, textDecoration: "none" }}>Inicio</a>
-            <span style={{ color: "rgba(180,195,230,0.2)" }}>›</span>
-            <span style={{ color: "rgba(180,195,230,0.6)", fontSize: 12 }}>Planes</span>
+      {/* Header sticky */}
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(4,4,15,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "14px 20px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <Link href="/" style={{ color: C.neon, fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>← ComparaTuPlan</Link>
+          <div style={{ flex: 1, position: "relative", minWidth: 200 }}>
+            <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "rgba(180,195,230,0.4)" }} />
+            <input
+              value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar plan, operador..."
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "9px 12px 9px 34px", color: "#fff", fontSize: 13, outline: "none", boxSizing: "border-box" as const }}
+            />
           </div>
-          <h1 style={{ fontSize: "clamp(1.5rem,4vw,2.2rem)", fontWeight: 900, background: "linear-gradient(90deg,#00d4ff,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 6 }}>
-            Catálogo de planes
-          </h1>
-          <p style={{ color: "rgba(180,195,230,0.5)", fontSize: 13 }}>
-            {loading ? "Cargando..." : `${total.toLocaleString()} planes de Claro, Movistar, ETB y Tigo`}
-          </p>
+          <OrdenSelect value={orden} onChange={setOrden} />
+          <button
+            onClick={() => setShowFilters((s) => !s)}
+            className="filters-toggle-mobile"
+            style={{ display: "none", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "9px 14px", color: "rgba(180,195,230,0.6)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+          >
+            <SlidersHorizontal size={14} />Filtros
+            {activeFilterCount > 0 && <span style={{ background: C.neon, color: "#000", borderRadius: 99, width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 900 }}>{activeFilterCount}</span>}
+          </button>
         </div>
-
-        {/* ── Filtros visuales ───────────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
-
-          {/* Tipo */}
-          <div>
-            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPO DE PLAN</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {TIPOS_CONFIG.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => handleFiltro(setTipo, t.id)}
-                  style={{
-                    padding: "7px 16px", borderRadius: 99, fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", transition: "all .18s",
-                    background: tipo === t.id ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.03)",
-                    border: `1.5px solid ${tipo === t.id ? "#00d4ff" : "rgba(255,255,255,0.08)"}`,
-                    color: tipo === t.id ? "#00d4ff" : "rgba(180,195,230,0.5)",
-                  }}
-                >
-                  {t.emoji} {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Operador */}
-          <div>
-            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>OPERADOR</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {OPERADORES_CONFIG.map((op) => (
-                <button
-                  key={op.id}
-                  onClick={() => handleFiltro(setOperador, op.id)}
-                  style={{
-                    padding: "7px 16px", borderRadius: 99, fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", transition: "all .18s",
-                    background: operador === op.id ? `${op.color}18` : "rgba(255,255,255,0.03)",
-                    border: `1.5px solid ${operador === op.id ? op.color : "rgba(255,255,255,0.08)"}`,
-                    color: operador === op.id ? op.color : "rgba(180,195,230,0.5)",
-                  }}
-                >
-                  {op.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Precio */}
-          <div>
-            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PRECIO MÁXIMO</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {PRECIOS_CONFIG.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => handleFiltro(setPrecioId, p.id)}
-                  style={{
-                    padding: "7px 16px", borderRadius: 99, fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", transition: "all .18s",
-                    background: precioId === p.id ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.03)",
-                    border: `1.5px solid ${precioId === p.id ? "#f59e0b" : "rgba(255,255,255,0.08)"}`,
-                    color: precioId === p.id ? "#f59e0b" : "rgba(180,195,230,0.5)",
-                  }}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Grid de planes ─────────────────────────────────── */}
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>📡</div>
-            <div style={{ color: "rgba(0,212,255,0.5)", fontWeight: 600 }}>Cargando planes...</div>
-          </div>
-        ) : planes.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "rgba(180,195,230,0.4)" }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>😕</div>
-            <p>No encontramos planes con esos filtros.</p>
-            <button
-              onClick={() => { setTipo(""); setOperador(""); setPrecioId(""); setPage(1); }}
-              style={{ marginTop: 16, padding: "9px 22px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.3)", background: "transparent", color: "#00d4ff", fontWeight: 700, cursor: "pointer" }}
-            >
-              Limpiar filtros
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
-            {planes.map((p, i) => {
-              const color = getTipoColor(p.tipo);
-              const precio = Number(p.precio) || 0;
-              const esFav  = isFavorito(p.id_crc);
-              return (
-                <div
-                  key={p.id_crc ?? i}
-                  style={{
-                    background: "rgba(8,6,28,0.85)",
-                    border: `1px solid ${color}20`,
-                    borderRadius: 14, padding: 18,
-                    transition: "all .2s", position: "relative",
-                    display: "flex", flexDirection: "column", gap: 0,
-                  }}
-                  onMouseEnter={(e: any) => {
-                    e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.borderColor = `${color}44`;
-                    e.currentTarget.style.boxShadow = `0 8px 24px ${color}14`;
-                  }}
-                  onMouseLeave={(e: any) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.borderColor = `${color}20`;
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  {/* Botón favorito */}
-                  <button
-                    onClick={() => toggleFavorito({
-                      id_crc:   p.id_crc,
-                      operador: p.operador,
-                      nombre:   p.nombre,
-                      precio:   precio,
-                      tipo:     p.tipo,
-                    })}
-                    title={user ? (esFav ? "Quitar favorito" : "Guardar favorito") : "Inicia sesión para guardar"}
-                    style={{
-                      position: "absolute", top: 12, right: 12,
-                      background: esFav ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)",
-                      border: `1px solid ${esFav ? "rgba(236,72,153,0.4)" : "rgba(255,255,255,0.08)"}`,
-                      borderRadius: 8, padding: "5px 7px",
-                      cursor: "pointer", transition: "all .2s",
-                    }}
-                  >
-                    <Heart size={13} fill={esFav ? "#ec4899" : "none"} color={esFav ? "#ec4899" : "rgba(180,195,230,0.4)"} />
-                  </button>
-
-                  {/* Operador + Tipo */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingRight: 32 }}>
-                    <span style={{
-                      background: `${color}14`, border: `1px solid ${color}33`,
-                      color, borderRadius: 99, padding: "3px 10px",
-                      fontSize: 11, fontWeight: 700,
-                    }}>{p.operador}</span>
-                    <span style={{ color: "rgba(180,195,230,0.35)", fontSize: 10 }}>{p.tipo}</span>
-                  </div>
-
-                  {/* Nombre */}
-                  <div style={{ fontWeight: 700, fontSize: 13, color: "#fff", marginBottom: 8, lineHeight: 1.35, minHeight: 36 }}>
-                    {p.nombre}
-                  </div>
-
-                  {/* Precio */}
-                  <div style={{ fontWeight: 900, fontSize: 22, color, marginBottom: 10 }}>
-                    {formatPrecio(precio)}
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontWeight: 400 }}>/mes</span>
-                  </div>
-
-                  {/* Specs */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14, flex: 1 }}>
-                    {p.velocidad_mbps > 0 && (
-                      <span style={{ fontSize: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 8px", color: "rgba(180,195,230,0.7)" }}>
-                        ⚡ {p.velocidad_mbps} Mbps
-                      </span>
-                    )}
-                    {p.datos_gb > 0 && (
-                      <span style={{ fontSize: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 8px", color: "rgba(180,195,230,0.7)" }}>
-                        📶 {p.datos_gb === -1 ? "∞" : p.datos_gb} GB
-                      </span>
-                    )}
-                    {p.canales_tv > 0 && (
-                      <span style={{ fontSize: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 8px", color: "rgba(180,195,230,0.7)" }}>
-                        📺 {p.canales_tv} canales
-                      </span>
-                    )}
-                    {p.minutos && p.minutos !== "0" && (
-                      <span style={{ fontSize: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 8px", color: "rgba(180,195,230,0.7)" }}>
-                        📞 {p.minutos === "-1" ? "∞" : p.minutos} min
-                      </span>
-                    )}
-                    {p.modalidad && (
-                      <span style={{ fontSize: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 8px", color: "rgba(180,195,230,0.7)" }}>
-                        {p.modalidad}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Acciones — NUNCA sale del sitio */}
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <a
-                      href={`/planes/${p.id_crc}`}
-                      style={{
-                        flex: 1, background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        borderRadius: 9, padding: "9px 0",
-                        color: "rgba(180,195,230,0.6)", fontSize: 12,
-                        fontWeight: 600, textAlign: "center",
-                        textDecoration: "none", transition: "all .18s",
-                      }}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = color; e.currentTarget.style.color = "#fff"; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(180,195,230,0.6)"; }}
-                    >
-                      Ver detalle
-                    </a>
-                    <a
-                      href={`https://wa.me/573057876992?text=${encodeURIComponent(`Hola, me interesa el plan *${p.nombre}* de ${p.operador} que vi en ComparaTuPlan.com 🚀`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        flex: 1, background: "#25D366",
-                        borderRadius: 9, padding: "9px 0",
-                        color: "#fff", fontSize: 12, fontWeight: 700,
-                        textAlign: "center", textDecoration: "none",
-                        transition: "opacity .18s",
-                      }}
-                      onMouseEnter={(e: any) => e.currentTarget.style.opacity = "0.9"}
-                      onMouseLeave={(e: any) => e.currentTarget.style.opacity = "1"}
-                    >
-                      💬 Lo quiero
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ── Paginación ─────────────────────────────────────── */}
-        {!loading && total > PAGE_SIZE && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 36 }}>
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              style={{
-                background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)",
-                borderRadius: 9, padding: "9px 20px", color: "#00d4ff",
-                fontWeight: 700, cursor: page === 1 ? "default" : "pointer",
-                opacity: page === 1 ? 0.4 : 1,
-              }}
-            >← Anterior</button>
-
-            <span style={{ color: "rgba(180,195,230,0.4)", fontSize: 13 }}>
-              Página {page} de {totalPages}
-            </span>
-
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={page >= totalPages}
-              style={{
-                background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)",
-                borderRadius: 9, padding: "9px 20px", color: "#00d4ff",
-                fontWeight: 700, cursor: page >= totalPages ? "default" : "pointer",
-                opacity: page >= totalPages ? 0.4 : 1,
-              }}
-            >Siguiente →</button>
-          </div>
-        )}
-
       </div>
+
+      <div className="planes-grid-wrap" style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 20px 100px", display: "grid", gridTemplateColumns: "260px 1fr", gap: 24 }}>
+
+        {/* Sidebar */}
+        <aside style={{ display: showFilters ? "block" : "none" }}>
+          <div style={{ position: "sticky", top: 90 }}>
+            <FiltrosSidebar filtros={filtros} onChange={setFiltros} onClear={() => setFiltros(FILTROS_INICIALES)} activeCount={activeFilterCount} />
+          </div>
+        </aside>
+
+        {/* Resultados */}
+        <div>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+              <h1 style={{ fontSize: "clamp(1.2rem,3vw,1.6rem)", fontWeight: 900, margin: 0 }}>Catálogo de planes</h1>
+              {!loading && (
+                <span style={{ background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)", color: C.neon, borderRadius: 99, padding: "3px 12px", fontSize: 11, fontWeight: 700 }}>
+                  {total.toLocaleString()} planes
+                </span>
+              )}
+            </div>
+            {stats && (
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 14px" }}>
+                {[["Mínimo", stats.min, C.green], ["Promedio", stats.avg, C.neon], ["Máximo", stats.max, C.red]].map(([l, v, c]) => (
+                  <span key={String(l)} style={{ fontSize: 11.5, color: "rgba(180,195,230,0.5)" }}>
+                    {l}: <strong style={{ color: String(c) }}>${Number(v).toLocaleString("es-CO")}</strong>
+                  </span>
+                ))}
+                <span style={{ fontSize: 10, color: "rgba(180,195,230,0.3)" }}>· sobre los planes cargados</span>
+              </div>
+            )}
+          </div>
+
+          {loading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 14 }}>
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, height: 260, animation: "pulse 1.5s infinite" }} />
+              ))}
+            </div>
+          ) : planes.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <div style={{ fontSize: 52, marginBottom: 16 }}>🔍</div>
+              <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Sin resultados</div>
+              <div style={{ color: "rgba(180,195,230,0.4)", fontSize: 13, marginBottom: 24 }}>Prueba ajustando los filtros</div>
+              <button onClick={() => { setFiltros(FILTROS_INICIALES); setBusqueda(""); }} style={{ background: "linear-gradient(135deg,#0070cc,#0050aa)", border: "none", borderRadius: 10, padding: "11px 24px", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                Ver todos los planes
+              </button>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 14, marginBottom: 28 }}>
+                {planes.map((plan) => (
+                  <PlanCard
+                    key={plan.id} plan={plan} isFav={isFav(plan)} onFav={handleFav}
+                    isLoggedIn={!!user} onAuthPrompt={() => setShowBanner(true)}
+                    compareChecked={compareIds.includes(plan.id)} onToggleCompare={toggleCompare}
+                    compareDisabled={compareIds.length >= MAX_COMPARE}
+                  />
+                ))}
+              </div>
+              {planes.length < total && (
+                <div style={{ textAlign: "center" }}>
+                  <button onClick={() => fetchPlanes(false)} disabled={loadingMore} style={{ background: "rgba(0,212,255,0.08)", border: `1px solid ${C.neon}44`, borderRadius: 10, padding: "12px 32px", color: C.neon, fontWeight: 700, fontSize: 13, cursor: loadingMore ? "default" : "pointer", opacity: loadingMore ? 0.6 : 1 }}>
+                    {loadingMore ? "Cargando..." : `Cargar más (${total - planes.length} restantes)`}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {!user && planes.length > 0 && showBanner && (
+        <div style={{
+          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+          background: "rgba(8,6,28,0.97)", border: `1px solid ${C.neon}44`,
+          borderRadius: 14, padding: "16px 20px", zIndex: 100,
+          display: "flex", alignItems: "center", gap: 16,
+          boxShadow: "0 8px 32px rgba(0,212,255,0.2)",
+          maxWidth: 480, width: "calc(100% - 40px)", backdropFilter: "blur(20px)",
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: 13, marginBottom: 3 }}>💾 Guarda tus planes favoritos</div>
+            <div style={{ color: "rgba(180,195,230,0.5)", fontSize: 11 }}>Regístrate gratis y accede desde cualquier dispositivo</div>
+          </div>
+          <Link href="/?auth=register" style={{ background: "linear-gradient(135deg,#0070cc,#0050aa)", borderRadius: 9, padding: "9px 16px", color: "#fff", fontWeight: 700, fontSize: 12, textDecoration: "none", whiteSpace: "nowrap" }}>
+            Crear cuenta →
+          </Link>
+          <button onClick={() => setShowBanner(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: 4, display: "flex" }}>✕</button>
+        </div>
+      )}
+
+      <CompareBar
+        planes={comparePlanes}
+        onRemove={(id) => setCompareIds((prev) => prev.filter((i) => i !== id))}
+        onClear={() => setCompareIds([])}
+        onOpen={() => setShowCompareModal(true)}
+      />
+      {showCompareModal && <CompareModal planes={comparePlanes} onClose={() => setShowCompareModal(false)} />}
+
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
+        @media (max-width: 900px) {
+          .filters-toggle-mobile { display: flex !important; }
+          .planes-grid-wrap { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
