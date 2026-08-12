@@ -47,9 +47,8 @@ export default function PlanesPage() {
     const to = from + PAGE_SIZE - 1;
 
     let q = supabase
-      .from("planes")
-      .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia", { count: "exact" })
-      .eq("activo", true)
+      .from("catalogo_unificado")
+      .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, estrato_min, estrato_max, fuente", { count: "exact" })
       .gte("precio", filtros.precioMin)
       .lte("precio", filtros.precioMax);
 
@@ -61,8 +60,14 @@ export default function PlanesPage() {
     if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
     if (filtros.datosMin === -1) q = q.eq("datos_gb", -1);
     else if (filtros.datosMin > 0) q = q.gte("datos_gb", filtros.datosMin);
-    if (filtros.estrato > 0) q = q.contains("estratos", [filtros.estrato]);
+
+    if (filtros.estrato > 0) {
+      q = q.or(`estrato_min.is.null,and(estrato_min.lte.${filtros.estrato},estrato_max.gte.${filtros.estrato})`);
+    }
+
     if (busqueda) q = q.ilike("nombre", `%${busqueda}%`);
+
+    if (filtros.estrato > 0) q = q.order("fuente", { ascending: false });
 
     if (orden === "precio_asc") q = q.order("precio", { ascending: true });
     if (orden === "precio_desc") q = q.order("precio", { ascending: false });
