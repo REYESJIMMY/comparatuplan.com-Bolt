@@ -95,7 +95,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
       </div>
 
       <div style={{ color, fontWeight: 900, fontSize: 26, lineHeight: 1 }}>
-        ${plan.precio.toLocaleString("es-CO")}
+        ${precioNum.toLocaleString("es-CO")}
         <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
       </div>
 
@@ -124,7 +124,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
 
       <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
         <Link
-          href={`/planes/${plan.id_crc}`}
+          href={`/planes/${plan.id_crc ?? plan.id}`}
           style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "10px 0", color: "rgba(220,230,255,0.7)", fontWeight: 700, fontSize: 12, textAlign: "center", textDecoration: "none" }}
         >
           Ver detalles
