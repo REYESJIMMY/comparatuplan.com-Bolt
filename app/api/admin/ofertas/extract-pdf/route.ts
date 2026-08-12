@@ -14,6 +14,10 @@ interface OfertaExtraida {
   emoji: string;
   color: string;
   fecha_fin: string | null; // YYYY-MM-DD
+  estrato_min: number | null;  // null = sin estrato específico, aplica a todos
+  estrato_max: number | null;
+  codigo_oferta: string | null; // ej. "FMC 25534", "101193"
+  localidades: string[] | null; // null = nacional; array si es oferta regional/localidades específicas
 }
 
 const OP_COLORS: Record<string, string> = {
@@ -45,6 +49,14 @@ IGNORA por completo:
 - Tablas internas de codificación (Nabis, códigos de descuento, "marcación especial", troncales SIP, cobro revertido, numerales especiales) salvo que tengan un precio final claro al cliente
 - Contenido de catálogos de streaming (HBO, Paramount+) que no sea en sí mismo una oferta con precio propio
 
+IMPORTANTE — Estrato socioeconómico:
+Algunas ofertas de internet fijo/TV/paquetes muestran precios DISTINTOS según rangos de estrato socioeconómico (ej. "Estrato 1 al 3" con un precio y código, "Estrato 4 al 6" con otro precio y código, cada tramo con su propio código de plan/FMC). Cuando esto ocurra:
+- Genera un objeto JSON SEPARADO por cada tramo de estrato, repitiendo título, operador, tipo, descripción, badge y fecha_fin, pero con el "precio", "estrato_min", "estrato_max" y "codigo_oferta" correspondientes a ESE tramo específico.
+- Si la oferta NO menciona estrato en absoluto (la mayoría de ofertas móviles y muchas fijas nacionales), deja "estrato_min" y "estrato_max" en null — significa que aplica a todos los estratos por igual.
+
+IMPORTANTE — Localidades:
+Si la oferta indica que es exclusiva para una lista específica de ciudades/municipios o regionales (ej. "Oferta exclusiva para las siguientes localidades: Bogotá, Cali, Medellín..."), captura esa lista completa en "localidades". Si la oferta es nacional o no menciona restricción geográfica, deja "localidades" en null.
+
 Para cada oferta detectada, genera un objeto con estos campos EXACTOS:
 {
   "titulo": string corto y claro, ej. "Fibra 700 Mbps + IPTV",
@@ -54,7 +66,11 @@ Para cada oferta detectada, genera un objeto con estos campos EXACTOS:
   "precio_antes": number o null (precio de lista antes de descuento, solo si aparece explícito, ej tachado),
   "tipo": "internet" | "movil" | "paquete" | "tv",
   "badge": string corto o null, ej. "OFERTA ESPECIAL B2B", "SOLO PYMES", "50% DTO",
-  "fecha_fin": "YYYY-MM-DD" (última fecha de vigencia de la oferta, convertida de texto en español a formato ISO. Si el año no es explícito en esa diapositiva puntual, usa el año mencionado en el resto del documento.)
+  "fecha_fin": "YYYY-MM-DD" (última fecha de vigencia de la oferta, convertida de texto en español a formato ISO. Si el año no es explícito en esa diapositiva puntual, usa el año mencionado en el resto del documento.),
+  "estrato_min": number o null,
+  "estrato_max": number o null,
+  "codigo_oferta": string o null (código de plan/FMC si aparece, ej. "FMC 25534", "101193"),
+  "localidades": array de strings o null
 }
 
 Responde ÚNICAMENTE con un array JSON válido, sin texto adicional, sin bloques de código markdown, sin explicaciones. Si el documento no tiene ninguna oferta con precio y vigencia claros, responde con [].`;
@@ -139,6 +155,10 @@ export async function POST(req: NextRequest) {
         emoji: TIPO_EMOJI[tipo] ?? "⚡",
         color: OP_COLORS[opKey] ?? "#00d4ff",
         fecha_fin: o.fecha_fin ?? null,
+        estrato_min: typeof o.estrato_min === "number" ? o.estrato_min : null,
+        estrato_max: typeof o.estrato_max === "number" ? o.estrato_max : null,
+        codigo_oferta: o.codigo_oferta ? String(o.codigo_oferta) : null,
+        localidades: Array.isArray(o.localidades) && o.localidades.length > 0 ? o.localidades : null,
       };
     });
 
