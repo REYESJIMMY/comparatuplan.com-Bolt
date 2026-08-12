@@ -5,8 +5,9 @@ import { C, openWA } from "@/lib/constants";
 
 export interface Plan {
   id: string; id_crc: string | null; operador: string; nombre: string; tipo: string;
-  precio: number; velocidad_mbps: number | null; datos_gb: number | null;
+  precio: number | string; velocidad_mbps: number | null; datos_gb: number | null;
   canales_tv: number | null; minutos: string | null; modalidad: string | null; tecnologia: string | null;
+  estrato_min?: number | null; estrato_max?: number | null; fuente?: "CRC" | "Exclusiva";
 }
 
 const OP_COLORS: Record<string, string> = { Claro: "#e2001a", Movistar: "#00aa44", Etb: "#f59e0b", Tigo: "#00a0e3" };
