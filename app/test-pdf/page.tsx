@@ -15,7 +15,7 @@ export default function TestPdf() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/extract-pdf", { method: "POST", body: form });
+      const res = await fetch("/api/admin/ofertas/extract-pdf", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
         setError(`Error ${res.status}: ${data.error ?? "desconocido"}`);
