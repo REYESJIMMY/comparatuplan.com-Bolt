@@ -32,7 +32,8 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
   const color = OP_COLORS[plan.operador] ?? C.neon;
   const emoji = OP_EMOJI[plan.operador] ?? "📡";
   const tags = getTags(plan);
-
+  const precioNum = typeof plan.precio === "string" ? parseFloat(plan.precio) : plan.precio;
+  
   return (
     <div
       style={{
