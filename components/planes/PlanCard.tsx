@@ -15,13 +15,16 @@ const OP_EMOJI:  Record<string, string> = { Claro: "🔴", Movistar: "🟢", Etb
 
 function getTags(p: Plan): { label: string; color: string }[] {
   const tags: { label: string; color: string }[] = [];
+  if (p.fuente === "Exclusiva" && p.estrato_min) {
+    const rango = p.estrato_min === p.estrato_max ? `${p.estrato_min}` : `${p.estrato_min}-${p.estrato_max}`;
+    tags.push({ label: `Exclusiva estrato ${rango}`, color: C.yellow });
+  }
   if (p.datos_gb === -1) tags.push({ label: "Datos ilimitados", color: C.cyan });
   if ((p.canales_tv ?? 0) > 100) tags.push({ label: "+100 canales", color: C.yellow });
   if ((p.velocidad_mbps ?? 0) >= 300) tags.push({ label: "Ideal Gaming", color: C.neon2 });
   if (p.tecnologia?.toLowerCase().includes("fibra")) tags.push({ label: "Fibra óptica", color: C.green });
   return tags.slice(0, 2);
 }
-
 interface Props {
   plan: Plan; isFav: boolean; onFav: (p: Plan) => void;
   isLoggedIn: boolean; onAuthPrompt: () => void;
