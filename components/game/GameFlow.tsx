@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "@/lib/supabase";
+import { CAPSULAS, NEXI_EVENTOS } from "./capsulas";
 import {
   C, DEVICES, NIVEL_LABELS, PERSONAS_CONFIG,
   type DeviceAdded, type NivelUso, type PersonasHogar,
