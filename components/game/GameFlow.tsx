@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "@/lib/supabase";
 import {
   C, DEVICES, NIVEL_LABELS, PERSONAS_CONFIG,
@@ -72,20 +73,35 @@ const AVATARS = [
   { id: "nomada",      name: "Nómada Digital", emoji: "📱", color: C.yellow, desc: "Datos sin límite",       factorVelocidad: 1.0, precioMax: 150000 },
 ] as const;
 
-/* ── Level bar ───────────────────────────────────────────────── */
+/* ── Level bar (animada con layoutId) ───────────────────────────
+   El highlight activo se desliza entre pastillas en vez de
+   aparecer/desaparecer de golpe. No cambia la API del componente. */
 const LvlBar = ({ lvl }: { lvl: number }) => (
   <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20, flexWrap: "wrap" }}>
     {(["🎯 Perfil", "🏠 Casa", "📊 Consumo", "🏆 Plan"] as const).map((l, i) => {
       const n = i + 1;
+      const active = n === lvl;
+      const done = n < lvl;
       return (
         <div key={l} style={{
+          position: "relative", overflow: "hidden",
           padding: "5px 14px", borderRadius: 99,
-          background: n === lvl ? "linear-gradient(135deg,#0070cc,#0050aa)" : n < lvl ? "rgba(0,212,255,0.08)" : "rgba(255,255,255,0.03)",
-          border: n === lvl ? "none" : `1px solid ${n < lvl ? C.border : C.borderSoft}`,
-          color: n === lvl ? "#fff" : n < lvl ? C.neon : "rgba(255,255,255,0.25)",
+          border: active ? "none" : `1px solid ${done ? C.border : C.borderSoft}`,
+          color: active ? "#fff" : done ? C.neon : "rgba(255,255,255,0.25)",
           fontWeight: 700, fontSize: 11,
-          boxShadow: n === lvl ? "0 0 16px rgba(0,212,255,0.25)" : "none",
-        }}>{l}</div>
+        }}>
+          {active && (
+            <motion.div
+              layoutId="lvlbar-active"
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,#0070cc,#0050aa)", boxShadow: "0 0 16px rgba(0,212,255,0.25)" }}
+            />
+          )}
+          {!active && done && (
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,212,255,0.08)" }} />
+          )}
+          <span style={{ position: "relative" }}>{l}</span>
+        </div>
       );
     })}
   </div>
@@ -98,6 +114,15 @@ const Wrap = ({ children, wide }: { children: React.ReactNode; wide?: boolean })
     <div style={{ maxWidth: wide ? 1100 : 680, margin: "0 auto" }}>{children}</div>
   </div>
 );
+
+/* ── Transición de nivel ─────────────────────────────────────────
+   direction: 1 = avanzando, -1 = retrocediendo. Se calcula en
+   goToLevel() cada vez que cambia el nivel. */
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? 40 : -40, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction > 0 ? -40 : 40, opacity: 0 }),
+};
 
 /* ── Modal selector de nivel de uso ─────────────────────────── */
 const NivelModal = ({
@@ -157,6 +182,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
 
   const [lvl,        setLvl]        = useState(0);
+  const [direction,  setDirection]  = useState(1);
   const [avatar,     setAvatar]     = useState<typeof AVATARS[number] | null>(null);
   const [personas,   setPersonas]   = useState<PersonasHogar | null>(null);
   const [devices,    setDevices]    = useState<DeviceAdded[]>([]);
@@ -167,6 +193,13 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [planesDB,   setPlanesDB]   = useState<PlanScorado[]>([]);
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
+
+  // Reemplaza los setLvl(x) sueltos: calcula la dirección del
+  // deslizamiento (avanzar / retroceder) antes de cambiar de nivel.
+  const goToLevel = (n: number) => {
+    setDirection(n > lvl ? 1 : -1);
+    setLvl(n);
+  };
 
   // ── useEffect SIEMPRE arriba, antes de cualquier return condicional ──
   useEffect(() => {
@@ -197,7 +230,6 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   };
 
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
-
 
   const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo", "Une Epm Telco"];
   const TIPOS_HOGAR = ["internet", "paquete", "tv", "otro"];
@@ -249,11 +281,16 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       console.error("Error consultando Supabase:", e);
     } finally {
       setLoading(false);
-      setLvl(3);
+      goToLevel(3);
     }
   };
-  /* ── Level 0 — Intro ─────────────────────────────────────────── */
-  if (lvl === 0) return (
+
+  /* ── Cada nivel se arma en su propia función, pero ya no hace
+     return directo — devuelve JSX que renderLevel() entrega al
+     único AnimatePresence de abajo. La lógica interna de cada
+     nivel es idéntica a la del archivo original. ─────────────── */
+
+  const renderNivel0 = () => (
     <Wrap>
       <div style={{ textAlign: "center", padding: "30px 0" }}>
         <div style={{ fontSize: 60, marginBottom: 12 }}>🏠</div>
@@ -274,15 +311,14 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           ))}
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-          <GlowBtn onClick={() => setLvl(1)} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "13px 36px", fontSize: 15, borderRadius: 12 }}>▶ INICIAR ANÁLISIS</GlowBtn>
+          <GlowBtn onClick={() => goToLevel(1)} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "13px 36px", fontSize: 15, borderRadius: 12 }}>▶ INICIAR ANÁLISIS</GlowBtn>
           <button onClick={onBack} style={{ padding: "13px 24px", borderRadius: 12, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>← Volver</button>
         </div>
       </div>
     </Wrap>
   );
 
-  /* ── Level 1 — Avatar + Personas ────────────────────────────── */
-  if (lvl === 1) return (
+  const renderNivel1 = () => (
     <Wrap>
       <LvlBar lvl={1} />
       {!tieneUbicacionMinima && <CiudadSelectorMini onListo={() => {}} />}
@@ -332,15 +368,14 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={onBack} style={{ padding: "9px 18px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "rgba(255,255,255,0.03)", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>← Volver</button>
         <GlowBtn
-          onClick={() => avatar && personas && tieneUbicacionMinima && setLvl(2)} disabled={!avatar || !personas || !tieneUbicacionMinima} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
+          onClick={() => avatar && personas && tieneUbicacionMinima && goToLevel(2)} disabled={!avatar || !personas || !tieneUbicacionMinima} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ marginLeft: "auto", borderRadius: 10, padding: "9px 22px" }}>
           Siguiente → Diseñar Casa
-        </GlowBtn>        
+        </GlowBtn>
       </div>
     </Wrap>
   );
 
-  /* ── Level 2 — Devices ───────────────────────────────────────── */
-  if (lvl === 2) return (
+  const renderNivel2 = () => (
     <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "'Inter',system-ui,sans-serif" }}>
       {nivelModal && <NivelModal device={nivelModal} onSelect={handleSelectNivel} onCancel={() => setNivelModal(null)} />}
       <div className="gameflow-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh" }}>
@@ -412,14 +447,18 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           <GlowBtn full onClick={() => { if (devices.length > 0) calcularYBuscar(); }} disabled={devices.length === 0 || loading} gradient="linear-gradient(135deg,#a855f7,#ec4899)" glow={C.neon2} style={{ borderRadius: 12, padding: "12px 0" }}>
             {loading ? "⏳ Calculando..." : "📊 Ver mi consumo y plan ideal →"}
           </GlowBtn>
-          <button onClick={() => setLvl(1)} style={{ width: "100%", marginTop: 8, padding: "8px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Cambiar perfil</button>
+          <button onClick={() => goToLevel(1)} style={{ width: "100%", marginTop: 8, padding: "8px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Cambiar perfil</button>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .gameflow-split { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 
-  /* ── Level 3 — Desglose de consumo ──────────────────────────── */
-  if (lvl === 3) return (
+  const renderNivel3 = () => (
     <Wrap>
       <LvlBar lvl={3} />
       {loading ? (
@@ -473,17 +512,16 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
               <div style={{ color: resumen.colorConsumo, fontSize: 11, marginTop: 2 }}>{resumen.etiquetaConsumo}</div>
             </div>
           </div>
-          <GlowBtn full onClick={() => setLvl(4)} gradient="linear-gradient(135deg,#a855f7,#ec4899)" glow={C.neon2} style={{ borderRadius: 12, padding: "13px 0", marginBottom: 10 }}>
+          <GlowBtn full onClick={() => goToLevel(4)} gradient="linear-gradient(135deg,#a855f7,#ec4899)" glow={C.neon2} style={{ borderRadius: 12, padding: "13px 0", marginBottom: 10 }}>
             🏆 Ver planes recomendados →
           </GlowBtn>
-          <button onClick={() => setLvl(2)} style={{ width: "100%", padding: "9px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Ajustar dispositivos</button>
+          <button onClick={() => goToLevel(2)} style={{ width: "100%", padding: "9px", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Ajustar dispositivos</button>
         </>
       )}
     </Wrap>
   );
 
-  /* ── Level 4 — Planes recomendados (horizontal) ──────────────── */
-  return (
+  const renderNivel4 = () => (
     <Wrap wide>
       <LvlBar lvl={4} />
 
@@ -498,14 +536,13 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       {planesDB.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px 0", color: C.muted }}>
           <p>No encontramos planes exactos. Prueba otro perfil.</p>
-          <button onClick={() => setLvl(1)} style={{ marginTop: 16, padding: "9px 22px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.neon, fontWeight: 700, cursor: "pointer" }}>← Ajustar perfil</button>
+          <button onClick={() => goToLevel(1)} style={{ marginTop: 16, padding: "9px 22px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.neon, fontWeight: 700, cursor: "pointer" }}>← Ajustar perfil</button>
         </div>
       ) : (
         <>
           <div style={{ color: C.muted, fontSize: 11, marginBottom: 12, textAlign: "center" }}>
             🏆 <strong style={{ color: "#fff" }}>{planesDB.length} planes</strong> recomendados para tu hogar
           </div>
-          {/* Desktop: horizontal | Mobile: vertical */}
           <div style={{
             display: "grid",
             gridTemplateColumns: `repeat(${planesDB.length}, 1fr)`,
@@ -567,16 +604,36 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       )}
 
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={() => { setLvl(0); setDevices([]); setAvatar(null); setPersonas(null); setPlanesDB([]); setResumen(null); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>🔄 Reiniciar</button>
-        <button onClick={() => setLvl(3)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Ver consumo</button>
+        <button onClick={() => { goToLevel(0); setDevices([]); setAvatar(null); setPersonas(null); setPlanesDB([]); setResumen(null); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>🔄 Reiniciar</button>
+        <button onClick={() => goToLevel(3)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Ver consumo</button>
         <button onClick={onBack} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>🏠 Inicio</button>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .gameflow-split { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </Wrap>
+  );
+
+  const renderLevel = () => {
+    switch (lvl) {
+      case 0: return renderNivel0();
+      case 1: return renderNivel1();
+      case 2: return renderNivel2();
+      case 3: return renderNivel3();
+      default: return renderNivel4();
+    }
+  };
+
+  return (
+    <AnimatePresence mode="wait" custom={direction}>
+      <motion.div
+        key={lvl}
+        custom={direction}
+        variants={slideVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={{ duration: 0.28, ease: "easeInOut" }}
+      >
+        {renderLevel()}
+      </motion.div>
+    </AnimatePresence>
   );
 };
