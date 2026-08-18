@@ -34,11 +34,15 @@ export function CapsulaToast({
               ×
             </button>
           </div>
-          <p style={{ color: "#e8eaf6", fontSize: 12, lineHeight: 1.4, margin: "0 0 6px" }}>{capsula.texto}</p>
-          <p style={{ color: C.muted, fontSize: 10.5, lineHeight: 1.4, margin: 0 }}>{capsula.puente}</p>
-          <div style={{ marginTop: 8, textAlign: "right", color: "#10b981", fontSize: 10, fontWeight: 800 }}>
-            +{capsula.xp} XP
-          </div>
+          <p style={{ color: "#e8eaf6", fontSize: 12, lineHeight: 1.4, margin: capsula.puente ? "0 0 6px" : 0 }}>{capsula.texto}</p>
+          {capsula.puente && (
+            <p style={{ color: C.muted, fontSize: 10.5, lineHeight: 1.4, margin: 0 }}>{capsula.puente}</p>
+          )}
+          {capsula.xp > 0 && (
+            <div style={{ marginTop: 8, textAlign: "right", color: "#10b981", fontSize: 10, fontWeight: 800 }}>
+              +{capsula.xp} XP
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
