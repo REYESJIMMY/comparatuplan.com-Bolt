@@ -16,6 +16,9 @@ import {
   calcularConsumo, scorarPlanes, recomendarEcosistema,
   generarExplicacion, type ResumenConsumo, type PlanScorado,
 } from "@/lib/smartComparator";
+import { useCapsulas } from "@/components/game/useCapsulas";
+import { CapsulaToast } from "@/components/game/CapsulaToast";
+
 
 /* ── House SVG ───────────────────────────────────────────────── */
 const HouseSVG = ({
