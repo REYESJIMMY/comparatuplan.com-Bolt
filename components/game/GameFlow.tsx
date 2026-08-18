@@ -259,6 +259,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
     setResumen(res);
     setEcosistema(recomendarEcosistema(res));
 
+    if (res.mbpsRecomendado > 300) disparar("margen-20");
+
     try {
       const queries = OPERADORES_FASE1.map((op) =>
         supabase
