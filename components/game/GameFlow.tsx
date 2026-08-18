@@ -237,8 +237,13 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
     const nd = [...devices, newDev];
     setDevices(nd);
     if (nd.length >= 4) { setFlash(true); setTimeout(() => setFlash(false), 1600); }
+
+    if (nd.length >= 4) disparar("red-saturada");
+    if (nivelModal.id === "console" || nivelModal.id === "pc") disparar("qos-gaming");
+    const totalTV = nd.filter((d) => d.id === "tv").length;
+    if (nivelModal.id === "decoder" || totalTV >= 2) disparar("fibra-vs-coaxial");
+
     setNivelModal(null);
-  };
 
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
 
