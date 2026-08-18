@@ -352,7 +352,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         {AVATARS.map((av) => {
           const sel = avatar?.id === av.id;
           return (
-            <div key={av.id} onClick={() => setAvatar(av)} style={{
+            <div key={av.id} onClick={() => { setAvatar(av); disparar(CAPSULA_POR_AVATAR[av.id]); }} style={{
               cursor: "pointer", textAlign: "center", padding: "20px 10px",
               background: sel ? `${av.color}12` : "rgba(255,255,255,0.02)",
               border: `2px solid ${sel ? av.color : C.borderSoft}`,
