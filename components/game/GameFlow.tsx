@@ -644,18 +644,21 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   };
 
   return (
-    <AnimatePresence mode="wait" custom={direction}>
-      <motion.div
-        key={lvl}
-        custom={direction}
-        variants={slideVariants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{ duration: 0.28, ease: "easeInOut" }}
-      >
-        {renderLevel()}
-      </motion.div>
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={lvl}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.28, ease: "easeInOut" }}
+        >
+          {renderLevel()}
+        </motion.div>
+      </AnimatePresence>
+      <CapsulaToast capsula={capsulaActual} onClose={cerrarCapsula} />
+    </>
   );
 };
