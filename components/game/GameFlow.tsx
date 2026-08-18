@@ -285,6 +285,10 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       const planes = scorarPlanes(rawData, res, 3);
       setPlanesDB(planes);
 
+      const topPlan = planes.find((p) => p.top) ?? planes[0];
+      if (topPlan?.tipo === "paquete") disparar("que-trae-paquete");
+      if (planes.length > 0) mostrarMensaje(NEXI_EVENTOS.misionCompletada, { icono: "🎉", titulo: "Misión completada" });
+
       console.log(`✅ Planes finales:`, planes.map(p => `${p.operador} | ${p.badge} | ${p._score}pts | $${p.precio}`));
 
       await guardarAnalisis({
