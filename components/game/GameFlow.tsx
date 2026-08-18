@@ -18,6 +18,7 @@ import {
 } from "@/lib/smartComparator";
 import { useCapsulas } from "@/components/game/useCapsulas";
 import { CapsulaToast } from "@/components/game/CapsulaToast";
+import { XPBadge } from "@/components/game/XPBadge";
 
 
 /* ── House SVG ───────────────────────────────────────────────── */
