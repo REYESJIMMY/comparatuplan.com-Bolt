@@ -76,6 +76,12 @@ const AVATARS = [
   { id: "teletrabajo", name: "Teletrabajador", emoji: "💼", color: C.green,  desc: "Estabilidad máxima",     factorVelocidad: 1.3, precioMax: 250000 },
   { id: "nomada",      name: "Nómada Digital", emoji: "📱", color: C.yellow, desc: "Datos sin límite",       factorVelocidad: 1.0, precioMax: 150000 },
 ] as const;
+const CAPSULA_POR_AVATAR: Record<string, string> = {
+  gamer: "gamer-latencia",
+  familia: "familia-ancho-banda",
+  teletrabajo: "teletrabajo-estabilidad",
+  nomada: "nomada-roaming",
+};
 
 /* ── Level bar (animada con layoutId) ───────────────────────────
    El highlight activo se desliza entre pastillas en vez de
