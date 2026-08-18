@@ -660,6 +660,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         </motion.div>
       </AnimatePresence>
       <CapsulaToast capsula={capsulaActual} onClose={cerrarCapsula} />
+      <XPBadge xp={xp} />
     </>
   );
 };
