@@ -244,9 +244,9 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
     if (nivelModal.id === "decoder" || totalTV >= 2) disparar("fibra-vs-coaxial");
 
     setNivelModal(null);
+  };
 
   const remDev = (uid: string) => setDevices((prev) => prev.filter((d) => d.uid !== uid));
-
   const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo", "Une Epm Telco"];
   const TIPOS_HOGAR = ["internet", "paquete", "tv", "otro"];
   const PLANES_POR_OP    = 500;
