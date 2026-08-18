@@ -405,7 +405,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
           <LvlBar lvl={2} />
           <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 14 }}>
             {([["🏠 1 Planta", false], ["🏢 2 Plantas", true]] as const).map(([l, v]) => (
-              <button key={String(l)} onClick={() => setFloor2(v)} style={{
+              <button key={String(l)} onClick={() => { setFloor2(v); if (v) disparar("casa-dos-pisos"); }} style={{
                 padding: "6px 14px", borderRadius: 99,
                 border: `2px solid ${floor2 === v ? C.neon : C.borderSoft}`,
                 background: floor2 === v ? `${C.neon}14` : "transparent",
