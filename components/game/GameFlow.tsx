@@ -191,7 +191,7 @@ const NivelModal = ({
 export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
-  const { actual: capsulaActual, disparar, mostrarMensaje, cerrar: cerrarCapsula } = useCapsulas();
+  const { actual: capsulaActual, disparar, mostrarMensaje, cerrar: cerrarCapsula, xp } = useCapsulas(user?.id);
 
   const [lvl,        setLvl]        = useState(0);
   const [direction,  setDirection]  = useState(1);
