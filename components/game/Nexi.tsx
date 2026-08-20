@@ -3,7 +3,7 @@ import { C } from "@/lib/constants";
 
 export function Nexi({ emoji = "🤖" }: { emoji?: string }) {
   return (
-    <div style={{ position: "fixed", right: 20, bottom: 20, zIndex: 950, width: 56, height: 56 }}>
+    <div style={{ position: "fixed", left: 20, bottom: 20, zIndex: 950, width: 56, height: 56 }}>
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%",
         border: `2px solid ${C.neon}`, opacity: 0.5,
