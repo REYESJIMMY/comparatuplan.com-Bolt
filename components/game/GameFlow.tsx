@@ -628,9 +628,11 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                     {capsulaInfo && (
                       <button
                         onClick={() => toggleFlip(p.id_crc)}
-                        style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", color: C.neon, fontSize: 11.5, fontWeight: 600, cursor: "pointer", padding: "0 0 10px" }}
+                        className="nexi-hint"
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "rgba(0,212,255,0.06)", border: `1px solid ${C.border}`, borderRadius: 8, color: C.neon, fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: "7px 10px", marginBottom: 10 }}
                       >
-                        💡 ¿Por qué este plan?
+                        <span>💡 ¿Por qué este plan?</span>
+                        <span style={{ color: "#10b981", fontSize: 10, fontWeight: 800 }}>+5 XP</span>
                       </button>
                     )}
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
