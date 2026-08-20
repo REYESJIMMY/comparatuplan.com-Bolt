@@ -19,6 +19,7 @@ import {
 import { useCapsulas } from "@/components/game/useCapsulas";
 import { CapsulaToast } from "@/components/game/CapsulaToast";
 import { XPBadge } from "@/components/game/XPBadge";
+import { Nexi } from "@/components/game/Nexi";
 
 
 /* ── House SVG ───────────────────────────────────────────────── */
