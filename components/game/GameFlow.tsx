@@ -206,6 +206,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [planesDB,   setPlanesDB]   = useState<PlanScorado[]>([]);
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
+    const [flipped, setFlipped] = useState<Record<string, boolean>>({});
+  const toggleFlip = (id: string) => setFlipped((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // Reemplaza los setLvl(x) sueltos: calcula la dirección del
   // deslizamiento (avanzar / retroceder) antes de cambiar de nivel.
