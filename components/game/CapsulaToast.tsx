@@ -11,20 +11,20 @@ export function CapsulaToast({
       {capsula && (
         <motion.div
           key={capsula.id}
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 50, opacity: 0 }}
+          initial={{ x: 30, opacity: 0, scale: 0.95 }}
+          animate={{ x: 0, opacity: 1, scale: 1 }}
+          exit={{ x: 30, opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           style={{
-            position: "fixed", right: 20, bottom: 90, zIndex: 900,
+            position: "fixed", right: 20, bottom: 88, zIndex: 900,
             maxWidth: 260, background: "#0d0d1a", border: `1.5px solid ${C.border}`,
-            borderRadius: 12, padding: "12px 14px",
+            borderRadius: "12px 12px 2px 12px", padding: "12px 14px",
             boxShadow: "0 0 18px rgba(0,212,255,0.15)",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontSize: 10, fontWeight: 800, color: C.neon, letterSpacing: 0.5 }}>
-              {capsula.icono} {capsula.titulo.toUpperCase()}
+              NEXI · {capsula.titulo.toUpperCase()}
             </span>
             <button
               onClick={onClose}
