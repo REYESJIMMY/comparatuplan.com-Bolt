@@ -44,7 +44,7 @@ export function useCapsulas(userId?: string | null) {
   // Para eventos de Nexi que no son cápsulas de conocimiento (NEXI_EVENTOS),
   // como el mensaje de misión completada. No suman XP ni se repiten dos
   // veces con el mismo texto en la sesión.
-  const mostrarMensaje = useCallback((texto: string, opts?: { icono?: string; titulo?: string }) => {
+  const mostrarMensaje = useCallback((texto: string, opts?: { icono?: string; titulo?: string; xp?: number }) => {
     if (conocidasRef.current.has(texto)) return;
     conocidasRef.current.add(texto);
     const item: Capsula = {
@@ -55,7 +55,7 @@ export function useCapsulas(userId?: string | null) {
       titulo: opts?.titulo ?? "Nexi",
       texto,
       puente: "",
-      xp: 0,
+      xp: opts?.xp ?? 0,
     };
     setCola((prev) => [...prev, item]);
   }, []);
