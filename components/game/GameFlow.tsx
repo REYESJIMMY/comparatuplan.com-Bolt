@@ -592,22 +592,47 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                     <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
                   </button>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6", lineHeight: 1.35, minHeight: 36 }}>{p.nombreLimpio || p.nombre}</div>
-                <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
-                  ${p.precio.toLocaleString()}<span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-                  {p.velocidad_mbps && <Chip color={C.neon}>⚡ {p.velocidad_mbps} Mbps</Chip>}
-                  {p.datos_gb && <Chip color={C.cyan}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
-                  {p.canales_tv && <Chip color={C.neon2}>📺 {p.canales_tv} canales</Chip>}
-                  {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <WABtn name={`${p.operador} - ${p.nombre}`} label="💬 Lo Quiero" full style={{ borderRadius: 10, fontSize: 13 }} />
-                  <a href={`/planes/${p.id_crc}`} style={{ display: "block", textAlign: "center", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
-                    Ver detalle completo
-                  </a>
-                </div>
+                {flipped[p.id_crc] && capsulaInfo ? (
+                  <>
+                    <div style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 10, padding: "12px 14px", marginBottom: 14, minHeight: 118 }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: "#a855f7" }}>{capsulaInfo.icono} {capsulaInfo.titulo.toUpperCase()}</span>
+                      <p style={{ color: "#e8eaf6", fontSize: 12.5, lineHeight: 1.5, margin: "8px 0 0" }}>{capsulaInfo.texto}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleFlip(p.id_crc)}
+                      style={{ width: "100%", textAlign: "center", background: "transparent", border: "none", color: "#a855f7", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: "4px 0" }}
+                    >
+                      ← Volver al plan
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6", lineHeight: 1.35, minHeight: 36 }}>{p.nombreLimpio || p.nombre}</div>
+                    <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
+                      ${p.precio.toLocaleString()}<span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                      {p.velocidad_mbps && <Chip color={C.neon}>⚡ {p.velocidad_mbps} Mbps</Chip>}
+                      {p.datos_gb && <Chip color={C.cyan}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
+                      {p.canales_tv && <Chip color={C.neon2}>📺 {p.canales_tv} canales</Chip>}
+                      {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
+                    </div>
+                    {capsulaInfo && (
+                      <button
+                        onClick={() => toggleFlip(p.id_crc)}
+                        style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", color: C.neon, fontSize: 11.5, fontWeight: 600, cursor: "pointer", padding: "0 0 10px" }}
+                      >
+                        💡 ¿Por qué este plan?
+                      </button>
+                    )}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <WABtn name={`${p.operador} - ${p.nombre}`} label="💬 Lo Quiero" full style={{ borderRadius: 10, fontSize: 13 }} />
+                      <a href={`/planes/${p.id_crc}`} style={{ display: "block", textAlign: "center", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                        Ver detalle completo
+                      </a>
+                    </div>
+                  </>
+                )}
               </Card>
             ))}
           </div>
