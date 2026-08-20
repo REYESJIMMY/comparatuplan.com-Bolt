@@ -227,6 +227,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const mbpsRec   = avatar
     ? Math.ceil(mbpsTotal * (personas ? PERSONAS_CONFIG[personas].factor : 1) * avatar.factorVelocidad * 1.2)
     : mbpsTotal;
+  const capsulaInfo = avatar ? CAPSULAS.find((c) => c.id === CAPSULA_POR_AVATAR[avatar.id]) : null;
 
   const handleClickDevice = (devDef: typeof DEVICES[number]) => setNivelModal(devDef);
 
