@@ -1,29 +1,50 @@
 "use client";
+import { motion, AnimatePresence } from "motion/react";
 import { C } from "@/lib/constants";
+import type { Capsula } from "./capsulas";
 
-export function Nexi({ emoji = "🤖" }: { emoji?: string }) {
+export function CapsulaToast({
+  capsula, onClose,
+}: { capsula: Capsula | null; onClose: () => void }) {
   return (
-    <div style={{ position: "fixed", left: 20, bottom: 20, zIndex: 950, width: 56, height: 56 }}>
-      <div style={{
-        position: "absolute", inset: 0, borderRadius: "50%",
-        border: `2px solid ${C.neon}`, opacity: 0.5,
-        animation: "nexi-ping 2.2s ease-out infinite",
-      }} />
-      <div style={{
-        position: "absolute", inset: 6, borderRadius: "50%",
-        background: "radial-gradient(circle at 35% 30%, #12123a, #05050f)",
-        border: `2.5px solid ${C.neon}`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 24,
-        boxShadow: "0 0 18px rgba(0,212,255,0.35), inset 0 0 10px rgba(0,212,255,0.15)",
-        animation: "nexi-float 2.6s ease-in-out infinite",
-      }}>
-        {emoji}
-      </div>
-      <style>{`
-        @keyframes nexi-ping { 0% { transform: scale(1); opacity: .5; } 100% { transform: scale(1.35); opacity: 0; } }
-        @keyframes nexi-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-      `}</style>
-    </div>
+    <AnimatePresence>
+      {capsula && (
+        <motion.div
+          key={capsula.id}
+          initial={{ x: -30, opacity: 0, scale: 0.95 }}
+          animate={{ x: 0, opacity: 1, scale: 1 }}
+          exit={{ x: -30, opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          style={{
+            position: "fixed", left: 20, bottom: 88, zIndex: 900,
+            maxWidth: 260, background: "#0d0d1a", border: `1.5px solid ${C.border}`,
+            borderRadius: "12px 12px 12px 2px", padding: "12px 14px",
+            boxShadow: "0 0 18px rgba(0,212,255,0.15)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: C.neon, letterSpacing: 0.5 }}>
+              NEXI · {capsula.titulo.toUpperCase()}
+            </span>
+            <button
+              onClick={onClose}
+              aria-label="Cerrar"
+              style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, lineHeight: 1, padding: 0 }}
+            >
+              ×
+            </button>
+          </div>
+          <p style={{ color: "#e8eaf6", fontSize: 12, lineHeight: 1.4, margin: capsula.puente ? "0 0 6px" : 0 }}>{capsula.texto}</p>
+          {capsula.puente && (
+            <p style={{ color: C.muted, fontSize: 10.5, lineHeight: 1.4, margin: 0 }}>{capsula.puente}</p>
+          )}
+          {capsula.xp > 0 && (
+            <div style={{ marginTop: 8, textAlign: "right", color: "#10b981", fontSize: 10, fontWeight: 800 }}>
+              +{capsula.xp} XP
+            </div>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
