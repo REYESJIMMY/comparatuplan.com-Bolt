@@ -21,8 +21,6 @@ import { CapsulaToast } from "@/components/game/CapsulaToast";
 import { XPBadge } from "@/components/game/XPBadge";
 import { Nexi } from "@/components/game/Nexi";
 
-
-/* ── House SVG ───────────────────────────────────────────────── */
 const HouseSVG = ({
   floor2, devices, flash,
 }: { floor2: boolean; devices: DeviceAdded[]; flash: boolean }) => {
@@ -71,13 +69,13 @@ const HouseSVG = ({
   );
 };
 
-/* ── Avatars ─────────────────────────────────────────────────── */
 const AVATARS = [
   { id: "gamer",       name: "Gamer",         emoji: "🎮", color: C.cyan,   desc: "Latencia ultra-baja",    factorVelocidad: 1.5, precioMax: 200000 },
   { id: "familia",     name: "Familia",        emoji: "👨‍👩‍👧‍👦", color: C.neon2,  desc: "Múltiples dispositivos", factorVelocidad: 1.2, precioMax: 300000 },
   { id: "teletrabajo", name: "Teletrabajador", emoji: "💼", color: C.green,  desc: "Estabilidad máxima",     factorVelocidad: 1.3, precioMax: 250000 },
   { id: "nomada",      name: "Nómada Digital", emoji: "📱", color: C.yellow, desc: "Datos sin límite",       factorVelocidad: 1.0, precioMax: 150000 },
 ] as const;
+
 const CAPSULA_POR_AVATAR: Record<string, string> = {
   gamer: "gamer-latencia",
   familia: "familia-ancho-banda",
@@ -85,9 +83,6 @@ const CAPSULA_POR_AVATAR: Record<string, string> = {
   nomada: "nomada-roaming",
 };
 
-/* ── Level bar (animada con layoutId) ───────────────────────────
-   El highlight activo se desliza entre pastillas en vez de
-   aparecer/desaparecer de golpe. No cambia la API del componente. */
 const LvlBar = ({ lvl }: { lvl: number }) => (
   <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20, flexWrap: "wrap" }}>
     {(["🎯 Perfil", "🏠 Casa", "📊 Consumo", "🏆 Plan"] as const).map((l, i) => {
@@ -127,16 +122,12 @@ const Wrap = ({ children, wide }: { children: React.ReactNode; wide?: boolean })
   </div>
 );
 
-/* ── Transición de nivel ─────────────────────────────────────────
-   direction: 1 = avanzando, -1 = retrocediendo. Se calcula en
-   goToLevel() cada vez que cambia el nivel. */
 const slideVariants = {
   enter: (direction: number) => ({ x: direction > 0 ? 40 : -40, opacity: 0 }),
   center: { x: 0, opacity: 1 },
   exit: (direction: number) => ({ x: direction > 0 ? -40 : 40, opacity: 0 }),
 };
 
-/* ── Modal selector de nivel de uso ─────────────────────────── */
 const NivelModal = ({
   device, onSelect, onCancel,
 }: {
@@ -188,7 +179,6 @@ const NivelModal = ({
   </div>
 );
 
-/* ── GameFlow ────────────────────────────────────────────────── */
 export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
@@ -206,7 +196,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [planesDB,   setPlanesDB]   = useState<PlanScorado[]>([]);
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
-  const [flipped, setFlipped] = useState<Record<string, boolean>>({});
+  const [flipped,    setFlipped]    = useState<Record<string, boolean>>({});
+
   const toggleFlip = (id: string) => {
     setFlipped((prev) => {
       const abriendo = !prev[id];
@@ -217,14 +208,11 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
     });
   };
 
-  // Reemplaza los setLvl(x) sueltos: calcula la dirección del
-  // deslizamiento (avanzar / retroceder) antes de cambiar de nivel.
   const goToLevel = (n: number) => {
     setDirection(n > lvl ? 1 : -1);
     setLvl(n);
   };
 
-  // ── useEffect SIEMPRE arriba, antes de cualquier return condicional ──
   useEffect(() => {
     if (lvl === 4) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -319,11 +307,6 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       goToLevel(3);
     }
   };
-
-  /* ── Cada nivel se arma en su propia función, pero ya no hace
-     return directo — devuelve JSX que renderLevel() entrega al
-     único AnimatePresence de abajo. La lógica interna de cada
-     nivel es idéntica a la del archivo original. ─────────────── */
 
   const renderNivel0 = () => (
     <Wrap>
@@ -600,6 +583,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                     <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
                   </button>
                 </div>
+
                 {flipped[p.id_crc] && capsulaInfo ? (
                   <>
                     <div style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 10, padding: "12px 14px", marginBottom: 14, minHeight: 118 }}>
@@ -670,6 +654,14 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         <button onClick={() => goToLevel(3)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Ver consumo</button>
         <button onClick={onBack} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>🏠 Inicio</button>
       </div>
+
+      <style>{`
+        @keyframes nexi-hint-pulse {
+          0%, 100% { box-shadow: 0 0 0 rgba(0,212,255,0); }
+          50% { box-shadow: 0 0 10px rgba(0,212,255,0.35); }
+        }
+        .nexi-hint { animation: nexi-hint-pulse 2.4s ease-in-out infinite; }
+      `}</style>
     </Wrap>
   );
 
