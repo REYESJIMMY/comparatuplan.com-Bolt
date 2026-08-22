@@ -621,7 +621,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                     )}
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <WABtn name={`${p.operador} - ${p.nombre}`} label="💬 Lo Quiero" full style={{ borderRadius: 10, fontSize: 13 }} />
-                      <a href={`/planes/${p.id_crc}`} style={{ display: "block", textAlign: "center", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                      <a href={`/planes/${p.id_crc || p.id}`} style={{ display: "block", textAlign: "center", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
                         Ver detalle completo
                       </a>
                     </div>
