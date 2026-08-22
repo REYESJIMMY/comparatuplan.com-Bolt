@@ -266,7 +266,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       const queries = OPERADORES_FASE1.map((op) =>
         supabase
           .from("planes")
-          .select("id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
+          .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia")
           .eq("operador", op)
           .in("tipo", TIPOS_HOGAR)
           .order("precio", { ascending: true })
