@@ -7,23 +7,41 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const SELECT_PLAN = "id_crc, operador, nombre, tipo, precio, precio_mensual, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, beneficios, badge, emoji, color, estratos";
+
 export default async function PlanPage({ params }: { params: { id_crc: string } }) {
-  const { data: plan } = await supabase
+  // Algunos planes (ofertas cargadas manual) no tienen id_crc — el link
+  // les pasa el UUID de la columna `id` en su lugar. Se busca primero
+  // por id_crc (caso normal) y, si no aparece, por id (fallback).
+  let { data: plan } = await supabase
     .from("planes")
-    .select("id_crc, operador, nombre, tipo, precio, precio_mensual, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, beneficios, badge, emoji, color, estratos")
+    .select(SELECT_PLAN)
     .eq("id_crc", params.id_crc)
     .eq("activo", true)
     .limit(1)
     .single();
 
+  if (!plan) {
+    const fallback = await supabase
+      .from("planes")
+      .select(SELECT_PLAN)
+      .eq("id", params.id_crc)
+      .eq("activo", true)
+      .limit(1)
+      .single();
+    plan = fallback.data;
+  }
+
   if (!plan) notFound();
 
-  const { data: historial } = await supabase
-    .from("precios_historial")
-    .select("precio_anterior, precio_nuevo, diferencia, registrado_at")
-    .eq("plan_id", params.id_crc)
-    .order("registrado_at", { ascending: false })
-    .limit(12);
+  const { data: historial } = plan.id_crc
+    ? await supabase
+        .from("precios_historial")
+        .select("precio_anterior, precio_nuevo, diferencia, registrado_at")
+        .eq("plan_id", plan.id_crc)
+        .order("registrado_at", { ascending: false })
+        .limit(12)
+    : { data: [] };
 
   const { data: similares } = await supabase
     .from("planes")
@@ -31,7 +49,7 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
     .eq("operador", plan.operador)
     .eq("tipo", plan.tipo)
     .eq("activo", true)
-    .neq("id_crc", params.id_crc)
+    .neq("id_crc", plan.id_crc ?? "")
     .order("precio", { ascending: true })
     .limit(4);
 
