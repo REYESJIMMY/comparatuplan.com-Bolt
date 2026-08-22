@@ -44,6 +44,7 @@ export interface ResumenConsumo {
 }
 
 export interface PlanScorado {
+  id:             string;
   id_crc:         string;
   operador:       string;
   nombre:         string;
