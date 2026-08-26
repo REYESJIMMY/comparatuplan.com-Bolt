@@ -48,7 +48,7 @@ export default function PlanesPage() {
 
     let q = supabase
       .from("catalogo_unificado")
-      .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, estrato_min, estrato_max, fuente", { count: "exact" })
+      .select("id, id_crc, operador, nombre, tipo, precio, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, estrato_min, estrato_max, fuente", { count: "estimated" })
       .gte("precio", filtros.precioMin)
       .lte("precio", filtros.precioMax);
 
