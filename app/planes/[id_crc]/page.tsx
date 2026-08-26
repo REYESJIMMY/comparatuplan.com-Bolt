@@ -37,32 +37,9 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
     console.error("DEBUG plan_page — error consulta fallback:", JSON.stringify(fallback.error));
   }
 
-  if (!plan) notFound();
+    if (!plan) {
+    return <div style={{ color: "red", padding: 40, fontSize: 18 }}>DEBUG: plan es null/undefined, se habría llamado notFound()</div>;
+  }
 
-  const { data: historial } = plan.id_crc
-    ? await supabase
-        .from("precios_historial")
-        .select("precio_anterior, precio_nuevo, diferencia, registrado_at")
-        .eq("plan_id", plan.id_crc)
-        .order("registrado_at", { ascending: false })
-        .limit(12)
-    : { data: [] };
-
-  const { data: similares } = await supabase
-    .from("planes")
-    .select("id_crc, operador, nombre, precio, tipo, velocidad_mbps, datos_gb, modalidad")
-    .eq("operador", plan.operador)
-    .eq("tipo", plan.tipo)
-    .eq("activo", true)
-    .neq("id_crc", plan.id_crc ?? "")
-    .order("precio", { ascending: true })
-    .limit(4);
-
-  return (
-    <PlanDetalle
-      plan={plan}
-      historial={historial ?? []}
-      similares={similares ?? []}
-    />
-  );
+  return <div style={{ color: "lime", padding: 40, fontSize: 18 }}>DEBUG: plan SÍ se encontró — {JSON.stringify(plan)}</div>;
 }
