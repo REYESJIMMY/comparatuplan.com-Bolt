@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import PlanDetalle from "@/components/planes/PlanDetalle";
+
 export const dynamic = "force-dynamic";
 
 const supabase = createClient(
@@ -10,14 +11,24 @@ const supabase = createClient(
 
 const SELECT_PLAN = "id_crc, operador, nombre, tipo, precio, precio_mensual, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, beneficios, badge, emoji, color, estratos";
 
-export default async function PlanPage({ params }: { params: { id_crc: string } }) {
+// Next.js 15: `params` llega como una Promesa, hay que resolverla con
+// await antes de leer sus propiedades. Con el patrón anterior (params
+// como objeto plano) cada campo llegaba como undefined en tiempo de
+// ejecución, aunque el tipo no lo marcara como error en el build.
+export default async function PlanPage({
+  params,
+}: {
+  params: Promise<{ id_crc: string }>;
+}) {
+  const { id_crc: idBuscado } = await params;
+
   // Algunos planes (ofertas cargadas manual) no tienen id_crc — el link
   // les pasa el UUID de la columna `id` en su lugar. Se busca primero
   // por id_crc (caso normal) y, si no aparece, por id (fallback).
-  let { data: plan, error: errorPrincipal } = await supabase
+  let { data: plan } = await supabase
     .from("planes")
     .select(SELECT_PLAN)
-    .eq("id_crc", params.id_crc)
+    .eq("id_crc", idBuscado)
     .eq("activo", true)
     .limit(1)
     .single();
@@ -26,20 +37,39 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
     const fallback = await supabase
       .from("planes")
       .select(SELECT_PLAN)
-      .eq("id", params.id_crc)
+      .eq("id", idBuscado)
       .eq("activo", true)
       .limit(1)
       .single();
     plan = fallback.data;
-
-    console.error("DEBUG plan_page — id_crc buscado:", params.id_crc);
-    console.error("DEBUG plan_page — error consulta principal:", JSON.stringify(errorPrincipal));
-    console.error("DEBUG plan_page — error consulta fallback:", JSON.stringify(fallback.error));
   }
 
-    if (!plan) {
-    return <div style={{ color: "red", padding: 40, fontSize: 18 }}>DEBUG: plan es null/undefined, se habría llamado notFound()</div>;
-  }
+  if (!plan) notFound();
 
-  return <div style={{ color: "lime", padding: 40, fontSize: 18 }}>DEBUG: plan SÍ se encontró — {JSON.stringify(plan)}</div>;
+  const { data: historial } = plan.id_crc
+    ? await supabase
+        .from("precios_historial")
+        .select("precio_anterior, precio_nuevo, diferencia, registrado_at")
+        .eq("plan_id", plan.id_crc)
+        .order("registrado_at", { ascending: false })
+        .limit(12)
+    : { data: [] };
+
+  const { data: similares } = await supabase
+    .from("planes")
+    .select("id_crc, operador, nombre, precio, tipo, velocidad_mbps, datos_gb, modalidad")
+    .eq("operador", plan.operador)
+    .eq("tipo", plan.tipo)
+    .eq("activo", true)
+    .neq("id_crc", plan.id_crc ?? "")
+    .order("precio", { ascending: true })
+    .limit(4);
+
+  return (
+    <PlanDetalle
+      plan={plan}
+      historial={historial ?? []}
+      similares={similares ?? []}
+    />
+  );
 }
