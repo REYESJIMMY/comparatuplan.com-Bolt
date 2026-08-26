@@ -14,7 +14,7 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
   // Algunos planes (ofertas cargadas manual) no tienen id_crc — el link
   // les pasa el UUID de la columna `id` en su lugar. Se busca primero
   // por id_crc (caso normal) y, si no aparece, por id (fallback).
-  let { data: plan } = await supabase
+  let { data: plan, error: errorPrincipal } = await supabase
     .from("planes")
     .select(SELECT_PLAN)
     .eq("id_crc", params.id_crc)
@@ -31,6 +31,10 @@ export default async function PlanPage({ params }: { params: { id_crc: string } 
       .limit(1)
       .single();
     plan = fallback.data;
+
+    console.error("DEBUG plan_page — id_crc buscado:", params.id_crc);
+    console.error("DEBUG plan_page — error consulta principal:", JSON.stringify(errorPrincipal));
+    console.error("DEBUG plan_page — error consulta fallback:", JSON.stringify(fallback.error));
   }
 
   if (!plan) notFound();
