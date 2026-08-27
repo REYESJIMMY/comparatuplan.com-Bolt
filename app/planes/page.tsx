@@ -54,7 +54,8 @@ export default function PlanesPage() {
 
     if (filtros.tipo) q = q.eq("tipo", filtros.tipo);
     if (filtros.operadores.length > 0) q = q.in("operador", filtros.operadores);
-    if (filtros.modalidad) q = q.eq("modalidad", filtros.modalidad);
+    if (filtros.modalidad === "prepago") q = q.ilike("modalidad", "%PRE%");
+    else if (filtros.modalidad === "pospago") q = q.ilike("modalidad", "%POS%");
     if (filtros.velocidadMin > 0) q = q.gte("velocidad_mbps", filtros.velocidadMin);
     if (filtros.canalesMin > 0) q = q.gte("canales_tv", filtros.canalesMin);
     if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
