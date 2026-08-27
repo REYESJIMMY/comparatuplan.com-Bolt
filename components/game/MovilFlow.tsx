@@ -156,9 +156,9 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
       query = query.ilike("modalidad", "%POS%");
     }
 
-    const { data: rawData } = await query;
+    const { data: rawData, error } = await query;
+    if (error) console.error("Error buscando planes móviles:", error);
     const rawPlanes = rawData ?? [];
-
     // Scoring
     const scored = rawPlanes.map((p: any) => {
       const precio  = Number(p.precio)  || 0;
