@@ -158,6 +158,7 @@ export default function Home() {
               onGame={() => setView("game")}
               onMovil={() => setView("movil")}
               onSegment={() => setView("cobertura")}
+              onNomada={() => setView("nomada")}
             />
           </div>
         </div>
