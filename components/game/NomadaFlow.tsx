@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { C } from "@/lib/constants";
-import { GlowBtn, Card, Chip } from "@/components/ui";
+import { GlowBtn, WABtn, Card, Chip } from "@/components/ui";
 import { DEPARTAMENTOS } from "@/lib/colombia";
 
 /**
@@ -17,9 +18,9 @@ import { DEPARTAMENTOS } from "@/lib/colombia";
  * compartidos que no le corresponden.
  *
  * Nivel 1 (implementado): Destino + Duración del viaje.
- * Nivel 2 (implementado): Motivo del viaje.
- * Nivel 3 (implementado): Equipaje digital + estimación de datos.
- * Nivel 4 (recomendación + cross-sell): pendiente — placeholder por ahora.
+ * Niveles 2-4 (motivo, equipaje digital, recomendación + cross-sell):
+ * pendientes — placeholder por ahora para poder desplegar el Nivel 1 sin
+ * romper nada.
  */
 
 // ── Tipos ────────────────────────────────────────────────────────
@@ -58,6 +59,28 @@ interface DispositivoViaje {
   /** Consumo estimado de datos móviles, en GB por día de viaje */
   gbDia: number;
 }
+
+interface PlanNomada {
+  id_crc: string;
+  operador: string;
+  nombre: string;
+  precio: number;
+  datos_gb: number | null;
+  minutos: string | null;
+  modalidad: string | null;
+  tecnologia: string | null;
+  badge: string;
+  glow: string;
+  top: boolean;
+}
+
+const OPERADORES_FASE1 = ["Claro", "Movistar", "Etb", "Tigo"];
+
+const CROSS_SELL = [
+  { emoji: "🔋", label: "Power bank / batería externa", desc: "Para no quedarte sin batería lejos de un enchufe" },
+  { emoji: "🛡️", label: "Seguro de dispositivo",         desc: "Cubre robo o daño de tu celular/laptop durante el viaje" },
+  { emoji: "☁️", label: "Backup automático en la nube",   desc: "Tus fotos y archivos quedan a salvo aunque pierdas el equipo" },
+];
 
 // ── Configuración ────────────────────────────────────────────────
 const DURACIONES: Duracion[] = [
@@ -180,6 +203,70 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
     const factor = data.necesitaHotspot ? 1.4 : 1;
     return Math.round(gbDiaTotal * data.duracion.diasEstimado * factor * 10) / 10;
   })();
+
+  const [planes, setPlanes] = useState<PlanNomada[]>([]);
+  const [loadingPlanes, setLoadingPlanes] = useState(false);
+
+  useEffect(() => {
+    if (step !== 4 || !data.duracion) return;
+
+    const buscarPlanes = async () => {
+      setLoadingPlanes(true);
+
+      let query = supabase
+        .from("catalogo_unificado")
+        .select("id_crc, operador, nombre, precio, datos_gb, minutos, modalidad, tecnologia")
+        .eq("tipo", "movil")
+        .in("operador", OPERADORES_FASE1)
+        .order("precio", { ascending: true })
+        .limit(300);
+
+      if (data.duracion!.sugerenciaModalidad === "prepago") query = query.ilike("modalidad", "%PRE%");
+      else query = query.ilike("modalidad", "%POS%");
+
+      const { data: rawData, error } = await query;
+      if (error) console.error("Error buscando planes Nómada:", error);
+      const rawPlanes = rawData ?? [];
+
+      const scored = rawPlanes.map((p: any) => {
+        const gb = Number(p.datos_gb);
+        let score = 0;
+        if (gb === -1) score += 40;
+        else if (gb >= gbEstimadoMes) score += 30;
+        else if (gb >= gbEstimadoMes * 0.6) score += 15;
+        score += Math.max(0, 20 - (Number(p.precio) || 0) / 10000);
+        return { ...p, _score: score };
+      });
+
+      const validos = scored
+        .filter((p: any) => p._score > 0)
+        .sort((a: any, b: any) => (b._score !== a._score ? b._score - a._score : (Number(a.precio) || 0) - (Number(b.precio) || 0)));
+
+      const resultado: any[] = [];
+      const ops = new Set<string>();
+      for (const plan of validos) {
+        if (resultado.length >= 3) break;
+        const op = (plan.operador ?? "").toLowerCase().trim();
+        if (!ops.has(op)) { resultado.push(plan); ops.add(op); }
+      }
+
+      const BADGES = ["🏆 Mejor Cobertura", "⚡ Más Datos", "💰 Más Económico"];
+      const GLOWS  = ["#f59e0b", "#a855f7", "#10b981"];
+
+      setPlanes(resultado.map((p, i) => ({
+        ...p,
+        precio: Number(p.precio) || 0,
+        badge:  BADGES[i] ?? `#${i + 1}`,
+        glow:   GLOWS[i]  ?? "#fff",
+        top:    i === 0,
+      })));
+
+      setLoadingPlanes(false);
+    };
+
+    buscarPlanes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // ── Step 1 — Destino y duración ─────────────────────────────────
   if (step === 1) return (
@@ -443,25 +530,118 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
     </Wrap>
   );
 
-  // ── Step 4 — pendiente ────────────────────────────────────────────
+  // ── Step 4 — Recomendación + cross-sell ────────────────────────────
   return (
     <Wrap>
-      <Steps step={step} />
-      <Card style={{ padding: "40px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>🚧</div>
-        <h3 style={{ color: "#fff", fontWeight: 800, marginBottom: 8 }}>
-          Este nivel está en construcción
-        </h3>
-        <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
-          Ya sabemos que vas a <b style={{ color: "#fff" }}>{data.destinoMunicipio}</b>, {data.destinoDepartamento}
-          {" "}por <b style={{ color: "#fff" }}>{data.duracion?.label}</b>, motivo:{" "}
-          <b style={{ color: "#fff" }}>{MOTIVOS.find((m) => m.id === data.motivo)?.label}</b>, con un consumo estimado de{" "}
-          <b style={{ color: "#fff" }}>~{gbEstimadoMes} GB/mes</b>. La recomendación de plan llega pronto.
-        </p>
-        <GlowBtn onClick={() => setStep(3)} gradient="linear-gradient(135deg,#f59e0b,#f97316)" glow={C.yellow}>
-          ← Ajustar equipaje
-        </GlowBtn>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <h2 style={{ fontWeight: 900, fontSize: "clamp(1.2rem,4vw,1.7rem)", color: "#fff", marginBottom: 6 }}>
+          🏆 Tu plan para {data.destinoMunicipio}
+        </h2>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          <Chip color={C.yellow}>{data.duracion?.label}</Chip>
+          <Chip color={C.yellow}>{data.duracion?.sugerenciaModalidad === "prepago" ? "Prepago" : "Pospago"}</Chip>
+          <Chip color={C.yellow}>~{gbEstimadoMes} GB/mes</Chip>
+        </div>
+      </div>
+
+      {loadingPlanes && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: C.muted }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
+          <p>Buscando los mejores planes para tu destino...</p>
+        </div>
+      )}
+
+      {!loadingPlanes && planes.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0", color: C.muted }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>😕</div>
+          <p style={{ marginBottom: 16 }}>No encontramos planes con esos criterios.</p>
+          <button onClick={() => setStep(3)} style={{ padding: "10px 22px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.yellow, fontWeight: 700, cursor: "pointer" }}>
+            ← Ajustar equipaje
+          </button>
+        </div>
+      )}
+
+      {!loadingPlanes && planes.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+          {planes.map((p) => (
+            <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined }}>
+              {p.top && (
+                <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>
+                  RECOMENDADO
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
+                <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
+              </div>
+
+              <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6" }}>{p.nombre}</div>
+              <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
+                ${p.precio.toLocaleString()}
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                {p.datos_gb != null && <Chip color={C.neon2}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
+                {p.minutos && p.minutos !== "0" && <Chip color={C.cyan}>{p.minutos === "-1" ? "∞ Min" : `${p.minutos} min`}</Chip>}
+                {p.tecnologia && <Chip color={C.green}>{p.tecnologia}</Chip>}
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <a
+                  href={`/planes/${p.id_crc}`}
+                  style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textAlign: "center", textDecoration: "none" }}
+                >
+                  Ver detalle
+                </a>
+                <WABtn name={`${p.operador} - ${p.nombre} (viaje a ${data.destinoMunicipio})`} label="Lo Quiero 🚀" style={{ flex: 1, borderRadius: 10, fontSize: 12 }} />
+              </div>
+            </Card>
+          ))}
+
+          <div style={{
+            padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.02)",
+            border: `1px dashed ${C.borderSoft}`, color: C.muted, fontSize: 11.5, lineHeight: 1.5,
+          }}>
+            💡 Cobertura nacional garantizada con estos operadores. Muy pronto sumamos operadores regionales y
+            recomendaciones de otros viajeros que ya estuvieron en {data.destinoMunicipio} para afinar aún más esta elección.
+          </div>
+        </div>
+      )}
+
+      <Card style={{ padding: "18px 20px", marginBottom: 24 }}>
+        <div style={{ color: C.yellow, fontWeight: 800, fontSize: 13, marginBottom: 12 }}>
+          🎒 También te puede servir para el viaje
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+          {CROSS_SELL.map((item) => (
+            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ fontSize: 18 }}>{item.emoji}</div>
+              <div>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{item.label}</div>
+                <div style={{ color: C.muted, fontSize: 11.5 }}>{item.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <WABtn name={`Accesorios para mi viaje a ${data.destinoMunicipio}`} label="Preguntar por estos accesorios" full style={{ borderRadius: 10, fontSize: 12 }} />
       </Card>
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <button
+          onClick={() => {
+            setStep(1);
+            setData({ destinoDepartamento: null, destinoMunicipio: null, duracion: null, motivo: null, dispositivos: [], necesitaHotspot: false });
+            setPlanes([]);
+          }}
+          style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+        >
+          🔄 Reiniciar
+        </button>
+        <button onClick={onBack} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1px solid ${C.borderSoft}`, background: "transparent", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          🏠 Inicio
+        </button>
+      </div>
     </Wrap>
   );
 };
