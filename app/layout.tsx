@@ -3,10 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { UbicacionProvider } from "@/context/UbicacionContext";
+import { CompareProvider } from "@/context/CompareContext";
 import ThemeProvider from "@/components/layout/ThemeProvider";
-
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
 export const metadata: Metadata = {
   title:       "ComparaTuPlan.com — Compara planes de internet, móvil y TV en Colombia",
   description: "Compara y encuentra el mejor plan de telecomunicaciones en Colombia. Internet, móvil, TV y paquetes de +15 operadores. Diseña tu hogar digital con IA.",
@@ -26,7 +25,6 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
 };
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-CO">
@@ -42,7 +40,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <UbicacionProvider>
-              {children}
+              <CompareProvider>
+                {children}
+              </CompareProvider>
             </UbicacionProvider>
           </AuthProvider>
         </ThemeProvider>
