@@ -235,8 +235,8 @@ export default function PlanesPage() {
 
       <CompareBar
         planes={comparePlanes}
-        onRemove={(id) => setCompareIds((prev) => prev.filter((i) => i !== id))}
-        onClear={() => setCompareIds([])}
+        onRemove={quitarPlan}
+        onClear={limpiar}
         onOpen={() => setShowCompareModal(true)}
       />
       {showCompareModal && <CompareModal planes={comparePlanes} onClose={() => setShowCompareModal(false)} />}
