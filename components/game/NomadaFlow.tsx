@@ -18,8 +18,8 @@ import { DEPARTAMENTOS } from "@/lib/colombia";
  *
  * Nivel 1 (implementado): Destino + Duración del viaje.
  * Nivel 2 (implementado): Motivo del viaje.
- * Niveles 3-4 (equipaje digital, recomendación + cross-sell):
- * pendientes — placeholder por ahora.
+ * Nivel 3 (implementado): Equipaje digital + estimación de datos.
+ * Nivel 4 (recomendación + cross-sell): pendiente — placeholder por ahora.
  */
 
 // ── Tipos ────────────────────────────────────────────────────────
@@ -31,6 +31,8 @@ interface Duracion {
   desc: string;
   sugerenciaModalidad: SugerenciaModalidad;
   sugerenciaTexto: string;
+  /** Días representativos, usados para estimar el consumo total de datos (tope 30, ya que los planes se cobran por mes) */
+  diasEstimado: number;
 }
 
 interface NomadaData {
@@ -38,8 +40,8 @@ interface NomadaData {
   destinoMunicipio: string | null;
   duracion: Duracion | null;
   motivo: string | null;
-  // Reservado para Nivel 3 (equipaje digital)
   dispositivos: string[];
+  necesitaHotspot: boolean;
 }
 
 interface Motivo {
@@ -47,6 +49,14 @@ interface Motivo {
   emoji: string;
   label: string;
   desc: string;
+}
+
+interface DispositivoViaje {
+  id: string;
+  emoji: string;
+  label: string;
+  /** Consumo estimado de datos móviles, en GB por día de viaje */
+  gbDia: number;
 }
 
 // ── Configuración ────────────────────────────────────────────────
@@ -57,6 +67,7 @@ const DURACIONES: Duracion[] = [
     desc: "Viaje relámpago",
     sugerenciaModalidad: "prepago",
     sugerenciaTexto: "Para tan pocos días, casi siempre conviene una SIM prepago o el roaming nacional de tu propia línea.",
+    diasEstimado: 2,
   },
   {
     id: "media",
@@ -64,6 +75,7 @@ const DURACIONES: Duracion[] = [
     desc: "Viaje corto",
     sugerenciaModalidad: "prepago",
     sugerenciaTexto: "Una recarga prepago grande suele ser más flexible que abrir una línea nueva para tan poco tiempo.",
+    diasEstimado: 9,
   },
   {
     id: "larga",
@@ -71,6 +83,7 @@ const DURACIONES: Duracion[] = [
     desc: "Viaje largo / trabajo remoto temporal",
     sugerenciaModalidad: "pospago",
     sugerenciaTexto: "A este plazo ya suele valer la pena una línea pospago o un plan de datos más grande.",
+    diasEstimado: 30,
   },
   {
     id: "extendida",
@@ -78,7 +91,15 @@ const DURACIONES: Duracion[] = [
     desc: "Estadía prolongada / mudanza temporal",
     sugerenciaModalidad: "pospago",
     sugerenciaTexto: "Para estadías tan largas, una línea pospago normal casi siempre sale más económica en el tiempo.",
+    diasEstimado: 30,
   },
+];
+
+const DISPOSITIVOS: DispositivoViaje[] = [
+  { id: "celular", emoji: "📱", label: "Celular",                gbDia: 0.5 },
+  { id: "laptop",  emoji: "💻", label: "Laptop / trabajo",        gbDia: 1.5 },
+  { id: "tablet",  emoji: "📲", label: "Tablet",                  gbDia: 0.5 },
+  { id: "camara",  emoji: "📷", label: "Cámara / dron (backup)",  gbDia: 0.3 },
 ];
 
 const MOTIVOS: Motivo[] = [
@@ -136,10 +157,29 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
     duracion: null,
     motivo: null,
     dispositivos: [],
+    necesitaHotspot: false,
   });
 
   const municipiosDestino = data.destinoDepartamento ? (DEPARTAMENTOS[data.destinoDepartamento] ?? []) : [];
   const listoParaContinuar = !!data.destinoMunicipio && !!data.duracion;
+
+  const toggleDispositivo = (id: string) => {
+    setData((d) => ({
+      ...d,
+      dispositivos: d.dispositivos.includes(id)
+        ? d.dispositivos.filter((x) => x !== id)
+        : [...d.dispositivos, id],
+    }));
+  };
+
+  const gbEstimadoMes = (() => {
+    if (!data.duracion) return 0;
+    const gbDiaTotal = DISPOSITIVOS
+      .filter((disp) => data.dispositivos.includes(disp.id))
+      .reduce((sum, disp) => sum + disp.gbDia, 0);
+    const factor = data.necesitaHotspot ? 1.4 : 1;
+    return Math.round(gbDiaTotal * data.duracion.diasEstimado * factor * 10) / 10;
+  })();
 
   // ── Step 1 — Destino y duración ─────────────────────────────────
   if (step === 1) return (
@@ -303,7 +343,107 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
     </Wrap>
   );
 
-  // ── Steps 3-4 — pendientes ───────────────────────────────────────
+  // ── Step 3 — Equipaje digital ──────────────────────────────────────
+  if (step === 3) return (
+    <Wrap>
+      <Steps step={3} />
+      <h2 style={{ textAlign: "center", fontWeight: 900, fontSize: "clamp(1.2rem,4vw,1.7rem)", marginBottom: 8, color: "#fff" }}>
+        📱 ¿Qué te llevas de viaje?
+      </h2>
+      <p style={{ textAlign: "center", color: C.muted, fontSize: 13, marginBottom: 24 }}>
+        Con esto calculamos cuántos datos vas a necesitar
+      </p>
+
+      <Card style={{ padding: "18px 20px", marginBottom: 20 }}>
+        <div style={{ color: C.yellow, fontWeight: 800, fontSize: 13, marginBottom: 12 }}>
+          🎒 Dispositivos que llevas
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {DISPOSITIVOS.map((disp) => {
+            const sel = data.dispositivos.includes(disp.id);
+            return (
+              <button
+                key={disp.id}
+                onClick={() => toggleDispositivo(disp.id)}
+                style={{
+                  background: sel ? `${C.yellow}12` : "rgba(255,255,255,0.02)",
+                  border: `2px solid ${sel ? C.yellow : C.borderSoft}`,
+                  borderRadius: 12, padding: "12px 14px",
+                  cursor: "pointer", transition: "all .2s",
+                  display: "flex", alignItems: "center", gap: 10,
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ fontSize: 18 }}>{disp.emoji}</div>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 13, flex: 1 }}>{disp.label}</div>
+                {sel && <span style={{ color: C.yellow, fontWeight: 900 }}>✓</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => setData((d) => ({ ...d, necesitaHotspot: !d.necesitaHotspot }))}
+          style={{
+            marginTop: 12, width: "100%",
+            background: data.necesitaHotspot ? `${C.yellow}12` : "rgba(255,255,255,0.02)",
+            border: `2px solid ${data.necesitaHotspot ? C.yellow : C.borderSoft}`,
+            borderRadius: 12, padding: "12px 14px",
+            cursor: "pointer", transition: "all .2s",
+            display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+          }}
+        >
+          <div style={{ fontSize: 18 }}>📶</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>Necesito hotspot para varios dispositivos</div>
+            <div style={{ color: C.muted, fontSize: 11 }}>Vas a compartir los datos de tu celular con otros equipos</div>
+          </div>
+          {data.necesitaHotspot && <span style={{ color: C.yellow, fontWeight: 900 }}>✓</span>}
+        </button>
+      </Card>
+
+      {data.dispositivos.length > 0 && (
+        <Card style={{ padding: "18px 20px", marginBottom: 28 }}>
+          <div style={{ color: C.yellow, fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
+            📊 Datos estimados para tu plan
+          </div>
+          <div style={{
+            height: 10, borderRadius: 99, background: "rgba(255,255,255,0.06)", overflow: "hidden", marginBottom: 10,
+          }}>
+            <div style={{
+              height: "100%", width: `${Math.min(100, (gbEstimadoMes / 30) * 100)}%`,
+              background: "linear-gradient(90deg,#f59e0b,#f97316)", borderRadius: 99,
+            }} />
+          </div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 20 }}>
+            ~{gbEstimadoMes} GB<span style={{ color: C.muted, fontWeight: 600, fontSize: 12.5 }}> / mes</span>
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>
+            {gbEstimadoMes >= 15
+              ? "Con este consumo, un plan de datos ilimitados casi siempre te sale mejor que uno por franjas."
+              : "Con este consumo, un plan mediano de datos debería alcanzarte sin problema."}
+          </div>
+        </Card>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+        <GlowBtn onClick={() => setStep(2)} gradient="rgba(255,255,255,0.05)" glow="rgba(255,255,255,0.2)">
+          ← Volver
+        </GlowBtn>
+        <GlowBtn
+          onClick={() => setStep(4)}
+          disabled={data.dispositivos.length === 0}
+          gradient="linear-gradient(135deg,#f59e0b,#f97316)"
+          glow={C.yellow}
+          style={{ padding: "10px 24px" }}
+        >
+          Ver recomendación →
+        </GlowBtn>
+      </div>
+    </Wrap>
+  );
+
+  // ── Step 4 — pendiente ────────────────────────────────────────────
   return (
     <Wrap>
       <Steps step={step} />
@@ -315,10 +455,11 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
         <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
           Ya sabemos que vas a <b style={{ color: "#fff" }}>{data.destinoMunicipio}</b>, {data.destinoDepartamento}
           {" "}por <b style={{ color: "#fff" }}>{data.duracion?.label}</b>, motivo:{" "}
-          <b style={{ color: "#fff" }}>{MOTIVOS.find((m) => m.id === data.motivo)?.label}</b>. El resto del mundo Nómada llega pronto.
+          <b style={{ color: "#fff" }}>{MOTIVOS.find((m) => m.id === data.motivo)?.label}</b>, con un consumo estimado de{" "}
+          <b style={{ color: "#fff" }}>~{gbEstimadoMes} GB/mes</b>. La recomendación de plan llega pronto.
         </p>
-        <GlowBtn onClick={() => setStep(2)} gradient="linear-gradient(135deg,#f59e0b,#f97316)" glow={C.yellow}>
-          ← Ajustar motivo
+        <GlowBtn onClick={() => setStep(3)} gradient="linear-gradient(135deg,#f59e0b,#f97316)" glow={C.yellow}>
+          ← Ajustar equipaje
         </GlowBtn>
       </Card>
     </Wrap>
