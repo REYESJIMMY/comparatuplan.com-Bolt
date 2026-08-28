@@ -115,6 +115,9 @@ export default function Home() {
 
       {/* MovilFlow */}
       {view === "movil" && <MovilFlow onBack={() => setView("landing")} />}
+      
+      {/* NomadaFlow — Mundo Nómada */}
+      {view === "nomada" && <NomadaFlow onBack={() => setView("landing")} />}
 
       {/* QuizFlow */}
       {view === "quiz" && (
