@@ -195,8 +195,9 @@ export default function PlanesPage() {
                   <PlanCard
                     key={plan.id} plan={plan} isFav={isFav(plan)} onFav={handleFav}
                     isLoggedIn={!!user} onAuthPrompt={() => setShowBanner(true)}
-                    compareChecked={compareIds.includes(plan.id)} onToggleCompare={toggleCompare}
-                    compareDisabled={compareIds.length >= MAX_COMPARE}
+                    compareChecked={estaSeleccionado(plan.id_crc ?? plan.id)}
+                    onToggleCompare={(p) => toggle(p.id_crc ?? p.id)}
+                    compareDisabled={!puedeAgregar}
                   />
                 ))}
               </div>
