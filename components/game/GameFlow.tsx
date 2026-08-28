@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Scale, Check } from "lucide-react"; // agregar Scale, Check al import existente de Heart
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "@/lib/supabase";
 import { CAPSULAS, NEXI_EVENTOS } from "./capsulas";
@@ -20,7 +20,6 @@ import { useCapsulas } from "@/components/game/useCapsulas";
 import { CapsulaToast } from "@/components/game/CapsulaToast";
 import { XPBadge } from "@/components/game/XPBadge";
 import { Nexi } from "@/components/game/Nexi";
-import { Heart, Scale, Check } from "lucide-react"; // agregar Scale, Check al import existente de Heart
 import { useCompare } from "@/context/CompareContext";
 import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
 
@@ -187,10 +186,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
   const { actual: capsulaActual, disparar, mostrarMensaje, cerrar: cerrarCapsula, xp } = useCapsulas(user?.id);
   const { toggle, estaSeleccionado, puedeAgregar, limpiar } = useCompare();
+  
   const [showCompareModal, setShowCompareModal] = useState(false);
-
-  const comparePlanes = planesDB.filter((p) => estaSeleccionado(p.id_crc ?? p.id));
-
   const [lvl,        setLvl]        = useState(0);
   const [direction,  setDirection]  = useState(1);
   const [avatar,     setAvatar]     = useState<typeof AVATARS[number] | null>(null);
@@ -204,6 +201,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
   const [flipped,    setFlipped]    = useState<Record<string, boolean>>({});
+  const comparePlanes = planesDB.filter((p) => estaSeleccionado(p.id_crc ?? p.id));
 
   const toggleFlip = (id: string) => {
     setFlipped((prev) => {
