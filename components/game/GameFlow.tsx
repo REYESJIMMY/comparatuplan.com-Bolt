@@ -584,6 +584,21 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                   <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
                   <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.tipo}</span>
                   <button
+                    onClick={() => toggle(p.id_crc ?? p.id)}
+                    disabled={!estaSeleccionado(p.id_crc ?? p.id) && !puedeAgregar}
+                    title={estaSeleccionado(p.id_crc ?? p.id) ? "Quitar de comparación" : "Agregar a comparación"}
+                    style={{
+                      background: estaSeleccionado(p.id_crc ?? p.id) ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                      border: `1px solid ${estaSeleccionado(p.id_crc ?? p.id) ? C.neon : C.borderSoft}`,
+                      borderRadius: 8, padding: "5px 7px",
+                      cursor: (!estaSeleccionado(p.id_crc ?? p.id) && !puedeAgregar) ? "not-allowed" : "pointer",
+                      opacity: (!estaSeleccionado(p.id_crc ?? p.id) && !puedeAgregar) ? 0.35 : 1,
+                    }}
+                  >
+                    {estaSeleccionado(p.id_crc ?? p.id)
+                      ? <Check size={13} color={C.neon} />
+                      : <Scale size={13} color={C.muted} />}
+                  </button>
                     onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
                     style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer" }}
                   >
