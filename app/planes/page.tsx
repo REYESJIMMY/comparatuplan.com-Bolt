@@ -18,6 +18,7 @@ const PAGE_SIZE = 24;
 
 export default function PlanesPage() {
   const { user, favoritos, toggleFavorito } = useAuth();
+  const { seleccionados, toggle, limpiar, quitarPlan, estaSeleccionado, puedeAgregar } = useCompare();
 
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,6 @@ export default function PlanesPage() {
   const [busqueda, setBusqueda] = useState("");
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES);
   const [orden, setOrden] = useState<OrdenId>("precio_asc");
-  const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
   useEffect(() => {
