@@ -8,6 +8,7 @@ import { AuthModal }   from "@/components/layout/AuthModal";
 import { SearchBar, CartDrawer, Chatbot } from "@/components/layout/Overlays";
 import { GameFlow }    from "@/components/game/GameFlow";
 import { MovilFlow }   from "@/components/game/MovilFlow";
+import { NomadaFlow }  from "@/components/game/NomadaFlow";
 import { CoberturaForm, type UbicacionData } from "@/components/game/CoberturaForm";
 import { SegmentSelector } from "@/components/game/SegmentSelector";
 import {
