@@ -16,7 +16,7 @@ import {
   ReferieGanaSection, Offers, SocialSection, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
 
-type View = "landing" | "cobertura" | "segment" | "game" | "movil" | "quiz";
+type View = "landing" | "cobertura" | "segment" | "game" | "movil" | "nomada" | "quiz";
 
 interface CartItem {
   id: string; name: string; price: number; emoji: string; color: string; qty: number;
