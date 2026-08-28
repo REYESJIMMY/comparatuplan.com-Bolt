@@ -11,9 +11,10 @@ import { FiltrosSidebar, FILTROS_INICIALES, type Filtros } from "@/components/pl
 import { OrdenSelect, type OrdenId } from "@/components/planes/OrdenSelect";
 import { PlanCard, type Plan } from "@/components/planes/PlanCard";
 import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
+import { useCompare } from "@/context/CompareContext";
 
 const PAGE_SIZE = 24;
-const MAX_COMPARE = 3;
+
 
 export default function PlanesPage() {
   const { user, favoritos, toggleFavorito } = useAuth();
