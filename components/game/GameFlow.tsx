@@ -20,6 +20,9 @@ import { useCapsulas } from "@/components/game/useCapsulas";
 import { CapsulaToast } from "@/components/game/CapsulaToast";
 import { XPBadge } from "@/components/game/XPBadge";
 import { Nexi } from "@/components/game/Nexi";
+import { Heart, Scale, Check } from "lucide-react"; // agregar Scale, Check al import existente de Heart
+import { useCompare } from "@/context/CompareContext";
+import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
 
 const HouseSVG = ({
   floor2, devices, flash,
