@@ -526,6 +526,7 @@ export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) 
             { emoji: "📡", title: "Internet Hogar",     desc: "Fibra desde $59.900",        color: L ? "#00b8d4" : C.cyan,   action: onGame    },
             { emoji: "📱", title: "Planes Móviles",     desc: "Datos ilimitados",            color: L ? "#7c3aed" : C.neon2,  action: onMovil   },
             { emoji: "🏠", title: "Hogar Digital",      desc: "Diseña tu red ideal",         color: L ? "#f59e0b" : C.yellow, action: onGame    },
+            { emoji: "🧭", title: "Mundo Nómada",       desc: "Viajas? Te conectamos allá",  color: L ? "#f59e0b" : C.yellow, action: onNomada  },
             { emoji: "⚡", title: "Ofertas Hot",         desc: "Promociones del día",         color: C.red,                    action: () => window.location.href = "/ofertas" },
             { emoji: "📋", title: "Ver catálogo",       desc: "Todos los planes",            color: L ? "#3ab54a" : C.green,  action: () => window.location.href = "/planes"  },
           ].map((item, i) => (
