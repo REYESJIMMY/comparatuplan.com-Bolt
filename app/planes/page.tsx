@@ -91,18 +91,12 @@ export default function PlanesPage() {
   useEffect(() => { fetchPlanes(true); }, [filtros, orden, busqueda]);
 
   const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
-  const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });
+  const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });  
 
-  const toggleCompare = (plan: Plan) => {
-    setCompareIds((prev) => {
-      if (prev.includes(plan.id)) return prev.filter((id) => id !== plan.id);
-      if (prev.length >= MAX_COMPARE) return prev;
-      return [...prev, plan.id];
-    });
-  };
-
-  const comparePlanes = useMemo(() => planes.filter((p) => compareIds.includes(p.id)), [planes, compareIds]);
-
+  const comparePlanes = useMemo(
+    () => planes.filter((p) => estaSeleccionado(p.id_crc ?? p.id)),
+    [planes, seleccionados]
+  );
   const stats = useMemo(() => {
     if (planes.length === 0) return null;
     const precios = planes.map((p) => p.precio);
