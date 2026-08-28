@@ -501,9 +501,10 @@ interface SidebarProps {
   onSearch:  () => void;
   onGame:    () => void;
   onMovil:   () => void;
+  onNomada:  () => void;
   onSegment: () => void;
 }
-export const Sidebar = ({ onGame, onMovil, onSegment }: SidebarProps) => {
+export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) => {
   const { theme } = useTheme();
   const L = theme === "light";
 
