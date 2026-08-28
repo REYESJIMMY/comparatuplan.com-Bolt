@@ -17,9 +17,9 @@ import { DEPARTAMENTOS } from "@/lib/colombia";
  * compartidos que no le corresponden.
  *
  * Nivel 1 (implementado): Destino + Duración del viaje.
- * Niveles 2-4 (motivo, equipaje digital, recomendación + cross-sell):
- * pendientes — placeholder por ahora para poder desplegar el Nivel 1 sin
- * romper nada.
+ * Nivel 2 (implementado): Motivo del viaje.
+ * Niveles 3-4 (equipaje digital, recomendación + cross-sell):
+ * pendientes — placeholder por ahora.
  */
 
 // ── Tipos ────────────────────────────────────────────────────────
@@ -37,9 +37,16 @@ interface NomadaData {
   destinoDepartamento: string | null;
   destinoMunicipio: string | null;
   duracion: Duracion | null;
-  // Reservado para Nivel 2 (motivo del viaje) y Nivel 3 (equipaje digital)
   motivo: string | null;
+  // Reservado para Nivel 3 (equipaje digital)
   dispositivos: string[];
+}
+
+interface Motivo {
+  id: string;
+  emoji: string;
+  label: string;
+  desc: string;
 }
 
 // ── Configuración ────────────────────────────────────────────────
@@ -72,6 +79,13 @@ const DURACIONES: Duracion[] = [
     sugerenciaModalidad: "pospago",
     sugerenciaTexto: "Para estadías tan largas, una línea pospago normal casi siempre sale más económica en el tiempo.",
   },
+];
+
+const MOTIVOS: Motivo[] = [
+  { id: "turismo",  emoji: "🏖️", label: "Turismo / Ocio",          desc: "Conocer, pasear, desconectarte del trabajo" },
+  { id: "remoto",   emoji: "💻", label: "Trabajo remoto",          desc: "Necesitas conexión estable para trabajar desde allá" },
+  { id: "mixto",    emoji: "🧳", label: "Trabajo + turismo",        desc: "Un poco de ambos: bleisure" },
+  { id: "mudanza",  emoji: "🏡", label: "Mudanza temporal",         desc: "Te instalas por un tiempo largo en el destino" },
 ];
 
 const BG = "linear-gradient(160deg,#04040f 0%,#080622 50%,#100830 100%)";
@@ -232,7 +246,64 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
     </Wrap>
   );
 
-  // ── Steps 2-4 — pendientes ───────────────────────────────────────
+  // ── Step 2 — Motivo del viaje ─────────────────────────────────────
+  if (step === 2) return (
+    <Wrap>
+      <Steps step={2} />
+      <h2 style={{ textAlign: "center", fontWeight: 900, fontSize: "clamp(1.2rem,4vw,1.7rem)", marginBottom: 8, color: "#fff" }}>
+        🎒 ¿Cuál es el motivo del viaje?
+      </h2>
+      <p style={{ textAlign: "center", color: C.muted, fontSize: 13, marginBottom: 24 }}>
+        Con esto ajustamos qué priorizar: precio, velocidad o estabilidad
+      </p>
+
+      <Card style={{ padding: "18px 20px", marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {MOTIVOS.map((m) => {
+            const sel = data.motivo === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => setData((d) => ({ ...d, motivo: m.id }))}
+                style={{
+                  background: sel ? `${C.yellow}12` : "rgba(255,255,255,0.02)",
+                  border: `2px solid ${sel ? C.yellow : C.borderSoft}`,
+                  borderRadius: 12, padding: "14px 18px",
+                  cursor: "pointer", transition: "all .2s",
+                  display: "flex", alignItems: "center", gap: 14,
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ fontSize: 22 }}>{m.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: "#fff", fontWeight: 800, fontSize: 14 }}>{m.label}</div>
+                  <div style={{ color: C.muted, fontSize: 12 }}>{m.desc}</div>
+                </div>
+                {sel && <Chip color={C.yellow}>✓ Elegido</Chip>}
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+        <GlowBtn onClick={() => setStep(1)} gradient="rgba(255,255,255,0.05)" glow="rgba(255,255,255,0.2)">
+          ← Volver
+        </GlowBtn>
+        <GlowBtn
+          onClick={() => setStep(3)}
+          disabled={!data.motivo}
+          gradient="linear-gradient(135deg,#f59e0b,#f97316)"
+          glow={C.yellow}
+          style={{ padding: "10px 24px" }}
+        >
+          Continuar →
+        </GlowBtn>
+      </div>
+    </Wrap>
+  );
+
+  // ── Steps 3-4 — pendientes ───────────────────────────────────────
   return (
     <Wrap>
       <Steps step={step} />
@@ -243,10 +314,11 @@ export const NomadaFlow = ({ onBack }: { onBack: () => void }) => {
         </h3>
         <p style={{ color: C.muted, fontSize: 13, marginBottom: 20 }}>
           Ya sabemos que vas a <b style={{ color: "#fff" }}>{data.destinoMunicipio}</b>, {data.destinoDepartamento}
-          {" "}por <b style={{ color: "#fff" }}>{data.duracion?.label}</b>. El resto del mundo Nómada llega pronto.
+          {" "}por <b style={{ color: "#fff" }}>{data.duracion?.label}</b>, motivo:{" "}
+          <b style={{ color: "#fff" }}>{MOTIVOS.find((m) => m.id === data.motivo)?.label}</b>. El resto del mundo Nómada llega pronto.
         </p>
-        <GlowBtn onClick={() => setStep(1)} gradient="linear-gradient(135deg,#f59e0b,#f97316)" glow={C.yellow}>
-          ← Ajustar destino
+        <GlowBtn onClick={() => setStep(2)} gradient="linear-gradient(135deg,#f59e0b,#f97316)" glow={C.yellow}>
+          ← Ajustar motivo
         </GlowBtn>
       </Card>
     </Wrap>
