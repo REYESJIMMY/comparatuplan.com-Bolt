@@ -68,6 +68,7 @@ export default function Home() {
     if (a === "cobertura") setView("cobertura");
     if (a === "login")     setAuthMode("login");
     if (a === "register")  setAuthMode("register");
+    if (a === "nomada")    setView("nomada");
   };
 
   const handleUbicacion = (data: UbicacionData) => {
