@@ -19,9 +19,9 @@ export const CompareBar = ({ planes, onRemove, onClear, onOpen }: {
     }}>
       <div style={{ display: "flex", gap: 6 }}>
         {planes.map((p) => (
-          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 5, background: `${OP_COLORS[p.operador] ?? C.neon}14`, borderRadius: 8, padding: "4px 8px" }}>
+          <div key={p.id_crc ?? p.id} style={{ display: "flex", alignItems: "center", gap: 5, background: `${OP_COLORS[p.operador] ?? C.neon}14`, borderRadius: 8, padding: "4px 8px" }}>
             <span style={{ color: "#fff", fontSize: 10.5, fontWeight: 700, maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.operador}</span>
-            <button onClick={() => onRemove(p.id)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", padding: 0 }}>
+            <button onClick={() => onRemove(p.id_crc ?? p.id)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", padding: 0 }}>
               <X size={11} color="rgba(255,255,255,0.5)" />
             </button>
           </div>
