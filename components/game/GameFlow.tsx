@@ -715,6 +715,15 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
       <CapsulaToast capsula={capsulaActual} onClose={cerrarCapsula} />
       <Nexi emoji={capsulaActual?.icono} />
       <XPBadge xp={xp} />
+      <CompareBar
+        planes={comparePlanes}
+        onRemove={(id) => toggle(id)}
+        onClear={limpiar}
+        onOpen={() => setShowCompareModal(true)}
+      />
+      {showCompareModal && (
+        <CompareModal planes={comparePlanes} onClose={() => setShowCompareModal(false)} />
+      )}
     </>
   );
 };
