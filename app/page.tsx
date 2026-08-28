@@ -40,6 +40,7 @@ export default function Home() {
       if (e.detail === "quiz")      setView("quiz");
       if (e.detail === "movil")     setView("movil");
       if (e.detail === "cobertura") setView("cobertura");
+      if (e.detail === "nomada")    setView("nomada");
     };
     window.addEventListener("keydown", fn);
     document.addEventListener("navAction", navFn as EventListener);
