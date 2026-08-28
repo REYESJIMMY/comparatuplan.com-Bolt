@@ -61,7 +61,7 @@ export const CompareModal = ({ planes, onClose }: { planes: Plan[]; onClose: () 
               <tr>
                 <th style={{ textAlign: "left", padding: "8px 10px", color: C.muted, fontSize: 11 }}></th>
                 {planes.map((p) => (
-                  <th key={p.id} style={{ textAlign: "left", padding: "8px 10px", color: C.neon, fontSize: 12, fontWeight: 800 }}>{p.operador}</th>
+                  <th key={p.id_crc ?? p.id} style={{ textAlign: "left", padding: "8px 10px", color: C.neon, fontSize: 12, fontWeight: 800 }}>{p.operador}</th>
                 ))}
               </tr>
             </thead>
@@ -70,7 +70,7 @@ export const CompareModal = ({ planes, onClose }: { planes: Plan[]; onClose: () 
                 <tr key={r.label} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
                   <td style={{ padding: "9px 10px", color: C.muted, fontSize: 12, fontWeight: 600 }}>{r.label}</td>
                   {planes.map((p) => (
-                    <td key={p.id} style={{ padding: "9px 10px", color: "#fff", fontSize: 12 }}>{r.get(p)}</td>
+                    <td key={p.id_crc ?? p.id} style={{ padding: "9px 10px", color: "#fff", fontSize: 12 }}>{r.get(p)}</td>
                   ))}
                 </tr>
               ))}
