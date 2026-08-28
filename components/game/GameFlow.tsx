@@ -186,6 +186,10 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
   const { actual: capsulaActual, disparar, mostrarMensaje, cerrar: cerrarCapsula, xp } = useCapsulas(user?.id);
+  const { toggle, estaSeleccionado, puedeAgregar, limpiar } = useCompare();
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
+  const comparePlanes = planesDB.filter((p) => estaSeleccionado(p.id_crc ?? p.id));
 
   const [lvl,        setLvl]        = useState(0);
   const [direction,  setDirection]  = useState(1);
