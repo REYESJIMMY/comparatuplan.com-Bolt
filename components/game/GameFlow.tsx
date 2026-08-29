@@ -597,6 +597,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                       ? <Check size={13} color={C.neon} />
                       : <Scale size={13} color={C.muted} />}
                   </button>
+                  <button
                     onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
                     style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer" }}
                   >
