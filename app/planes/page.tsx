@@ -93,10 +93,7 @@ export default function PlanesPage() {
   const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
   const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });  
 
-  const comparePlanes = useMemo(
-    () => planes.filter((p) => estaSeleccionado(p.id_crc ?? p.id)),
-    [planes, seleccionados]
-  );
+  
   const stats = useMemo(() => {
     if (planes.length === 0) return null;
     const precios = planes.map((p) => p.precio);
