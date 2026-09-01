@@ -719,8 +719,8 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
         onClear={limpiar}
         onOpen={() => setShowCompareModal(true)}
       />
-      {showCompareModal &&
-        <CompareModal planes={planesSeleccionados} onClose={() => setShowCompareModal(false)} />}
+      {showCompareModal && (
+        <CompareModal planes={planesSeleccionados} onClose={() => setShowCompareModal(false)} />
       )}
     </>
   );
