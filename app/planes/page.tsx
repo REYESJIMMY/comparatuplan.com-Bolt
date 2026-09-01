@@ -18,7 +18,7 @@ const PAGE_SIZE = 24;
 
 export default function PlanesPage() {
   const { user, favoritos, toggleFavorito } = useAuth();
-  const { seleccionados, toggle, limpiar, quitarPlan, estaSeleccionado, puedeAgregar } = useCompare();
+  const { planesSeleccionados, toggle, limpiar, quitarPlan, estaSeleccionado, puedeAgregar } = useCompare();
 
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
