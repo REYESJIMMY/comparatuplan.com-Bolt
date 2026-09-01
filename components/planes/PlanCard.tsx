@@ -68,16 +68,19 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
           <button
             onClick={() => onToggleCompare(plan)}
             disabled={!compareChecked && compareDisabled}
-            title={compareChecked ? "Quitar de comparación" : "Agregar a comparación"}
             style={{
-              background: compareChecked ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${compareChecked ? C.neon : "rgba(255,255,255,0.1)"}`,
-              borderRadius: 8, padding: "5px 7px", cursor: (!compareChecked && compareDisabled) ? "not-allowed" : "pointer",
+              display: "flex", alignItems: "center", gap: 5,
+              background: compareChecked ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+              border: `1.5px solid ${compareChecked ? C.neon : "rgba(255,255,255,0.15)"}`,
+              borderRadius: 8, padding: "5px 9px",
+              cursor: (!compareChecked && compareDisabled) ? "not-allowed" : "pointer",
               opacity: (!compareChecked && compareDisabled) ? 0.35 : 1,
-              display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            {compareChecked ? <Check size={13} color={C.neon} /> : <Scale size={13} color="rgba(255,255,255,0.4)" />}
+            {compareChecked ? <Check size={12} color={C.neon} /> : <Scale size={12} color="rgba(255,255,255,0.5)" />}
+            <span style={{ fontSize: 10, fontWeight: 700, color: compareChecked ? C.neon : "rgba(255,255,255,0.5)" }}>
+              {compareChecked ? "Comparando" : "Comparar"}
+            </span>
           </button>
           <button
             onClick={() => isLoggedIn ? onFav(plan) : onAuthPrompt()}
