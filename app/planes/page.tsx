@@ -231,12 +231,12 @@ export default function PlanesPage() {
       )}
 
       <CompareBar
-        planes={comparePlanes}
+        planes={planesSeleccionados}
         onRemove={quitarPlan}
         onClear={limpiar}
         onOpen={() => setShowCompareModal(true)}
       />
-      {showCompareModal && <CompareModal planes={comparePlanes} onClose={() => setShowCompareModal(false)} />}
+      {showCompareModal && <CompareModal planes={planesSeleccionados} onClose={() => setShowCompareModal(false)} />}
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
