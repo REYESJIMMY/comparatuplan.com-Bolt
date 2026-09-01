@@ -185,7 +185,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const { guardarAnalisis, toggleFavorito, isFavorito, user } = useAuth();
   const { ubicacion, tieneUbicacionMinima } = useUbicacion();
   const { actual: capsulaActual, disparar, mostrarMensaje, cerrar: cerrarCapsula, xp } = useCapsulas(user?.id);
-  const { toggle, estaSeleccionado, puedeAgregar, limpiar } = useCompare();
+  const { toggle, estaSeleccionado, puedeAgregar, limpiar, planesSeleccionados, quitarPlan } = useCompare();
   
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [lvl,        setLvl]        = useState(0);
@@ -201,8 +201,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
   const [ecosistema, setEcosistema] = useState<any[]>([]);
   const [nivelModal, setNivelModal] = useState<typeof DEVICES[number] | null>(null);
   const [flipped,    setFlipped]    = useState<Record<string, boolean>>({});
-  const comparePlanes = planesDB.filter((p) => estaSeleccionado(p.id_crc ?? p.id));
-
+  
   const toggleFlip = (id: string) => {
     setFlipped((prev) => {
       const abriendo = !prev[id];
