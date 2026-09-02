@@ -2,14 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search, X, LogIn, UserPlus, MessageCircle, Send,
-  ShoppingCart, Trash2, Plus, Minus,
+  ShoppingCart, Trash2, Plus, Minus, Scale, Check,
 } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 import { GlowBtn, WaIco } from "@/components/ui";
-import {
-  Search, X, LogIn, UserPlus, MessageCircle, Send,
-  ShoppingCart, Trash2, Plus, Minus, Scale, Check,
-} from "lucide-react";
 import { useCompare } from "@/context/CompareContext";
 import { CompareModal } from "@/components/planes/CompareBar";
 import type { Plan } from "@/components/planes/PlanCard";
@@ -262,7 +258,11 @@ export const CartDrawer = ({ cart, setCart, open, onClose }: CartDrawerProps) =>
 };
 
 /* ── Chatbot Nexus ───────────────────────────────────────────── */
-interface Msg { role: "user" | "assistant"; content: string; }
+interface Msg {
+  role: "user" | "assistant";
+  content: string;
+  planesRecomendados?: Plan[];
+}
 
 const renderMd = (t: string) =>
   t
@@ -286,6 +286,9 @@ export const Chatbot = () => {
   const [unread,  setUnread]  = useState(1);
   const [error,   setError]   = useState(false);
 
+  const { toggle, estaSeleccionado, puedeAgregar, cantidad, planesSeleccionados } = useCompare();
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
   const endRef   = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -308,7 +311,11 @@ export const Chatbot = () => {
         body: JSON.stringify({ messages: newMsgs.slice(1) }),
       });
       const data = await res.json();
-      setMsgs(prev => [...prev, { role: "assistant", content: data.reply ?? "Sin respuesta." }]);
+      setMsgs(prev => [...prev, {
+        role: "assistant",
+        content: data.reply ?? "Sin respuesta.",
+        planesRecomendados: data.planesRecomendados,
+      }]);
     } catch {
       setError(true);
       setMsgs(prev => [...prev, { role: "assistant", content: "❌ No pude conectarme. Verifica tu conexión e intenta de nuevo." }]);
@@ -378,7 +385,7 @@ export const Chatbot = () => {
           {/* Mensajes */}
           <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px 0", display: "flex", flexDirection: "column", gap: 10, scrollbarWidth: "none" }}>
             {msgs.map((msg, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: 6 }}>
                 <div
                   style={{
                     maxWidth: "85%",
@@ -390,6 +397,47 @@ export const Chatbot = () => {
                   }}
                   dangerouslySetInnerHTML={{ __html: renderMd(msg.content) }}
                 />
+                {msg.role === "assistant" && msg.planesRecomendados && msg.planesRecomendados.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5, width: "100%", maxWidth: "92%" }}>
+                    {msg.planesRecomendados.map((p) => {
+                      const key = p.id_crc ?? p.id;
+                      const checked = estaSeleccionado(key);
+                      const precioNum = typeof p.precio === "string" ? parseFloat(p.precio) : p.precio;
+                      return (
+                        <div key={key} style={{
+                          display: "flex", alignItems: "center", gap: 8,
+                          background: "rgba(255,255,255,0.03)", border: `1px solid ${checked ? C.neon : C.borderSoft}`,
+                          borderRadius: 10, padding: "7px 9px",
+                        }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: "#fff", fontWeight: 700, fontSize: 11 }}>{p.operador}</div>
+                            <div style={{ color: C.neon, fontWeight: 800, fontSize: 13 }}>
+                              ${precioNum.toLocaleString("es-CO")}<span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => toggle(p)}
+                            disabled={!checked && !puedeAgregar}
+                            title={checked ? "Quitar de comparación" : "Agregar a comparación"}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 4, flexShrink: 0,
+                              background: checked ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                              border: `1px solid ${checked ? C.neon : "rgba(255,255,255,0.15)"}`,
+                              borderRadius: 7, padding: "5px 8px",
+                              cursor: (!checked && !puedeAgregar) ? "not-allowed" : "pointer",
+                              opacity: (!checked && !puedeAgregar) ? 0.35 : 1,
+                            }}
+                          >
+                            {checked ? <Check size={11} color={C.neon} /> : <Scale size={11} color="rgba(255,255,255,0.5)" />}
+                            <span style={{ fontSize: 9.5, fontWeight: 700, color: checked ? C.neon : "rgba(255,255,255,0.5)" }}>
+                              {checked ? "Comparando" : "Comparar"}
+                            </span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
 
@@ -419,6 +467,22 @@ export const Chatbot = () => {
             )}
             <div ref={endRef} style={{ height: 14 }} />
           </div>
+
+          {/* Barra de comparación (si hay 2+ planes seleccionados) */}
+          {cantidad >= 2 && (
+            <div style={{ padding: "0 14px 8px", flexShrink: 0 }}>
+              <button
+                onClick={() => setShowCompareModal(true)}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  background: "linear-gradient(135deg,#0070cc,#0050aa)", border: "none",
+                  borderRadius: 9, padding: "8px 0", color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer",
+                }}
+              >
+                <Scale size={13} />Comparar planes ({cantidad})
+              </button>
+            </div>
+          )}
 
           {/* Disclaimer */}
           <div style={{ padding: "6px 14px 2px", color: "rgba(180,195,230,0.25)", fontSize: 9, textAlign: "center", flexShrink: 0 }}>
@@ -459,6 +523,10 @@ export const Chatbot = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {showCompareModal && (
+        <CompareModal planes={planesSeleccionados} onClose={() => setShowCompareModal(false)} />
       )}
     </>
   );
