@@ -581,7 +581,7 @@ export const GameFlow = ({ onBack }: { onBack: () => void }) => {
                   <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
                   <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.tipo}</span>
                   <button
-                    onClick={() => toggle(p.id_crc ?? p.id)}
+                    onClick={() => toggle(p)}
                     disabled={!estaSeleccionado(p.id_crc ?? p.id) && !puedeAgregar}
                     title={estaSeleccionado(p.id_crc ?? p.id) ? "Quitar de comparación" : "Agregar a comparación"}
                     style={{
