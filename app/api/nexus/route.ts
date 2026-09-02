@@ -41,7 +41,7 @@ async function fetchPlanesContexto(intent: ReturnType<typeof detectIntent>) {
   const supabase = getSupabase();
   let query = supabase
     .from("planes")
-    .select("operador, nombre, precio, tipo, duracion_unidad, servicios")
+    .select("id, id_crc, operador, nombre, precio, tipo, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, duracion_unidad, servicios")
     .in("operador", OPERADORES_FASE1)
     .order("precio", { ascending: true });
 
@@ -51,10 +51,9 @@ async function fetchPlanesContexto(intent: ReturnType<typeof detectIntent>) {
 
   const { data, error } = await query.limit(25);
   if (error || !data?.length) {
-    // Fallback: top planes sin filtro
     const { data: fallback } = await getSupabase()
       .from("planes")
-      .select("operador, nombre, precio, tipo, duracion_unidad, servicios")
+      .select("id, id_crc, operador, nombre, precio, tipo, velocidad_mbps, datos_gb, canales_tv, minutos, modalidad, tecnologia, duracion_unidad, servicios")
       .in("operador", OPERADORES_FASE1)
       .order("precio", { ascending: true })
       .limit(20);
@@ -62,7 +61,6 @@ async function fetchPlanesContexto(intent: ReturnType<typeof detectIntent>) {
   }
   return data;
 }
-
 /* ── Construir system prompt con datos reales ───────────────── */
 function buildSystemPrompt(planes: any[]) {
   const fecha = new Date().toLocaleDateString("es-CO", {
