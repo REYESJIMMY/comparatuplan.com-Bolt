@@ -116,7 +116,8 @@ function calcularGBRecomendado(habitos: string[]): DatosGB {
 // ── MovilFlow ────────────────────────────────────────────────────
 export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
   const { toggleFavorito, isFavorito, user } = useAuth();
-
+  const { toggle, estaSeleccionado, puedeAgregar, planesSeleccionados, quitarPlan, limpiar } = useCompare();
+  const [showCompareModal, setShowCompareModal] = useState(false);
   const [step,     setStep]     = useState(1);
   const [data,     setData]     = useState<MovilData>({ modalidad: null, habitos: [], datosGB: null, presupuesto: null });
   const [planes,   setPlanes]   = useState<PlanMovil[]>([]);
