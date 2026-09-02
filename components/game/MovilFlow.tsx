@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Scale, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { C } from "@/lib/constants";
 import { GlowBtn, WABtn, Card, Chip } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
-import { Heart, Scale, Check } from "lucide-react"; // agregar Scale, Check
 import { useCompare } from "@/context/CompareContext";
 import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
 
