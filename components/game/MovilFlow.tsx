@@ -543,9 +543,27 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
                 </div>
               )}
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
+                <span style={{ background: `${p.glow}14`, ... }}>{p.badge}</span>
                 <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
                 <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.modalidad}</span>
+                <button
+                  onClick={() => toggle(p)}
+                  disabled={!estaSeleccionado(p.id_crc) && !puedeAgregar}
+                  title={estaSeleccionado(p.id_crc) ? "Quitar de comparación" : "Agregar a comparación"}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 5,
+                    background: estaSeleccionado(p.id_crc) ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                    border: `1.5px solid ${estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.15)"}`,
+                    borderRadius: 8, padding: "5px 9px",
+                    cursor: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? "not-allowed" : "pointer",
+                    opacity: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? 0.35 : 1,
+                  }}
+                >
+                  {estaSeleccionado(p.id_crc) ? <Check size={12} color={C.neon} /> : <Scale size={12} color="rgba(255,255,255,0.5)" />}
+                  <span style={{ fontSize: 10, fontWeight: 700, color: estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.5)" }}>
+                    {estaSeleccionado(p.id_crc) ? "Comparando" : "Comparar"}
+                  </span>
+                </button>
                 <button
                   onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
                   title={user ? (isFavorito(p.id_crc) ? "Quitar favorito" : "Guardar") : "Inicia sesión para guardar"}
