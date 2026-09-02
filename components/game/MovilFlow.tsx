@@ -542,7 +542,7 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
                 </div>
               )}
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                <span style={{ background: `${p.glow}14`, ... }}>{p.badge}</span>
+                <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
                 <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
                 <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.modalidad}</span>
                 <button
