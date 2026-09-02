@@ -67,7 +67,6 @@ function buildSystemPrompt(planes: any[]) {
     day: "numeric", month: "long", year: "numeric",
   });
 
-  // Agrupar por operador para el contexto
   const porOperador: Record<string, any[]> = {};
   for (const p of planes) {
     if (!porOperador[p.operador]) porOperador[p.operador] = [];
@@ -77,7 +76,7 @@ function buildSystemPrompt(planes: any[]) {
   const planesTexto = Object.entries(porOperador)
     .map(([op, ps]) => {
       const lista = ps.map(p =>
-        `  • ${p.nombre} | $${Number(p.precio).toLocaleString("es-CO")}/mes | tipo: ${p.tipo}${p.servicios ? ` | incluye: ${p.servicios}` : ""}`
+        `  • [${p.id_crc}] ${p.nombre} | $${Number(p.precio).toLocaleString("es-CO")}/mes | tipo: ${p.tipo}${p.servicios ? ` | incluye: ${p.servicios}` : ""}`
       ).join("\n");
       return `${op}:\n${lista}`;
     }).join("\n\n");
@@ -87,7 +86,7 @@ function buildSystemPrompt(planes: any[]) {
 FECHA ACTUAL: ${fecha}
 OPERADORES DISPONIBLES EN FASE 1: ${OPERADORES_FASE1.join(", ")}
 
-PLANES REALES DEL CATÁLOGO (actualizados desde la CRC):
+PLANES REALES DEL CATÁLOGO (actualizados desde la CRC). El código entre corchetes [ ] antes de cada plan es su id_crc:
 ${planesTexto}
 
 REGLAS ESTRICTAS:
@@ -99,7 +98,8 @@ REGLAS ESTRICTAS:
 - Cuando menciones precios, usa formato colombiano: $89.900/mes
 - Al final de una recomendación, siempre agrega: "¿Quieres ver más detalles? Visita [el catálogo](/planes)"
 - NO repitas el mismo plan dos veces en la misma conversación.
-- Si el usuario quiere contratar, dile que puede hacerlo por WhatsApp desde la card del plan.`;
+- Si el usuario quiere contratar, dile que puede hacerlo por WhatsApp desde la card del plan.
+- MARCADOR TÉCNICO (obligatorio si recomiendas 1 o más planes): al final de tu respuesta, en una línea aparte, agrega exactamente: [PLANES:id_crc1,id_crc2,id_crc3] usando los id_crc exactos (el código entre corchetes de la lista de arriba) de los planes que acabas de mencionar, separados por coma y sin espacios. Este marcador es interno — el usuario nunca debe verlo ni debes explicarlo. Si no recomendaste ningún plan específico (por ejemplo, si solo hiciste una pregunta), NO agregues el marcador.`;
 }
 
 /* ── POST handler ────────────────────────────────────────────── */
