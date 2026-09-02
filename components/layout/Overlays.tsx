@@ -6,6 +6,13 @@ import {
 } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 import { GlowBtn, WaIco } from "@/components/ui";
+import {
+  Search, X, LogIn, UserPlus, MessageCircle, Send,
+  ShoppingCart, Trash2, Plus, Minus, Scale, Check,
+} from "lucide-react";
+import { useCompare } from "@/context/CompareContext";
+import { CompareModal } from "@/components/planes/CompareBar";
+import type { Plan } from "@/components/planes/PlanCard";
 
 /* ── SearchBar ───────────────────────────────────────────────── */
 const QUICK_SEARCHES = [
