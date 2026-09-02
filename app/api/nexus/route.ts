@@ -142,16 +142,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const data = await response.json();
-    const reply = data.content?.[0]?.text ?? "No obtuve respuesta. Intenta de nuevo.";
+        const data = await response.json();
+        const rawReply = data.content?.[0]?.text ?? "No obtuve respuesta. Intenta de nuevo.";
 
-    return NextResponse.json({ reply });
+        // Extraer marcador técnico [PLANES:id1,id2,id3] y separarlo del texto visible
+        const marcadorMatch = rawReply.match(/\[PLANES:([^\]]*)\]\s*$/i);
+        let reply = rawReply;
+        let planesRecomendados: any[] = [];
 
-  } catch (err) {
-    console.error("[Nexus] Error:", err);
-    return NextResponse.json(
-      { reply: "Ocurrió un error inesperado. Por favor intenta de nuevo." },
-      { status: 200 } // 200 para que el frontend lo maneje sin crash
-    );
+        if (marcadorMatch) {
+          reply = rawReply.slice(0, marcadorMatch.index).trim();
+          const idsRecomendados = marcadorMatch[1]
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          planesRecomendados = planes.filter((p) => idsRecomendados.includes(p.id_crc));
+        }
+
+        return NextResponse.json({ reply, planesRecomendados });
+
+      } catch (err) {
+        console.error("[Nexus] Error:", err);
+        return NextResponse.json(
+          { reply: "Ocurrió un error inesperado. Por favor intenta de nuevo." },
+          { status: 200 } // 200 para que el frontend lo maneje sin crash
+        );
   }
 }
