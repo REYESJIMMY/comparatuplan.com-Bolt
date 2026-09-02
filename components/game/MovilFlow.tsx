@@ -618,6 +618,15 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
           🏠 Inicio
         </button>
       </div>
+      <CompareBar
+        planes={planesSeleccionados}
+        onRemove={quitarPlan}
+        onClear={limpiar}
+        onOpen={() => setShowCompareModal(true)}
+      />
+      {showCompareModal && (
+        <CompareModal planes={planesSeleccionados} onClose={() => setShowCompareModal(false)} />
+      )}
     </Wrap>
   );
 };
