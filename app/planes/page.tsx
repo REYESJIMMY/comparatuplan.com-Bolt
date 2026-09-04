@@ -19,7 +19,8 @@ const PAGE_SIZE = 24;
 export default function PlanesPage() {
   const { user, favoritos, toggleFavorito } = useAuth();
   const { planesSeleccionados, toggle, limpiar, quitarPlan, estaSeleccionado, puedeAgregar } = useCompare();
-
+  
+  const [precioRango, setPrecioRango] = useState<{ min: number; max: number }>({ min: 0, max: 500000 });
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
