@@ -145,6 +145,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
           Contratar
         </button>
       </div>
+      {showDetalle && <QuickDetailModal plan={plan} onClose={() => setShowDetalle(false)} />}
     </div>
   );
 };
