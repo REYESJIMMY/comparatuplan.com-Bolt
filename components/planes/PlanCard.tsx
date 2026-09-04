@@ -34,6 +34,7 @@ interface Props {
 }
 
 export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compareChecked, onToggleCompare, compareDisabled }: Props) => {
+  const [showDetalle, setShowDetalle] = useState(false);
   const color = OP_COLORS[plan.operador] ?? C.neon;
   const emoji = OP_EMOJI[plan.operador] ?? "📡";
   const tags = getTags(plan);
