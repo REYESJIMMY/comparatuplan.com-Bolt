@@ -146,9 +146,9 @@ export const FiltrosSidebar = ({ filtros, onChange, onClear, activeCount, precio
         <div style={{ color: L ? "#0d1b2e" : "#fff", fontWeight: 800, fontSize: 13, marginBottom: 8 }}>
           ${filtros.precioMin.toLocaleString("es-CO")} – ${filtros.precioMax.toLocaleString("es-CO")}
         </div>
-        <input type="range" min={0} max={500000} step={5000} value={filtros.precioMin}
+        <input type="range" min={precioRango.min} max={precioRango.max} step={1000} value={filtros.precioMin}
           onChange={(e) => set("precioMin", Math.min(Number(e.target.value), filtros.precioMax))} style={inputBase} />
-        <input type="range" min={0} max={500000} step={5000} value={filtros.precioMax}
+        <input type="range" min={precioRango.min} max={precioRango.max} step={1000} value={filtros.precioMax}
           onChange={(e) => set("precioMax", Math.max(Number(e.target.value), filtros.precioMin))} style={{ ...inputBase, marginTop: 4 }} />
       </Section>
 
