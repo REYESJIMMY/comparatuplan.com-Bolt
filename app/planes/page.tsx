@@ -188,7 +188,13 @@ export default function PlanesPage() {
         {/* Sidebar */}
         <aside style={{ display: showFilters ? "block" : "none" }}>
           <div style={{ position: "sticky", top: 90 }}>
-            <FiltrosSidebar filtros={filtros} onChange={setFiltros} onClear={() => setFiltros(FILTROS_INICIALES)} activeCount={activeFilterCount} />
+            <FiltrosSidebar
+              filtros={filtros}
+              onChange={setFiltros}
+              onClear={() => setFiltros(FILTROS_INICIALES)}
+              activeCount={activeFilterCount}
+              precioRango={precioRango}
+            />
           </div>
         </aside>
 
