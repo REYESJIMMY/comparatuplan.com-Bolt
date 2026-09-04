@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { Heart, Scale, Check } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
+import { useState } from "react";
+import { QuickDetailModal } from "./QuickDetailModal";
 
 export interface Plan {
   id: string; id_crc: string | null; operador: string; nombre: string; tipo: string;
