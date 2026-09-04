@@ -42,6 +42,41 @@ export default function PlanesPage() {
     if (op) setFiltros((f) => ({ ...f, operadores: [op] }));
   }, []);
 
+  const fetchPrecioRango = useCallback(async () => {
+  const aplicarFiltrosBase = (q: any) => {
+    if (filtros.tipo) q = q.eq("tipo", filtros.tipo);
+    if (filtros.operadores.length > 0) q = q.in("operador", filtros.operadores);
+    if (filtros.modalidad === "prepago") q = q.ilike("modalidad", "%PRE%");
+    else if (filtros.modalidad === "pospago") q = q.ilike("modalidad", "%POS%");
+    if (filtros.velocidadMin > 0) q = q.gte("velocidad_mbps", filtros.velocidadMin);
+    if (filtros.canalesMin > 0) q = q.gte("canales_tv", filtros.canalesMin);
+    if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
+    if (filtros.datosMin === -1) q = q.eq("datos_gb", -1);
+    else if (filtros.datosMin > 0) q = q.gte("datos_gb", filtros.datosMin);
+    if (filtros.estrato > 0) {
+      q = q.or(`estrato_min.is.null,and(estrato_min.lte.${filtros.estrato},estrato_max.gte.${filtros.estrato})`);
+    }
+    if (busqueda) q = q.ilike("nombre", `%${busqueda}%`);
+    return q;
+  };
+
+  let qMin = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
+  qMin = aplicarFiltrosBase(qMin).order("precio", { ascending: true }).limit(1);
+
+  let qMax = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
+  qMax = aplicarFiltrosBase(qMax).order("precio", { ascending: false }).limit(1);
+
+  const [{ data: minData }, { data: maxData }] = await Promise.all([qMin, qMax]);
+
+  const min = minData?.[0]?.precio ? Number(minData[0].precio) : 0;
+  const max = maxData?.[0]?.precio ? Number(maxData[0].precio) : 500000;
+
+  setPrecioRango({ min, max });
+}, [
+  filtros.tipo, filtros.operadores, filtros.modalidad, filtros.velocidadMin,
+  filtros.canalesMin, filtros.tecnologia, filtros.datosMin, filtros.estrato, busqueda,
+]);
+
   const fetchPlanes = useCallback(async (reset = false) => {
     if (reset) { setLoading(true); setPage(0); }
     else setLoadingMore(true);
