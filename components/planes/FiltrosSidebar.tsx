@@ -38,6 +38,7 @@ interface Props {
   onChange: (f: Filtros) => void;
   onClear: () => void;
   activeCount: number;
+  precioRango: { min: number; max: number }
 }
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => {
