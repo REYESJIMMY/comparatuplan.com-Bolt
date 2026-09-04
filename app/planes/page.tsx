@@ -128,6 +128,13 @@ export default function PlanesPage() {
 
   useEffect(() => { fetchPlanes(true); }, [filtros, orden, busqueda]);
 
+  // Recalcula los límites del slider cuando cambia cualquier filtro (menos el precio mismo)
+  useEffect(() => { fetchPrecioRango(); }, [fetchPrecioRango]);
+
+  // Cuando cambian los límites reales, ajusta el rango seleccionado a cubrirlos completos
+  useEffect(() => {
+    setFiltros((f) => ({ ...f, precioMin: precioRango.min, precioMax: precioRango.max }));
+  }, [precioRango]);
   const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
   const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });  
 
