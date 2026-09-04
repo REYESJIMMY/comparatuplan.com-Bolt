@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { C } from "@/lib/constants";
@@ -31,6 +31,7 @@ export default function PlanesPage() {
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES);
   const [orden, setOrden] = useState<OrdenId>("precio_asc");
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const fetchIdRef = useRef(0);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
