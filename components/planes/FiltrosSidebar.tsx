@@ -54,7 +54,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   );
 };
 
-export const FiltrosSidebar = ({ filtros, onChange, onClear, activeCount }: Props) => {
+export const FiltrosSidebar = ({ filtros, onChange, onClear, activeCount, precioRango }: Props) => {
   const { theme } = useTheme();
   const L = theme === "light";
   const set = <K extends keyof Filtros>(k: K, v: Filtros[K]) => onChange({ ...filtros, [k]: v });
