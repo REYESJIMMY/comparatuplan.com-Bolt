@@ -44,6 +44,7 @@ export default function PlanesPage() {
   const fetchPlanes = useCallback(async (reset = false) => {
     if (reset) { setLoading(true); setPage(0); }
     else setLoadingMore(true);
+    const myFetchId = reset ? ++fetchIdRef.current : fetchIdRef.current;
 
     const from = reset ? 0 : page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
