@@ -74,7 +74,6 @@ function getTipoLabel(tipo: string) {
 export default function PlanDetalle({ plan, historial, similares }: Props) {
   const [tab, setTab] = useState<"specs" | "historial" | "similares">("specs");
   const [copied, setCopied] = useState(false);
-  const [precioRango, setPrecioRango] = useState<{ min: number; max: number }>({ min: 0, max: 500000 });
 
   const operadorInfo = OPERADOR_LOGOS[plan.operador] ?? { color: "#00e5a0", emoji: "📡" };
   const precio = typeof plan.precio === "string" ? parseFloat(plan.precio) : plan.precio;
