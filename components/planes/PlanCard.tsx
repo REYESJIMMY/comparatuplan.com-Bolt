@@ -132,12 +132,12 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
       )}
 
       <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-        <Link
-          href={`/planes/${plan.id_crc ?? plan.id}`}
-          style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "10px 0", color: "rgba(220,230,255,0.7)", fontWeight: 700, fontSize: 12, textAlign: "center", textDecoration: "none" }}
+        <button
+          onClick={() => setShowDetalle(true)}
+          style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 9, padding: "10px 0", color: "rgba(220,230,255,0.7)", fontWeight: 700, fontSize: 12, textAlign: "center", cursor: "pointer" }}
         >
           Ver detalles
-        </Link>
+        </button>
         <button
           onClick={() => openWA(`${plan.operador} - ${plan.nombre}`)}
           style={{ flex: 1, background: "linear-gradient(135deg,#25d366,#128c7e)", border: "none", borderRadius: 9, padding: "10px 0", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
