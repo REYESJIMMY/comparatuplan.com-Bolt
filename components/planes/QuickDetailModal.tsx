@@ -1,4 +1,6 @@
 "use client";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 import type { Plan } from "./PlanCard";
@@ -12,6 +14,9 @@ interface Props {
 }
 
 export const QuickDetailModal = ({ plan, onClose }: Props) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const color = OP_COLORS[plan.operador] ?? C.neon;
   const emoji = OP_EMOJI[plan.operador] ?? "📡";
   const precioNum = typeof plan.precio === "string" ? parseFloat(plan.precio) : plan.precio;
@@ -28,7 +33,9 @@ export const QuickDetailModal = ({ plan, onClose }: Props) => {
   if (plan.datos_gb != null) otras.push(plan.datos_gb === -1 ? "Datos ilimitados" : `${plan.datos_gb} GB de datos`);
   if (plan.minutos && plan.minutos !== "0") otras.push(plan.minutos === "-1" ? "Minutos ilimitados" : `${plan.minutos} minutos`);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       onClick={onClose}
       style={{
@@ -156,6 +163,7 @@ export const QuickDetailModal = ({ plan, onClose }: Props) => {
           }
         `}</style>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
