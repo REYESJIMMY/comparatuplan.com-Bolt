@@ -69,6 +69,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
           <span style={{ color, fontWeight: 800, fontSize: 11 }}>{plan.operador}</span>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
+          {!esPrepago && (
           <button
             onClick={() => onToggleCompare(plan)}
             disabled={!compareChecked && compareDisabled}
@@ -86,6 +87,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
               {compareChecked ? "Comparando" : "Comparar"}
             </span>
           </button>
+          )}
           <button
             onClick={() => isLoggedIn ? onFav(plan) : onAuthPrompt()}
             style={{
