@@ -537,75 +537,89 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
           {planes.map((p) => {
             const esPrepago = (p.modalidad ?? "").toLowerCase().includes("pre");
             return (
-            <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined }}>
-              {p.top && (
-                <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>
-                  RECOMENDADO
+              <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined }}>
+                {p.top && (
+                  <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>
+                    RECOMENDADO
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
+                  <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
+                  <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.modalidad}</span>
+                  {!esPrepago && (
+                    <button
+                      onClick={() => toggle(p)}
+                      disabled={!estaSeleccionado(p.id_crc) && !puedeAgregar}
+                      title={estaSeleccionado(p.id_crc) ? "Quitar de comparación" : "Agregar a comparación"}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 5,
+                        background: estaSeleccionado(p.id_crc) ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
+                        border: `1.5px solid ${estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.15)"}`,
+                        borderRadius: 8, padding: "5px 9px",
+                        cursor: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? "not-allowed" : "pointer",
+                        opacity: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? 0.35 : 1,
+                      }}
+                    >
+                      {estaSeleccionado(p.id_crc) ? <Check size={12} color={C.neon} /> : <Scale size={12} color="rgba(255,255,255,0.5)" />}
+                      <span style={{ fontSize: 10, fontWeight: 700, color: estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.5)" }}>
+                        {estaSeleccionado(p.id_crc) ? "Comparando" : "Comparar"}
+                      </span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
+                    title={user ? (isFavorito(p.id_crc) ? "Quitar favorito" : "Guardar") : "Inicia sesión para guardar"}
+                    style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer" }}
+                  >
+                    <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
+                  </button>
                 </div>
-              )}
-              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                <span style={{ background: `${p.glow}14`, border: `1px solid ${p.glow}33`, color: p.glow, borderRadius: 99, padding: "2px 10px", fontSize: 10, fontWeight: 800 }}>{p.badge}</span>
-                <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{p.operador}</span>
-                <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>{p.modalidad}</span>
-                <button
-                  onClick={() => toggle(p)}
-                  disabled={!estaSeleccionado(p.id_crc) && !puedeAgregar}
-                  title={estaSeleccionado(p.id_crc) ? "Quitar de comparación" : "Agregar a comparación"}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    background: estaSeleccionado(p.id_crc) ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.05)",
-                    border: `1.5px solid ${estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.15)"}`,
-                    borderRadius: 8, padding: "5px 9px",
-                    cursor: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? "not-allowed" : "pointer",
-                    opacity: (!estaSeleccionado(p.id_crc) && !puedeAgregar) ? 0.35 : 1,
-                  }}
-                >
-                  {estaSeleccionado(p.id_crc) ? <Check size={12} color={C.neon} /> : <Scale size={12} color="rgba(255,255,255,0.5)" />}
-                  <span style={{ fontSize: 10, fontWeight: 700, color: estaSeleccionado(p.id_crc) ? C.neon : "rgba(255,255,255,0.5)" }}>
-                    {estaSeleccionado(p.id_crc) ? "Comparando" : "Comparar"}
-                  </span>
-                </button>
-                <button
-                  onClick={() => toggleFavorito({ id_crc: p.id_crc, operador: p.operador, nombre: p.nombre, precio: p.precio, tipo: p.tipo })}
-                  title={user ? (isFavorito(p.id_crc) ? "Quitar favorito" : "Guardar") : "Inicia sesión para guardar"}
-                  style={{ background: isFavorito(p.id_crc) ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFavorito(p.id_crc) ? "rgba(236,72,153,0.4)" : C.borderSoft}`, borderRadius: 8, padding: "5px 7px", cursor: "pointer" }}
-                >
-                  <Heart size={13} fill={isFavorito(p.id_crc) ? "#ec4899" : "none"} color={isFavorito(p.id_crc) ? "#ec4899" : C.muted} />
-                </button>
-              </div>
 
-              <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6" }}>{p.nombre}</div>
-              <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
-                ${p.precio.toLocaleString()}
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
-              </div>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: "#e8eaf6" }}>{p.nombre}</div>
+                <div style={{ fontWeight: 900, fontSize: 26, color: p.glow, marginBottom: 10 }}>
+                  ${p.precio.toLocaleString()}
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/mes</span>
+                </div>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-                {p.datos_gb && <Chip color={C.neon2}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
-                {p.minutos && p.minutos !== "0" && <Chip color={C.cyan}>{p.minutos === "-1" ? "∞ Min" : `${p.minutos} min`}</Chip>}
-                {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
-                {p.tecnologia && <Chip color={C.green}>{p.tecnologia}</Chip>}
-              </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                  {p.datos_gb && <Chip color={C.neon2}>{p.datos_gb === -1 ? "∞ Datos" : `${p.datos_gb} GB`}</Chip>}
+                  {p.minutos && p.minutos !== "0" && <Chip color={C.cyan}>{p.minutos === "-1" ? "∞ Min" : `${p.minutos} min`}</Chip>}
+                  {p.modalidad && <Chip color={C.muted}>{p.modalidad}</Chip>}
+                  {p.tecnologia && <Chip color={C.green}>{p.tecnologia}</Chip>}
+                </div>
 
-              <div style={{ display: "flex", gap: 8 }}>
-                <a
-                  href={`/planes/${p.id_crc}`}
-                  onClick={async () => {
-                    // Registrar plan elegido
-                    await supabase.from("consultas_cobertura")
-                      .update({ plan_elegido: p.id_crc })
-                      .eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000")
-                      .order("created_at", { ascending: false })
-                      .limit(1);
-                  }}
-                  style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textAlign: "center", textDecoration: "none" }}
-                >
-                  Ver detalle
-                </a>
-                <WABtn name={`${p.operador} - ${p.nombre}`} label="Lo Quiero 🚀" style={{ flex: 1, borderRadius: 10, fontSize: 12 }} />
-              </div>
-            </Card>
-          ))}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <a
+                    href={`/planes/${p.id_crc}`}
+                    onClick={async () => {
+                      // Registrar plan elegido
+                      await supabase.from("consultas_cobertura")
+                        .update({ plan_elegido: p.id_crc })
+                        .eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000")
+                        .order("created_at", { ascending: false })
+                        .limit(1);
+                    }}
+                    style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.borderSoft}`, color: C.muted, borderRadius: 10, padding: "9px", fontSize: 12, fontWeight: 600, textAlign: "center", textDecoration: "none" }}
+                  >
+                    Ver detalle
+                  </a>
+                  {esPrepago ? (
+                    <a
+                      href="https://fullcarga-titan.com.co/TITAN/Inicio.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ flex: 1, background: "linear-gradient(135deg,#7c3aed,#5b21b6)", border: "none", borderRadius: 10, padding: "9px", color: "#fff", fontWeight: 600, fontSize: 12, textAlign: "center", textDecoration: "none" }}
+                    >
+                      🔋 Recargar
+                    </a>
+                  ) : (
+                    <WABtn name={`${p.operador} - ${p.nombre}`} label="Lo Quiero 🚀" style={{ flex: 1, borderRadius: 10, fontSize: 12 }} />
+                  )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
 
