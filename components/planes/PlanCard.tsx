@@ -39,6 +39,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
   const emoji = OP_EMOJI[plan.operador] ?? "📡";
   const tags = getTags(plan);
   const precioNum = typeof plan.precio === "string" ? parseFloat(plan.precio) : plan.precio;
+  const esPrepago = (plan.modalidad ?? "").toLowerCase().includes("pre");
   
   return (
     <div
