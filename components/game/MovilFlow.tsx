@@ -534,7 +534,9 @@ export const MovilFlow = ({ onBack }: { onBack: () => void }) => {
 
       {!loading && planes.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-          {planes.map((p) => (
+          {planes.map((p) => {
+            const esPrepago = (p.modalidad ?? "").toLowerCase().includes("pre");
+            return (
             <Card key={p.id_crc} glow={p.glow} style={{ padding: 18, position: "relative", border: p.top ? `2px solid ${p.glow}` : undefined }}>
               {p.top && (
                 <div style={{ position: "absolute", top: -1, right: 16, background: p.glow, color: "#000", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderRadius: "0 0 8px 8px" }}>
