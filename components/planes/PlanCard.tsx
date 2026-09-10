@@ -139,6 +139,7 @@ export const PlanCard = ({ plan, isFav, onFav, isLoggedIn, onAuthPrompt, compare
           Ver detalles
         </button>
         {esPrepago ? (
+          <a
     
             href="https://fullcarga-titan.com.co/TITAN/Inicio.html"
             target="_blank"
