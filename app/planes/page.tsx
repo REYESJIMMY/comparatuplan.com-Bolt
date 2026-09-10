@@ -14,12 +14,12 @@ import { CompareBar, CompareModal } from "@/components/planes/CompareBar";
 import { useCompare } from "@/context/CompareContext";
 
 const PAGE_SIZE = 24;
-
+const ALIADOS = ["Claro", "Movistar", "Tigo", "Etb"];
 
 export default function PlanesPage() {
   const { user, favoritos, toggleFavorito } = useAuth();
   const { planesSeleccionados, toggle, limpiar, quitarPlan, estaSeleccionado, puedeAgregar } = useCompare();
-  
+
   const [precioRango, setPrecioRango] = useState<{ min: number; max: number }>({ min: 0, max: 500000 });
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,39 +43,39 @@ export default function PlanesPage() {
   }, []);
 
   const fetchPrecioRango = useCallback(async () => {
-  const aplicarFiltrosBase = (q: any) => {
-    if (filtros.tipo) q = q.eq("tipo", filtros.tipo);
-    if (filtros.operadores.length > 0) q = q.in("operador", filtros.operadores);
-    if (filtros.modalidad === "prepago") q = q.ilike("modalidad", "%PRE%");
-    else if (filtros.modalidad === "pospago") q = q.ilike("modalidad", "%POS%");
-    if (filtros.velocidadMin > 0) q = q.gte("velocidad_mbps", filtros.velocidadMin);
-    if (filtros.canalesMin > 0) q = q.gte("canales_tv", filtros.canalesMin);
-    if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
-    if (filtros.datosMin === -1) q = q.eq("datos_gb", -1);
-    else if (filtros.datosMin > 0) q = q.gte("datos_gb", filtros.datosMin);
-    if (filtros.estrato > 0) {
-      q = q.or(`estrato_min.is.null,and(estrato_min.lte.${filtros.estrato},estrato_max.gte.${filtros.estrato})`);
-    }
-    if (busqueda) q = q.ilike("nombre", `%${busqueda}%`);
-    return q;
-  };
+    const aplicarFiltrosBase = (q: any) => {
+      if (filtros.tipo) q = q.eq("tipo", filtros.tipo);
+      if (filtros.operadores.length > 0) q = q.in("operador", filtros.operadores);
+      if (filtros.modalidad === "prepago") q = q.ilike("modalidad", "%PRE%");
+      else if (filtros.modalidad === "pospago") q = q.ilike("modalidad", "%POS%");
+      if (filtros.velocidadMin > 0) q = q.gte("velocidad_mbps", filtros.velocidadMin);
+      if (filtros.canalesMin > 0) q = q.gte("canales_tv", filtros.canalesMin);
+      if (filtros.tecnologia) q = q.ilike("tecnologia", `%${filtros.tecnologia}%`);
+      if (filtros.datosMin === -1) q = q.eq("datos_gb", -1);
+      else if (filtros.datosMin > 0) q = q.gte("datos_gb", filtros.datosMin);
+      if (filtros.estrato > 0) {
+        q = q.or(`estrato_min.is.null,and(estrato_min.lte.${filtros.estrato},estrato_max.gte.${filtros.estrato})`);
+      }
+      if (busqueda) q = q.ilike("nombre", `%${busqueda}%`);
+      return q;
+    };
 
-  let qMin = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
-  qMin = aplicarFiltrosBase(qMin).order("precio", { ascending: true }).limit(1);
+    let qMin = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
+    qMin = aplicarFiltrosBase(qMin).order("precio", { ascending: true }).limit(1);
 
-  let qMax = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
-  qMax = aplicarFiltrosBase(qMax).order("precio", { ascending: false }).limit(1);
+    let qMax = supabase.from("catalogo_unificado").select("precio").neq("tipo", "otro");
+    qMax = aplicarFiltrosBase(qMax).order("precio", { ascending: false }).limit(1);
 
-  const [{ data: minData }, { data: maxData }] = await Promise.all([qMin, qMax]);
+    const [{ data: minData }, { data: maxData }] = await Promise.all([qMin, qMax]);
 
-  const min = minData?.[0]?.precio ? Number(minData[0].precio) : 0;
-  const max = maxData?.[0]?.precio ? Number(maxData[0].precio) : 500000;
+    const min = minData?.[0]?.precio ? Number(minData[0].precio) : 0;
+    const max = maxData?.[0]?.precio ? Number(maxData[0].precio) : 500000;
 
-  setPrecioRango({ min, max });
-}, [
-  filtros.tipo, filtros.operadores, filtros.modalidad, filtros.velocidadMin,
-  filtros.canalesMin, filtros.tecnologia, filtros.datosMin, filtros.estrato, busqueda,
-]);
+    setPrecioRango({ min, max });
+  }, [
+    filtros.tipo, filtros.operadores, filtros.modalidad, filtros.velocidadMin,
+    filtros.canalesMin, filtros.tecnologia, filtros.datosMin, filtros.estrato, busqueda,
+  ]);
 
   const fetchPlanes = useCallback(async (reset = false) => {
     if (reset) { setLoading(true); setPage(0); }
@@ -117,25 +117,39 @@ export default function PlanesPage() {
     q = q.range(from, to);
 
     const { data, count, error } = await q;
+
+    // Si mientras esperábamos esta respuesta ya se disparó una búsqueda más
+    // reciente (otro filtro, otra página), descartamos esta por obsoleta.
+    if (reset && myFetchId !== fetchIdRef.current) {
+      setLoading(false);
+      return;
+    }
+
     if (!error && data) {
       let rows = data as Plan[];
 
-     // Cuando el filtro es Móvil, prioriza pospago (contratable/comparable)
-    // sobre prepago (recarga), sin romper el orden de precio dentro de cada grupo.
-    if (filtros.tipo === "movil") {
       rows = [...rows].sort((a, b) => {
-        const aPos = (a.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
-        const bPos = (b.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
-        return aPos - bPos;
-      });
-    }
+        // 1. Aliados primero (Claro, Movistar, Tigo, Etb)
+        const aAliado = ALIADOS.includes(a.operador) ? 0 : 1;
+        const bAliado = ALIADOS.includes(b.operador) ? 0 : 1;
+        if (aAliado !== bAliado) return aAliado - bAliado;
 
-    setPlanes(reset ? rows : (prev) => [...prev, ...rows]);
-    setTotal(count ?? 0);
-    if (!reset) setPage((p) => p + 1);
-  }
-  setLoading(false);
-  setLoadingMore(false);
+        // 2. Si el filtro es Móvil, pospago antes que prepago
+        if (filtros.tipo === "movil") {
+          const aPos = (a.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+          const bPos = (b.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+          if (aPos !== bPos) return aPos - bPos;
+        }
+
+        return 0; // conserva el orden de precio que ya trajo la query de Supabase
+      });
+
+      setPlanes(reset ? rows : (prev) => [...prev, ...rows]);
+      setTotal(count ?? 0);
+      if (!reset) setPage((p) => p + 1);
+    }
+    setLoading(false);
+    setLoadingMore(false);
   }, [filtros, orden, busqueda, page]);
 
   useEffect(() => { fetchPlanes(true); }, [filtros, orden, busqueda]);
@@ -147,10 +161,10 @@ export default function PlanesPage() {
   useEffect(() => {
     setFiltros((f) => ({ ...f, precioMin: precioRango.min, precioMax: precioRango.max }));
   }, [precioRango]);
-  const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
-  const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });  
 
-  
+  const isFav = (plan: Plan) => favoritos.some((f: any) => f.id_crc === plan.id_crc || f.id === plan.id);
+  const handleFav = (plan: Plan) => toggleFavorito({ id_crc: plan.id_crc!, operador: plan.operador, nombre: plan.nombre, precio: plan.precio, tipo: plan.tipo });
+
   const stats = useMemo(() => {
     if (planes.length === 0) return null;
     const precios = planes.map((p) => p.precio);
