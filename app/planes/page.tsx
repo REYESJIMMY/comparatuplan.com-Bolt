@@ -118,12 +118,24 @@ export default function PlanesPage() {
 
     const { data, count, error } = await q;
     if (!error && data) {
-      setPlanes(reset ? (data as Plan[]) : (prev) => [...prev, ...(data as Plan[])]);
-      setTotal(count ?? 0);
-      if (!reset) setPage((p) => p + 1);
+      let rows = data as Plan[];
+
+     // Cuando el filtro es Móvil, prioriza pospago (contratable/comparable)
+    // sobre prepago (recarga), sin romper el orden de precio dentro de cada grupo.
+    if (filtros.tipo === "movil") {
+      rows = [...rows].sort((a, b) => {
+        const aPos = (a.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+        const bPos = (b.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+        return aPos - bPos;
+      });
     }
-    setLoading(false);
-    setLoadingMore(false);
+
+    setPlanes(reset ? rows : (prev) => [...prev, ...rows]);
+    setTotal(count ?? 0);
+    if (!reset) setPage((p) => p + 1);
+  }
+  setLoading(false);
+  setLoadingMore(false);
   }, [filtros, orden, busqueda, page]);
 
   useEffect(() => { fetchPlanes(true); }, [filtros, orden, busqueda]);
