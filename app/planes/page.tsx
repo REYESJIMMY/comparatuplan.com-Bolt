@@ -134,14 +134,12 @@ export default function PlanesPage() {
         const bAliado = ALIADOS.includes(b.operador) ? 0 : 1;
         if (aAliado !== bAliado) return aAliado - bAliado;
 
-        // 2. Si el filtro es Móvil, pospago antes que prepago
-        if (filtros.tipo === "movil") {
-          const aPos = (a.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
-          const bPos = (b.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
-          if (aPos !== bPos) return aPos - bPos;
-        }
+        // 2. Pospago antes que prepago (siempre, no solo en filtro Móvil)
+        const aPos = (a.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+        const bPos = (b.modalidad ?? "").toLowerCase().includes("pos") ? 0 : 1;
+        if (aPos !== bPos) return aPos - bPos;
 
-        return 0; // conserva el orden de precio que ya trajo la query de Supabase
+        return 0;
       });
 
       setPlanes(reset ? rows : (prev) => [...prev, ...rows]);
