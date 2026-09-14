@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { X, Scale } from "lucide-react";
 import { C } from "@/lib/constants";
 import type { Plan } from "./PlanCard";
@@ -36,10 +37,12 @@ export const CompareBar = ({ planes, onRemove, onClear, onOpen }: {
 };
 
 export const CompareModal = ({ planes, onClose }: { planes: Plan[]; onClose: () => void }) => {
+  const [modo, setModo] = useState<"todas" | "diferencias">("todas");
+
   const rows: { label: string; get: (p: Plan) => string }[] = [
     { label: "Operador",   get: (p) => p.operador },
     { label: "Plan",       get: (p) => p.nombre },
-    { label: "Precio/mes", get: (p) => `$${p.precio.toLocaleString("es-CO")}` },
+    { label: "Precio/mes", get: (p) => `$${(typeof p.precio === "string" ? parseFloat(p.precio) : p.precio).toLocaleString("es-CO")}` },
     { label: "Velocidad",  get: (p) => p.velocidad_mbps ? `${p.velocidad_mbps} Mbps` : "—" },
     { label: "Datos",      get: (p) => p.datos_gb == null ? "—" : p.datos_gb === -1 ? "Ilimitados" : `${p.datos_gb} GB` },
     { label: "Canales TV", get: (p) => p.canales_tv ? `${p.canales_tv}` : "—" },
@@ -48,13 +51,40 @@ export const CompareModal = ({ planes, onClose }: { planes: Plan[]; onClose: () 
     { label: "Tecnología", get: (p) => p.tecnologia ?? "—" },
   ];
 
+  const filasVisibles =
+    modo === "todas"
+      ? rows
+      : rows.filter((r) => {
+          const valores = planes.map(r.get);
+          return !valores.every((v) => v === valores[0]);
+        });
+
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(4,4,15,0.92)", backdropFilter: "blur(12px)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#0d0d1a", border: `1px solid ${C.border}`, borderRadius: 18, padding: 24, maxWidth: 720, width: "100%", maxHeight: "85vh", overflowY: "auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <h2 style={{ color: "#fff", fontWeight: 900, fontSize: 17 }}>Comparación de planes</h2>
           <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", color: "#fff" }}>✕</button>
         </div>
+
+        {/* Toggle: Todas las características / Solo las diferencias */}
+        <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", border: `1px solid ${C.borderSoft}`, borderRadius: 10, padding: 3, marginBottom: 16 }}>
+          {(["todas", "diferencias"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setModo(m)}
+              style={{
+                padding: "7px 14px", borderRadius: 7, border: "none",
+                background: modo === m ? "linear-gradient(135deg,#0070cc,#0050aa)" : "transparent",
+                color: modo === m ? "#fff" : "rgba(180,195,230,0.5)",
+                fontWeight: 700, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
+              }}
+            >
+              {m === "todas" ? "Todas las características" : "Solo las diferencias"}
+            </button>
+          ))}
+        </div>
+
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
             <thead>
@@ -66,14 +96,22 @@ export const CompareModal = ({ planes, onClose }: { planes: Plan[]; onClose: () 
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
-                <tr key={r.label} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
-                  <td style={{ padding: "9px 10px", color: C.muted, fontSize: 12, fontWeight: 600 }}>{r.label}</td>
-                  {planes.map((p) => (
-                    <td key={p.id_crc ?? p.id} style={{ padding: "9px 10px", color: "#fff", fontSize: 12 }}>{r.get(p)}</td>
-                  ))}
+              {filasVisibles.length === 0 ? (
+                <tr>
+                  <td colSpan={planes.length + 1} style={{ padding: "20px 10px", color: C.muted, fontSize: 12.5, textAlign: "center" }}>
+                    No hay diferencias entre los planes seleccionados.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                filasVisibles.map((r, i) => (
+                  <tr key={r.label} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                    <td style={{ padding: "9px 10px", color: C.muted, fontSize: 12, fontWeight: 600 }}>{r.label}</td>
+                    {planes.map((p) => (
+                      <td key={p.id_crc ?? p.id} style={{ padding: "9px 10px", color: "#fff", fontSize: 12 }}>{r.get(p)}</td>
+                    ))}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
