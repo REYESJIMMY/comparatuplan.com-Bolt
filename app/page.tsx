@@ -111,8 +111,8 @@ export default function Home() {
       )}
 
       {/* GameFlow Hogar */}
-      {view === "game" && <GameFlow onBack={() => setView("landing")} />}
-
+      {view === "game" && <GameFlow onBack={() => setView("landing")} onNomada={() => setView("nomada")} />}
+      
       {/* MovilFlow */}
       {view === "movil" && <MovilFlow onBack={() => setView("landing")} />}
       
