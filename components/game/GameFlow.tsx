@@ -352,8 +352,11 @@ const NivelModal = ({
         {AVATARS.map((av) => {
           const sel = avatar?.id === av.id;
           return (
-            <div key={av.id} onClick={() => { setAvatar(av); disparar(CAPSULA_POR_AVATAR[av.id]); }} style={{
-              cursor: "pointer", textAlign: "center", padding: "20px 10px",
+            <div key={av.id} onClick={() => {
+              if (av.id === "nomada") { onNomada?.(); return; }
+              setAvatar(av);
+              disparar(CAPSULA_POR_AVATAR[av.id]);
+            }} style={{
               background: sel ? `${av.color}12` : "rgba(255,255,255,0.02)",
               border: `2px solid ${sel ? av.color : C.borderSoft}`,
               borderRadius: 14, transition: "all .2s",
