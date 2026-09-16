@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Check, Search, Zap, Shield, BookOpen, ShoppingCart, ArrowRight, MapPin, ExternalLink } from "lucide-react";
+import { Check, Search, Zap, Shield, BookOpen, ShoppingCart, ArrowRight, MapPin, ExternalLink, ListChecks, MessageCircle } from "lucide-react";
 import { C, openWA } from "@/lib/constants";
 import { GlowBtn, WABtn, Card, Chip, Particles } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
