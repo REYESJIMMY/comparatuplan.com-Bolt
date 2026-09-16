@@ -13,9 +13,8 @@ import { CoberturaForm, type UbicacionData } from "@/components/game/CoberturaFo
 import { SegmentSelector } from "@/components/game/SegmentSelector";
 import {
   Hero, OfertasHotSection, FeaturedPlans, Companies,
-  ReferieGanaSection, Offers, SocialSection, Blog, Sidebar, QuizFlow,
+  Offers, Blog, Sidebar, QuizFlow,
 } from "@/components/sections";
-
 type View = "landing" | "cobertura" | "segment" | "game" | "movil" | "nomada" | "quiz";
 
 interface CartItem {
