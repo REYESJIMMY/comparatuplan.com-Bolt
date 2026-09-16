@@ -475,9 +475,31 @@ interface SidebarProps {
   onNomada:  () => void;
   onSegment: () => void;
 }
-export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) => {
+export const Sidebar = ({ onMovil }: SidebarProps) => {
   const { theme } = useTheme();
   const L = theme === "light";
+  const [stats, setStats] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.rpc("estadisticas_operadores").then(({ data, error }) => {
+      if (error || !data) { console.error("Error cargando estadísticas:", error); return; }
+      const filas = data as any[];
+      const masPlanesRow = [...filas].sort((a, b) => b.total_planes - a.total_planes)[0];
+      const conPrecio = filas.filter((f) => f.precio_promedio != null && f.precio_promedio > 0);
+      const menorPrecioRow = [...conPrecio].sort((a, b) => (a.precio_promedio - b.precio_promedio))[0];
+      const conVelocidad = filas.filter((f) => f.velocidad_promedio != null && f.velocidad_promedio > 0);
+      const mayorVelocidadRow = [...conVelocidad].sort((a, b) => (b.velocidad_promedio - a.velocidad_promedio))[0];
+      const conAmbos = filas.filter((f) => f.precio_promedio && f.velocidad_promedio);
+      const mejorCostoBeneficioRow = [...conAmbos].sort((a, b) => (a.precio_promedio / a.velocidad_promedio) - (b.precio_promedio / b.velocidad_promedio))[0];
+
+      setStats({
+        masPlanes: masPlanesRow ? { operador: masPlanesRow.operador, valor: `${Number(masPlanesRow.total_planes).toLocaleString("es-CO")} planes` } : null,
+        menorPrecio: menorPrecioRow ? { operador: menorPrecioRow.operador, valor: `$${Math.round(menorPrecioRow.precio_promedio).toLocaleString("es-CO")}` } : null,
+        mayorVelocidad: mayorVelocidadRow ? { operador: mayorVelocidadRow.operador, valor: `${Math.round(mayorVelocidadRow.velocidad_promedio)} Mbps` } : null,
+        mejorCostoBeneficio: mejorCostoBeneficioRow ? { operador: mejorCostoBeneficioRow.operador, valor: "Mejor precio/Mbps" } : null,
+      });
+    });
+  }, []);
 
   const cardStyle = {
     background: L ? "#ffffff" : "rgba(255,255,255,0.02)",
@@ -486,21 +508,18 @@ export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) 
     boxShadow: L ? "0 1px 4px rgba(0,0,0,0.04)" : "none",
   };
 
+  const ACCESOS = [
+    { emoji: "📡", title: "Internet Hogar", desc: "Fibra desde $59.900",  color: L ? "#00b8d4" : C.cyan,  action: () => window.location.href = "/planes?tipo=internet" },
+    { emoji: "📱", title: "Planes Móviles", desc: "Prepago o pospago",    color: L ? "#7c3aed" : C.neon2, action: onMovil },
+    { emoji: "⚡", title: "Ofertas Hot",     desc: "Promociones del día", color: C.red,                   action: () => window.location.href = "/ofertas" },
+  ];
+
   return (
     <aside className="side-col">
-      {/* Accesos rápidos */}
       <div style={cardStyle}>
         <div style={{ color: L ? "#64748b" : "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 9 }}>ACCESOS RÁPIDOS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {[
-            { emoji: "📍", title: "Consulta Cobertura", desc: "Hogar o Móvil en tu zona",  color: L ? "#1a56db" : C.neon,   action: onSegment },
-            { emoji: "📡", title: "Internet Hogar",     desc: "Fibra desde $59.900",        color: L ? "#00b8d4" : C.cyan,   action: onGame    },
-            { emoji: "📱", title: "Planes Móviles",     desc: "Datos ilimitados",            color: L ? "#7c3aed" : C.neon2,  action: onMovil   },
-            { emoji: "🏠", title: "Hogar Digital",      desc: "Diseña tu red ideal",         color: L ? "#f59e0b" : C.yellow, action: onGame    },
-            { emoji: "🧭", title: "Mundo Nómada",       desc: "Viajas? Te conectamos allá",  color: L ? "#f59e0b" : C.yellow, action: onNomada  },
-            { emoji: "⚡", title: "Ofertas Hot",         desc: "Promociones del día",         color: C.red,                    action: () => window.location.href = "/ofertas" },
-            { emoji: "📋", title: "Ver catálogo",       desc: "Todos los planes",            color: L ? "#3ab54a" : C.green,  action: () => window.location.href = "/planes"  },
-          ].map((item, i) => (
+          {ACCESOS.map((item, i) => (
             <div key={i} onClick={item.action} style={{
               display: "flex", alignItems: "center", gap: 10,
               background: L ? "#f8fafc" : "rgba(255,255,255,0.02)",
@@ -520,7 +539,6 @@ export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) 
         </div>
       </div>
 
-      {/* Buscar planes */}
       <div style={cardStyle}>
         <div style={{ color: L ? "#64748b" : "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 8 }}>BUSCAR PLANES</div>
         <div style={{ position: "relative" }}>
@@ -534,20 +552,26 @@ export const Sidebar = ({ onGame, onMovil, onNomada, onSegment }: SidebarProps) 
         </div>
       </div>
 
-      {/* Estadísticas */}
       <div style={cardStyle}>
-        <div style={{ color: L ? "#64748b" : "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 10 }}>ESTADÍSTICAS HOY</div>
-        {[
-          { label: "Operadores comparados", val: "+15",   color: L ? "#1a56db" : C.neon  },
-          { label: "Usuarios beneficiados",  val: "1.5K+", color: L ? "#3ab54a" : C.green },
-          { label: "Ahorro promedio (mes)",  val: "$38K",  color: L ? "#3ab54a" : C.green },
-          { label: "Planes disponibles",     val: "+14K",  color: L ? "#1a56db" : C.neon  },
-        ].map((s, i, arr) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < arr.length - 1 ? `1px solid ${L ? "#f1f5f9" : "rgba(255,255,255,0.04)"}` : "none" }}>
-            <span style={{ color: L ? "#64748b" : C.muted, fontSize: 10 }}>{s.label}</span>
-            <span style={{ color: s.color, fontWeight: 800, fontSize: 11 }}>{s.val}</span>
-          </div>
-        ))}
+        <div style={{ color: L ? "#64748b" : "rgba(0,212,255,0.35)", fontSize: 9, fontWeight: 800, letterSpacing: 1.5, marginBottom: 10 }}>ESTADÍSTICAS REALES</div>
+        {!stats ? (
+          <div style={{ color: L ? "#94a3b8" : C.muted, fontSize: 10.5, padding: "6px 0" }}>Cargando…</div>
+        ) : (
+          [
+            { label: "Más planes activos",      data: stats.masPlanes,           color: L ? "#1a56db" : C.neon  },
+            { label: "Precio promedio más bajo", data: stats.menorPrecio,         color: L ? "#3ab54a" : C.green },
+            { label: "Mayor velocidad promedio", data: stats.mayorVelocidad,      color: L ? "#7c3aed" : C.neon2 },
+            { label: "Mejor costo-beneficio",    data: stats.mejorCostoBeneficio, color: L ? "#f59e0b" : C.yellow },
+          ].map((s, i, arr) => s.data && (
+            <div key={i} style={{ padding: "7px 0", borderBottom: i < arr.length - 1 ? `1px solid ${L ? "#f1f5f9" : "rgba(255,255,255,0.04)"}` : "none" }}>
+              <div style={{ color: L ? "#64748b" : C.muted, fontSize: 9.5, marginBottom: 2 }}>{s.label}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: s.color, fontWeight: 800, fontSize: 12 }}>{s.data.operador}</span>
+                <span style={{ color: L ? "#94a3b8" : "rgba(180,195,230,0.5)", fontSize: 10 }}>{s.data.valor}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </aside>
   );
