@@ -19,9 +19,6 @@ interface HeroProps {
 export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
   const { theme } = useTheme();
   const L = theme === "light";
-  const [mayor, setMayor] = useState(false);
-  const [habea, setHabea] = useState(false);
-  const ready = mayor && habea;
 
   return (
     <section style={{
@@ -29,13 +26,12 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
       border: `1px solid ${L ? "#e2e8f0" : C.border}`,
       background: L ? "#ffffff" : "rgba(6,4,22,0.7)",
       padding: "clamp(28px,5vw,48px) clamp(16px,4vw,32px) 40px",
-      minHeight: 330,
+      minHeight: 300,
       boxShadow: L ? "0 2px 12px rgba(0,0,0,0.06)" : "none",
     }}>
       {!L && <Particles count={30} />}
       <div style={{ position: "relative", zIndex: 2 }}>
 
-        {/* Badge */}
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 7,
           background: L ? "#e8f5e9" : "rgba(0,212,255,0.08)",
@@ -46,7 +42,6 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
           <span style={{ color: L ? "#2e7d32" : C.neon, fontSize: 11, fontWeight: 700 }}>+1.500 usuarios ahorran cada mes</span>
         </div>
 
-        {/* H1 */}
         <h1 style={{ fontSize: "clamp(1.7rem,4vw,2.7rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: 12, color: L ? "#0d1b2e" : "#fff", letterSpacing: -1 }}>
           Compara y desbloquea el<br />
           <span className="hero-gradient-text">
@@ -55,71 +50,47 @@ export const Hero = ({ onGame, onMovil, onSegment }: HeroProps) => {
           <span style={{ display: "block" }}>todo desde un solo lugar</span>
         </h1>
 
-        <p style={{ fontSize: 14, color: L ? "#475569" : "rgba(180,195,230,0.75)", marginBottom: 22, maxWidth: 460, lineHeight: 1.65 }}>
+        <p style={{ fontSize: 14, color: L ? "#475569" : "rgba(180,195,230,0.75)", marginBottom: 26, maxWidth: 460, lineHeight: 1.65 }}>
           Ahorra hasta un <strong style={{ color: L ? "#0d1b2e" : "#fff" }}>40% en tu factura</strong>. Análisis inteligente de planes en segundos.
         </p>
 
-        {/* Auth box */}
-        <div style={{
-          background: L ? "#f8fafc" : "rgba(0,212,255,0.04)",
-          border: `1px solid ${L ? "#e2e8f0" : C.border}`,
-          borderRadius: 11, padding: "12px 15px", marginBottom: 20, maxWidth: 420,
-        }}>
-          <div style={{ color: L ? "#94a3b8" : "rgba(0,212,255,0.3)", fontSize: 9, fontWeight: 800, letterSpacing: 1, marginBottom: 9 }}>AUTORIZACIÓN DE DATOS</div>
-          <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", marginBottom: 7 }}>
-            <div onClick={() => setMayor(!mayor)} style={{
-              width: 15, height: 15, borderRadius: 4,
-              border: `2px solid ${mayor ? (L ? "#1a56db" : C.neon) : (L ? "#cbd5e1" : "rgba(255,255,255,0.15)")}`,
-              background: mayor ? (L ? "#1a56db" : C.neon) : "transparent",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all .2s", flexShrink: 0, cursor: "pointer",
-            }}>
-              {mayor && <Check size={8} color="#fff" strokeWidth={3} />}
-            </div>
-            <span style={{ color: L ? "#475569" : "rgba(180,190,220,0.65)", fontSize: 11, fontWeight: 600 }}>Soy mayor de edad (18+)</span>
-          </label>
-          <label style={{ display: "flex", alignItems: "flex-start", gap: 9, cursor: "pointer" }}>
-            <div onClick={() => setHabea(!habea)} style={{
-              width: 15, height: 15, borderRadius: 4,
-              border: `2px solid ${habea ? (L ? "#1a56db" : C.neon) : (L ? "#cbd5e1" : "rgba(255,255,255,0.15)")}`,
-              background: habea ? (L ? "#1a56db" : C.neon) : "transparent",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all .2s", flexShrink: 0, cursor: "pointer", marginTop: 1,
-            }}>
-              {habea && <Check size={8} color="#fff" strokeWidth={3} />}
-            </div>
-            <span style={{ color: L ? "#475569" : "rgba(180,190,220,0.65)", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              Acepto la{" "}
-              <a href="/politica-de-datos" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                style={{ color: L ? "#1a56db" : C.neon, textDecoration: "underline" }}>
-                Política de Tratamiento de Datos Personales
-              </a>{" "}
-              conforme a la Ley 1581 de 2012
-            </span>
-          </label>
+        <div className="hero-actions" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "stretch", marginBottom: 14 }}>
+          <div>
+            <GlowBtn onClick={onGame} gradient={L ? "linear-gradient(135deg,#1a56db,#3b82f6)" : "linear-gradient(135deg,#6600cc,#a855f7)"} glow={L ? "#1a56db" : C.neon2} style={{ borderRadius: 11, padding: "11px 22px", fontSize: 14 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><Zap size={14} />Diseñar hogar digital</span>
+            </GlowBtn>
+            <div style={{ marginTop: 5, color: L ? "#1a56db" : C.neon2, fontSize: 10, fontWeight: 700, textAlign: "center" }}>Simulador interactivo</div>
+          </div>
+
+          <div>
+            <GlowBtn onClick={() => window.location.href = "/planes"} gradient="linear-gradient(135deg,#059669,#10b981)" glow={L ? "#059669" : C.green} style={{ borderRadius: 11, padding: "11px 22px", fontSize: 14 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><ListChecks size={14} />Comparador de planes</span>
+            </GlowBtn>
+            <div style={{ marginTop: 5, color: L ? "#059669" : C.green, fontSize: 10, fontWeight: 700, textAlign: "center" }}>Explora y compara</div>
+          </div>
+
+          <div>
+            <GlowBtn onClick={onSegment} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={L ? "#1a56db" : C.neon} style={{ borderRadius: 11, padding: "11px 22px", fontSize: 14 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><MapPin size={14} />Consulta tu cobertura</span>
+            </GlowBtn>
+            <div style={{ marginTop: 5, color: L ? "#3ab54a" : C.green, fontSize: 10, fontWeight: 700, textAlign: "center" }}>Hogar · Móvil</div>
+          </div>
         </div>
 
-        {/* CTAs */}
-        <div className="hero-actions" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <div>
-            <GlowBtn onClick={onSegment} disabled={!ready} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={L ? "#1a56db" : C.neon} style={{ borderRadius: 11, padding: "11px 24px", fontSize: 14 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><MapPin size={14} />Consulta tu Cobertura<ArrowRight size={12} /></span>
-            </GlowBtn>
-            <div style={{ marginTop: 5, color: L ? "#3ab54a" : C.green, fontSize: 10, fontWeight: 700, textAlign: "center" }}>🏠 Hogar · 📱 Móvil</div>
-          </div>
-          <div>
-            <GlowBtn onClick={onGame} disabled={!ready} gradient={L ? "linear-gradient(135deg,#1a56db,#3b82f6)" : "linear-gradient(135deg,#6600cc,#a855f7)"} glow={L ? "#1a56db" : C.neon2} style={{ borderRadius: 11, padding: "11px 22px", fontSize: 14 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 7 }}><Zap size={14} />Diseñar Hogar Digital</span>
-            </GlowBtn>
-            <div style={{ marginTop: 5, color: L ? "#1a56db" : C.neon2, fontSize: 10, fontWeight: 700, textAlign: "center" }}>🏠 Misión 3D</div>
-          </div>
-          <WABtn name="asesoría personalizada" label="Asesor WhatsApp" style={{ borderRadius: 11, padding: "11px 18px", fontSize: 14 }} />
-        </div>
+        <button
+          onClick={() => openWA("asesoría personalizada")}
+          style={{
+            background: "none", border: "none", cursor: "pointer", padding: 0,
+            display: "flex", alignItems: "center", gap: 6,
+            color: L ? "#3ab54a" : C.green, fontSize: 12, fontWeight: 600,
+          }}
+        >
+          <MessageCircle size={13} />¿Prefieres hablar con un asesor? Escríbenos por WhatsApp
+        </button>
       </div>
     </section>
   );
 };
-
 /* ── Ofertas Hot ─────────────────────────────────────────────── */
 export const OfertasHotSection = () => {
   const { theme } = useTheme();
