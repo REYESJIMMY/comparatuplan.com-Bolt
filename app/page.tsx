@@ -144,13 +144,9 @@ export default function Home() {
               <FeaturedPlans onSegment={() => setView("cobertura")} addToCart={addToCart} />
               {/* 4. Empresas */}
               <Companies />
-              {/* 5. Refiere & Gana — con link a Apprecio */}
-              <ReferieGanaSection />
-              {/* 6. Equipos tech */}
+              {/* 5. Equipos tech */}
               <Offers addToCart={addToCart} />
-              {/* 7. ETB Social — al final */}
-              <SocialSection />
-              {/* 8. Blog */}
+              {/* 6. Blog */}
               <Blog />
             </main>
             <Sidebar
