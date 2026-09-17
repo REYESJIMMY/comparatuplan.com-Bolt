@@ -20,7 +20,7 @@ const MENUS: Record<string, any> = {
         { ic: "🏠", t: "Inicio",             d: "Página principal",        href: "/" },
         { ic: "🔍", t: "Consulta Cobertura", d: "Busca planes en tu zona", action: "cobertura" },
         { ic: "⭐", t: "Más Populares",      d: "Top planes del mes",      href: "/planes?tipo=internet" },
-        { ic: "📊", t: "Todos los planes",   d: "Catálogo completo",       href: "/planes" },
+        { ic: "📊", t: "Comparador de Planes", d: "Todos los planes",      href: "/planes" },
       ]},
       { title: "Herramientas", color: C.neon2, items: [
         { ic: "🏠", t: "Diseñar Hogar Digital", d: "Configura tu casa",      action: "game" },
