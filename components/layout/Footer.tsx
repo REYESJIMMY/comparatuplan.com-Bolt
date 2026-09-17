@@ -57,7 +57,7 @@ export const Footer = () => (
               {col.title.toUpperCase()}
             </div>
             {col.links.map((l) => (
-  
+                <a
                 key={typeof l === "string" ? l : l.label}
                 href={typeof l === "string" ? "#" : l.href}
                 style={{ display: "block", color: C.muted, fontSize: 11, fontWeight: 600, textDecoration: "none", marginBottom: 7, transition: "color .14s" }}
