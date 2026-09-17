@@ -511,9 +511,8 @@ export const Sidebar = ({ onMovil }: SidebarProps) => {
   const ACCESOS = [
     { emoji: "📡", title: "Internet Hogar", desc: "Fibra desde $59.900",  color: L ? "#00b8d4" : C.cyan,  action: () => window.location.href = "/planes?tipo=internet" },
     { emoji: "📱", title: "Planes Móviles", desc: "Prepago o pospago",    color: L ? "#7c3aed" : C.neon2, action: onMovil },
-    { emoji: "⚡", title: "Ofertas Hot",     desc: "Promociones del día", color: C.red,                   action: () => window.location.href = "/ofertas" },
-  ];
-
+  ];  
+  
   return (
     <aside className="side-col">
       <div style={cardStyle}>
