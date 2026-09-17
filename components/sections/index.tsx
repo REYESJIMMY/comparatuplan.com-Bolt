@@ -590,7 +590,7 @@ export const QuizFlow = ({ onBack }: { onBack: () => void }) => {
       <p style={{ color: L ? "#64748b" : "rgba(180,195,230,0.6)", marginBottom: 24, fontSize: 14 }}>Próximamente: comparador inteligente con filtros avanzados.</p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
         <GlowBtn onClick={() => window.location.href = "/planes"} gradient="linear-gradient(135deg,#0070cc,#0050aa)" glow={C.neon} style={{ padding: "11px 24px", borderRadius: 11 }}>
-          Ver catálogo completo →
+          Ir al comparador de planes →
         </GlowBtn>
         <button onClick={onBack} style={{ padding: "11px 20px", borderRadius: 11, border: `1px solid ${L ? "#e2e8f0" : C.borderSoft}`, background: L ? "#ffffff" : "transparent", color: L ? "#475569" : C.muted, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
           ← Volver
