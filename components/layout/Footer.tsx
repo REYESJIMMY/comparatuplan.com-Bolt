@@ -63,7 +63,7 @@ export const Footer = () => (
                 style={{ display: "block", color: C.muted, fontSize: 11, fontWeight: 600, textDecoration: "none", marginBottom: 7, transition: "color .14s" }}
                 onMouseEnter={(e: any) => e.currentTarget.style.color = C.neon}
                 onMouseLeave={(e: any) => e.currentTarget.style.color = C.muted}
-              >{l}</a>
+              >{typeof l === "string" ? l : l.label}</a>
             ))}
           </div>
         ))}
