@@ -184,7 +184,7 @@ const MobileMenu = ({ open, onClose, onAction }: { open: boolean; onClose: () =>
     { label: "Consulta tu Cobertura", icon: "📍", action: "cobertura" },
     { label: "Diseñar Hogar Digital", icon: "🏠", action: "game" },
     { label: "Planes Móviles",        icon: "📱", action: "movil" },
-    { label: "Ver catálogo",          icon: "📋", href: "/planes" },
+    { label: "Comparador de Planes",  icon: "📋", href: "/planes" },
     { label: "Ofertas Hot",           icon: "⚡", href: "/ofertas" },
     { label: "Ecosistema",            icon: "🌐", href: "https://wa.me/573057876992?text=Hola, me interesa el ecosistema de servicios" },
     { label: "Empresas",              icon: "🏢", href: "https://wa.me/573057876992?text=Hola, me interesa soluciones para empresas" },
