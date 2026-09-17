@@ -46,7 +46,11 @@ export const Footer = () => (
         {[
           { title: "Servicios", links: ["Internet Hogar", "Planes Móviles", "TV + Streaming", "Combos"] },
           { title: "Empresas",  links: ["PBX Virtual", "WhatsApp IA", "VoIP", "Fibra Dedicada"] },
-          { title: "Legal",     links: ["Términos y Condiciones", "Política de Privacidad", "Habeas Data"] },
+          { title: "Legal", links: [
+          { label: "Política de Privacidad", href: "/politica-de-datos" },
+          { label: "Habeas Data",            href: "/politica-de-datos" },
+        ] },
+
         ].map((col) => (
           <div key={col.title}>
             <div style={{ color: "rgba(0,212,255,0.3)", fontSize: 8.5, fontWeight: 800, letterSpacing: 1.5, marginBottom: 10 }}>
